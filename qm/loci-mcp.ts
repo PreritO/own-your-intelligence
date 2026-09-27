@@ -6,15 +6,16 @@
 //
 // Register it in QM, one connector per team agent. QM's MCP client POSTs JSON-RPC to `${url}/mcp`,
 // with no initialize handshake, and it accepts plain JSON replies (src/mcp/mcp-client.ts):
-//   curl -XPUT localhost:8081/v1/admin/mcp-servers/loci_legal   -d '{"url":"http://localhost:8791/legal","auth":"none","enabled":true}'
-//   curl -XPUT localhost:8081/v1/admin/mcp-servers/loci_finance -d '{"url":"http://localhost:8791/finance","auth":"none","enabled":true}'
-//   curl -XPUT localhost:8081/v1/admin/mcp-servers/loci_eng     -d '{"url":"http://localhost:8791/eng","auth":"none","enabled":true}'
-// QM exposes these as tools like `loci_legal_visit`. Upstream QM passes the principal to MCP servers
+//   curl -XPUT localhost:8081/v1/admin/mcp-servers/loci-legal   -d '{"url":"http://localhost:8791/legal","auth":"none","enabled":true}'
+//   curl -XPUT localhost:8081/v1/admin/mcp-servers/loci-finance -d '{"url":"http://localhost:8791/finance","auth":"none","enabled":true}'
+//   curl -XPUT localhost:8081/v1/admin/mcp-servers/loci-eng     -d '{"url":"http://localhost:8791/eng","auth":"none","enabled":true}'
+// QM exposes these as tools like `loci-legal_visit`. Upstream QM passes the principal to MCP servers
 // but not the scope, and connectors are visible org-wide, so the agent id comes from the URL path.
 // The fork change in qm/FORK.md §1 injects `_qm.scopeId`. When present, it overrides the path.
 const PORT = Number(process.env.LOCI_MCP_PORT ?? 8791);
 const PROTOCOL_URL = (process.env.PROTOCOL_URL ?? "http://localhost:8790").replace(/\/$/, "");
 const PREFIX = process.env.LOCI_TOOL_PREFIX ?? ""; // e.g. "/tools" if the service mounts tools there
+const SHARED_RUN = process.env.LOCI_RUN ?? ""; // optional fixed protocol run id; default = the service's current run
 const AGENTS = new Set(["legal", "finance", "eng"]);
 const SCOPE_TO_AGENT: Record<string, string> = { "channel:legal": "legal", "channel:finance": "finance", "channel:eng": "eng" };
 
@@ -65,10 +66,13 @@ const err = (id: Rpc["id"], code: number, message: string) => Response.json({ js
 async function callTool(agentFromPath: string, name: string, args: Record<string, unknown>) {
   const { _qm, ...rest } = args as { _qm?: { scopeId?: string; sessionId?: string; runId?: string } };
   const agent = (_qm?.scopeId && SCOPE_TO_AGENT[_qm.scopeId]) || agentFromPath;
+  console.log(`→ ${agent}.${name}(${JSON.stringify(rest)})${_qm?.scopeId ? ` scope=${_qm.scopeId}` : ""}`);
   const res = await fetch(`${PROTOCOL_URL}${PREFIX}/${name}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ agent, ...rest, ...(_qm?.runId ? { run: _qm.runId } : {}) }),
+    // All three team agents must share one protocol run, so handoffs, claims and waits can cross agents.
+    // Each QM turn has its own runId, so that id is passed as qmRunId, not as the protocol `run`.
+    body: JSON.stringify({ agent, ...rest, ...(SHARED_RUN ? { run: SHARED_RUN } : {}), ...(_qm?.runId ? { qmRunId: _qm.runId } : {}) }),
     signal: AbortSignal.timeout(15000),
   });
   const body = await res.text();

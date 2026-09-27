@@ -122,6 +122,28 @@ function endRun(reason: string) {
   if (r.learn) learnFromRun(r).catch((e) => console.warn("learn failed:", e));
 }
 
+// Referential check against our palace.json, the same checks `bun run validate` runs on replays.
+// Loaded once. If the palace can't be read, the check is skipped.
+const known = (() => {
+  try {
+    const p = loadPalace();
+    return {
+      mem: new Set(p.memories.map((m) => m.id)),
+      agent: new Set(p.agents.map((a) => a.id)),
+      room: new Set(p.rooms.map((r) => r.id)),
+    };
+  } catch {
+    return null;
+  }
+})();
+function unknownRef(ev: PalaceEvent): string | null {
+  if (!known) return null;
+  if (known.agent.size && !known.agent.has(ev.agent)) return `unknown agent ${ev.agent}`;
+  if ("memoryId" in ev && !known.mem.has(ev.memoryId)) return `unknown memory ${ev.memoryId}`;
+  if (ev.type === "move" && !known.room.has(ev.to)) return `unknown room ${ev.to}`;
+  return null;
+}
+
 // Stamp, clamp and fan out one event. t stays the harness's logical seconds-since-dispatch; if it is
 // missing or goes backwards we fall back to wall clock / last t so replays stay monotonic.
 function emit(r: Run, raw: unknown): boolean {
@@ -136,6 +158,13 @@ function emit(r: Run, raw: unknown): boolean {
     return false;
   }
   const ev = parsed.data;
+  const unknown = unknownRef(ev);
+  if (unknown) {
+    // The harness or service may be looking at a different palace.json. The renderer and
+    // `bun run validate` only know this one, so such an event would break both.
+    console.warn(`✗ dropped event with ${unknown}: ${JSON.stringify(raw).slice(0, 160)}`);
+    return false;
+  }
   r.lastT = ev.t;
   r.events.push(ev);
   if (r.file) appendFileSync(r.file, JSON.stringify(ev) + "\n");

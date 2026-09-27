@@ -1,0 +1,27 @@
+[project]
+name = "ufo-ext-mindpalace"
+version = "0.1.0"
+description = "Mind Palace extension for UFO: loci protocol tools, per-team GBrain scope, Loose End loop, scripted loci-walker model"
+requires-python = ">=3.12"
+# `ufo` (ufo.sdk) is provided by the host UFO install; the package itself needs nothing else.
+dependencies = []
+
+[project.entry-points."ufo.extension"]
+mindpalace = "ufo_ext_mindpalace.manifest:manifest"
+
+[project.entry-points."ufo.pack"]
+mindpalace_pack = "ufo_ext_mindpalace.manifest:pack"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ufo_ext_mindpalace"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "../server/protocol"]

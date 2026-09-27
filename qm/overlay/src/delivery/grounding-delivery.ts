@@ -13,10 +13,18 @@ import type { DeliveryStore } from "./delivery-store.ts";
 
 const PROTOCOL_URL = (process.env.LOCI_PROTOCOL_URL ?? "http://localhost:8790").replace(/\/$/, "");
 const PALACE_URL = (process.env.LOCI_PALACE_URL ?? "http://localhost:5173").replace(/\/$/, "");
+// Team scopes: channel:legal|finance|eng, plus any in LOCI_SCOPES ({"group:web-project-…": "legal", …}).
 const SCOPE_TO_AGENT: Record<string, string> = {
   "channel:legal": "legal",
   "channel:finance": "finance",
   "channel:eng": "eng",
+  ...(() => {
+    try {
+      return JSON.parse(process.env.LOCI_SCOPES || "{}") as Record<string, string>;
+    } catch {
+      return {};
+    }
+  })(),
 };
 
 type Grounding = { verdict: "ok" | "annotate" | "block"; text?: string; reason?: string; run?: string };

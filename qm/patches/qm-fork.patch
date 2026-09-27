@@ -1,0 +1,73 @@
+diff --git a/src/harness/agent-tools.ts b/src/harness/agent-tools.ts
+index f6bfc8a..7ee213d 100644
+--- a/src/harness/agent-tools.ts
++++ b/src/harness/agent-tools.ts
+@@ -374,6 +374,18 @@ export function pauseStampAfterToolCall(
+   };
+ }
+ 
++// Mind Palace fork: which team agent (legal | finance | eng) a scope is. LOCI_SCOPES is a JSON map
++// {"<scopeId>": "<agent>"}; the scope id's own ref (channel:legal) is the fallback.
++function lociScopeAgent(scope: ScopeId | undefined): string | undefined {
++  if (!scope) return undefined;
++  try {
++    const map = JSON.parse(process.env.LOCI_SCOPES || "{}") as Record<string, string>;
++    if (map[scope]) return map[scope];
++  } catch {}
++  const ref = String(scope).slice(String(scope).indexOf(":") + 1);
++  return ["legal", "finance", "eng"].includes(ref) ? ref : undefined;
++}
++
+ export function createAgentTools(ref: ToolContextRef, opts?: AgentToolsOptions): ToolDefinition[] {
+   const processActions = {
+     start_process: "start",
+@@ -4039,8 +4051,27 @@ export function createAgentTools(ref: ToolContextRef, opts?: AgentToolsOptions):
+           const tc = ref.current;
+           if (!tc) return text("[error] no active tool context");
+           await recordCall(callId, { tool: d.name, mcpServer: d.serverId, args: params });
++          // Mind Palace fork: loci connectors are scope-bound. The harness refuses a team agent calling
++          // another team's connector, and tells the protocol service which scope is calling.
++          const lociArgs = { ...((params ?? {}) as Record<string, unknown>) };
++          if (d.serverId.startsWith("loci-")) {
++            const scopeAgent = lociScopeAgent(ref.scopeLabel);
++            const connectorAgent = d.serverId.slice("loci-".length);
++            if (scopeAgent !== connectorAgent) {
++              return recordResult(
++                callId,
++                { tool: d.name, mcpServer: d.serverId, failed: true },
++                text(
++                  `[refused by harness] ${d.name} belongs to the ${connectorAgent} agent; this scope is ` +
++                    `${scopeAgent ?? "not a team scope"}. Use your own loci-${scopeAgent ?? "<team>"}_handoff to ask ${connectorAgent}.`,
++                ),
++                true,
++              );
++            }
++            lociArgs._qm = { scopeId: ref.scopeLabel, runId: ref.runtimeRunId };
++          }
+           try {
+-            const out = await tc.callMcpTool(d.name, (params ?? {}) as Record<string, unknown>);
++            const out = await tc.callMcpTool(d.name, lociArgs);
+             return recordExternalResult(
+               callId,
+               { tool: d.name, mcpServer: d.serverId },
+diff --git a/src/wiring.ts b/src/wiring.ts
+index d2ec9d7..ff43a2a 100644
+--- a/src/wiring.ts
++++ b/src/wiring.ts
+@@ -160,6 +160,7 @@ import { createPostgresDeliveryStore } from "./delivery/postgres-delivery-store.
+ import { wireRunResultDeliveries } from "./delivery/run-result-delivery.ts";
+ import { adminSessionUrl } from "./util/admin-links.ts";
+ import { withWebTranscriptDeliveries } from "./delivery/web-transcript-delivery.ts";
++import { withGroundingCheck } from "./delivery/grounding-delivery.ts";
+ import { createDirectoryStore, type DirectoryStore } from "./directory/directory-store.ts";
+ import { createPostgresDirectoryStore } from "./directory/postgres-directory-store.ts";
+ import {
+@@ -1676,7 +1677,7 @@ export function buildApp(
+   const deployGitSecret = config.signingSecret;
+   const deployGitBase = config.apiBaseUrl;
+   const deliveries = withWebTranscriptDeliveries(
+-    config.databaseUrl ? createPostgresDeliveryStore(config.databaseUrl) : createDeliveryStore(),
++    withGroundingCheck(config.databaseUrl ? createPostgresDeliveryStore(config.databaseUrl) : createDeliveryStore()),
+     sessions,
+   );
+   const deployService = createDeployService({
