@@ -53,5 +53,17 @@
       "finance/venture-debt-facility"
     ],
     "uses": 5
+  },
+  {
+    "routeId": "quest-customer-report-arm-controller-failure",
+    "task": "A customer reports arm-controller failures — triage it",
+    "stations": [
+      "support/arm-controller-escalation",
+      "support/runbook-arm-controller-faults",
+      "eng/arm-controller",
+      "eng/firmware-release-4-2",
+      "ops/quality-rma-log"
+    ],
+    "uses": 1
   }
 ]

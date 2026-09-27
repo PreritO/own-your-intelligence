@@ -33,7 +33,7 @@ Before recording live: services up (`bun run dev`, `bun run protocol`, `bun run 
 
 ## 20-second extras (if time allows)
 
-- **Loose Ends:** fly to the board, click the SOC 2 card, answer "Dana Reyes, VP Eng". The page is written back to GBrain and re-verifies green. (Live only, not `?demo`.)
+- **Loose Ends:** fly to the board, click the SOC 2 card, answer "Priya Nand, VP Engineering". The page is written back to GBrain and re-verifies green. (Live only, not `?demo`.)
 - **Memorable:** `bun run memorable:demo "Fill out the security review Northwind sent us"` recalls the 7-station route from Memorable.
 - **GBrain:** `bun run gbrain:stats` shows 96 pages and 180 typed links in the isolated brain.
 - **UFO:** `?demo=ufo-contract`, "same protocol, different harness."
