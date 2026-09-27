@@ -1,4 +1,4 @@
-// OWNED BY: polish (presence). Game-HUD styles, scoped under .mp-ui. Pixel type, bevelled translucent
+// OWNED BY: polish (presence), ui-v3. Game-HUD styles, scoped under .mp-ui. Pixel type, bevelled translucent
 // panels, one colour per team. Big text, few elements.
 export const CSS = /* css */ `
 .mp-ui { position: fixed; inset: 0; pointer-events: none; z-index: 10;
@@ -147,7 +147,14 @@ export const CSS = /* css */ `
 
 
 /* ---- Quest board (top centre, the centrepiece) */
-.mp-top { position: absolute; top: 14px; left: calc(50% + 20px); transform: translateX(-50%); width: min(760px, calc(100vw - 800px)); min-width: 460px; padding: 10px 12px 10px; display: grid; grid-template-columns: 1fr; gap: 6px; }
+.mp-top { position: absolute; top: 14px; left: calc(50% + 20px); transform: translateX(-50%); width: min(640px, calc(100vw - 800px)); min-width: 460px; padding: 6px; display: grid; grid-template-columns: 1fr; gap: 6px; }
+.mp-top.open { width: min(760px, calc(100vw - 800px)); padding: 6px 6px 10px; }
+.mp-top .mp-newquest input { font-size: 17px; padding: 7px 10px; }
+.mp-top .mp-newquest .go { font-size: 18px; padding: 6px 14px; }
+.mp-extoggle { flex: none; white-space: nowrap; align-self: stretch; }
+.mp-drawer { display: grid; gap: 6px; padding: 0 6px; }
+.mp-drawer[hidden] { display: none; }
+.mp-slot.gym.on { border-color: #9ece6a; box-shadow: 0 0 0 2px rgba(158,206,106,0.35), 0 0 18px rgba(158,206,106,0.25); }
 .mp-top .lbl { font-size: 15px; font-weight: 700; color: var(--gold); }
 .mp-newquest { display: flex; gap: 8px; }
 .mp-newquest input { flex: 1; min-width: 0; font: inherit; font-size: 18px; color: #fff; padding: 9px 11px; background: rgba(0,0,0,0.45);
@@ -157,7 +164,7 @@ export const CSS = /* css */ `
 .mp-newquest .go { flex: none; }
 .mp-top .sub { color: var(--muted); font-size: 13.5px; }
 .mp-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-@media (min-width: 1900px) { .mp-top { width: min(1080px, calc(100vw - 820px)); } .mp-board { grid-template-columns: repeat(6, 1fr); } }
+@media (min-width: 1900px) { .mp-top.open { width: min(1080px, calc(100vw - 820px)); } .mp-board { grid-template-columns: repeat(6, 1fr); } }
 .mp-qcard { pointer-events: auto; cursor: pointer; text-align: left; color: var(--text); background: var(--ink-2); padding: 5px 7px 6px;
   border: 2px solid rgba(255,255,255,0.1); border-top: 4px solid var(--c); border-radius: 3px; display: grid; gap: 3px; min-width: 0; }
 .mp-qcard:hover { background: rgba(60, 54, 80, 0.95); border-color: rgba(255,255,255,0.3); border-top-color: var(--c); }

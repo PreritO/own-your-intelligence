@@ -1,0 +1,9 @@
+{
+  "about": "river-serve's held-out eval, Legal, n=20 held-out handoffs. grounded = every claim quoted verbatim from a verified page. river-serve overwrites this file as generations land; the Gym reads it generically.",
+  "rows": [
+    { "team": "legal", "key": "base", "generation": 0, "model": "Base Qwen3.5-9B (River, no fine-tune)", "n": 20, "grounded": 0.90, "correct": 1.00, "latency_ms": 1628 },
+    { "team": "legal", "key": "river", "generation": 1, "model": "Legal specialist gen1 (River SFT on route plans, Qwen3.5-9B)", "jobId": "50692a37-0f22-4aa7-b1f6-903fbd180ffe:model:1", "n": 20, "grounded": 0.20, "correct": 0.95, "latency_ms": 2230, "promoted": false, "note": "regressed grounding (0.90 → 0.20): learned to plan, not to quote; gate rejected it" },
+    { "team": "legal", "key": "river", "generation": 2, "model": "Legal specialist gen2", "status": "training" },
+    { "team": "legal", "key": "claude", "model": "Claude (claude-sonnet-5)", "n": 20, "grounded": 1.00, "correct": 1.00, "latency_ms": 1332 }
+  ]
+}

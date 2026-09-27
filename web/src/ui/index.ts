@@ -1,10 +1,11 @@
-// OWNED BY: ui (polish, ui-v2). Game HUD: quest board (the centrepiece: free text + 6 quest cards), quest log (left), party bar
+// OWNED BY: ui (polish, ui-v2, ui-v3). Game HUD: quest board (the centrepiece: free text + 6 quest cards), quest log (left), party bar
 // (bottom), route checklist + memory page (right), activity drawer (bottom left, closed), toasts.
 // Everything except the memory panel is a pure function of rt.events (same run rules as presence).
 import type { Memory, PalaceEvent, Trace } from "../../../server/schema";
 import { emitUI, UI_EVENTS, type Plugin } from "../api";
 import { names, PRESENCE_EVENTS, registerSpawn, subscribeRuns } from "../agents/run";
-import { CAMERA_EVENTS } from "../controls";
+import { CAMERA_EVENTS, HUD_INSETS } from "../controls";
+import { champions, GYM_EVENTS, loadScoreboard, modelTag, type ScoreRow } from "./leaderboard";
 import { CSS } from "./style";
 import { commissionQuest, mountQuestBoard } from "./questBoard";
 
@@ -103,15 +104,51 @@ export const mountUI: Plugin = (rt) => {
   quests.appendChild(empty);
   logPanel.append(hero, title, quests);
   root.appendChild(logPanel);
-  // the New quest box is the centrepiece: top centre
+  // the New quest box is the centrepiece: top centre. Collapsed by default to the input + Commission;
+  // "▾ Example quests" expands the six quest cards (and the demo buttons) underneath.
   const top = h("div", "mp-panel mp-top");
-  const lbl = h("label", "lbl", "Quest board");
-  lbl.htmlFor = "mp-quest-input";
   input.id = "mp-quest-input";
+  const exBtn = h("button", "mp-btn small mp-extoggle");
+  exBtn.type = "button";
+  exBtn.setAttribute("aria-controls", "mp-quest-examples");
+  form.appendChild(exBtn);
+  const drawer = h("div", "mp-drawer");
+  drawer.id = "mp-quest-examples";
   const board = h("div", "mp-board");
   void mountQuestBoard(board, rt.palace).then((qs) => ((window as any).quests = qs)); // browser QA
-  top.append(lbl, form, board, sub, actions);
+  drawer.append(board, sub, actions);
+  top.append(form, drawer);
   root.appendChild(top);
+  const EX_KEY = "mp:quest-examples-open";
+  let examplesOpen = false;
+  try { examplesOpen = localStorage.getItem(EX_KEY) === "1"; } catch { /* storage blocked: start collapsed */ }
+  /** remember=true for the viewer's own toggles; automatic collapses (quest started) aren't a preference. */
+  function setExamples(open: boolean, remember = false) {
+    examplesOpen = open;
+    drawer.hidden = !open;
+    top.classList.toggle("open", open);
+    exBtn.textContent = open ? "▴ Hide examples" : "▾ Example quests";
+    exBtn.setAttribute("aria-expanded", String(open));
+    exBtn.title = open ? "Hide the example quests" : "Show six example quests to commission";
+    if (remember) try { localStorage.setItem(EX_KEY, open ? "1" : "0"); } catch { /* ignore */ }
+  }
+  setExamples(examplesOpen);
+  exBtn.onclick = () => setExamples(!examplesOpen, true);
+  // a card click or a typed quest commissions; either way the drawer folds away for the run
+  const onCommissioned = () => setExamples(false);
+  addEventListener(PRESENCE_EVENTS.commission, onCommissioned);
+  // Frame the overview below the compact bar (controls.ts reads HUD_INSETS on every overview pose).
+  // Measured on the collapsed bar only, so expanding the examples never moves the camera.
+  requestAnimationFrame(() => {
+    const wasOpen = examplesOpen;
+    if (wasOpen) drawer.hidden = true;
+    const bottom = Math.ceil(top.getBoundingClientRect().bottom);
+    if (wasOpen) drawer.hidden = false;
+    if (bottom > 0 && bottom + 24 !== HUD_INSETS.top) {
+      HUD_INSETS.top = bottom + 24;
+      window.dispatchEvent(new CustomEvent(CAMERA_EVENTS.home));
+    }
+  });
 
   // =====================================================================================================
   // Party bar (bottom): commissioned agents first, then the department staff
@@ -120,6 +157,24 @@ export const mountUI: Plugin = (rt) => {
   const mapSlot = h("button", "mp-slot map on", "⌂ Map");
   mapSlot.title = "Back to the overview (Esc)";
   mapSlot.onclick = () => follow("overview");
+  const gymSlot = h("button", "mp-slot map gym", "🏋 Gym");
+  gymSlot.title = "Fly to the Gym: River training leaderboard (Esc returns)";
+  gymSlot.onclick = () => {
+    setExamples(false); // the example cards would sit under the leaderboard
+    window.dispatchEvent(new CustomEvent(GYM_EVENTS.go));
+  };
+  const onGymState = (ev: Event) => gymSlot.classList.toggle("on", !!(ev as CustomEvent).detail?.open);
+  // Party bar shows each department agent's promoted River model (fixtures/gym-scoreboard.json), if any.
+  const promotedModel = new Map<string, string>();
+  const applyScoreboard = (rows: ScoreRow[] | null) => {
+    promotedModel.clear();
+    for (const [team, r] of champions(rows ?? [])) if (r.promoted) promotedModel.set(team, modelTag(r));
+    renderParty();
+  };
+  const onScoreboard = (ev: Event) => applyScoreboard((ev as CustomEvent).detail?.rows ?? null);
+  addEventListener(GYM_EVENTS.scoreboard, onScoreboard);
+  void loadScoreboard().then(applyScoreboard);
+  addEventListener(GYM_EVENTS.state, onGymState);
   const keysEl = h("div", "mp-keys");
   keysEl.innerHTML = `<b>1-9</b> follow · <b>G</b> flow<br><b>Esc</b> map · <b>T</b> demo`;
   const slotStatus = new Map<string, { text: string; tone: Tone }>();
@@ -132,7 +187,7 @@ export const mountUI: Plugin = (rt) => {
     return f;
   }
   function renderParty() {
-    partyEl.replaceChildren(mapSlot);
+    partyEl.replaceChildren(mapSlot, gymSlot);
     mapSlot.classList.toggle("on", following === "overview");
     partyOrder().forEach((id, i) => {
       const slot = h("button", spawned.includes(id) ? "mp-slot quest" : "mp-slot");
@@ -142,7 +197,9 @@ export const mountUI: Plugin = (rt) => {
       const key = h("span", "key", i < 9 ? String(i + 1) : "");
       if (i >= 9) key.hidden = true;
       const mid = h("div");
-      const st = slotStatus.get(id) ?? { text: spawned.includes(id) ? "on a quest" : "at their desk", tone: "" as Tone };
+      const team = rt.palace.agents.find((a) => a.id === id)?.team ?? id;
+      const idle = promotedModel.get(team); // e.g. "River gen2" once river-serve promotes one
+      const st = slotStatus.get(id) ?? { text: spawned.includes(id) ? "on a quest" : idle ?? "at their desk", tone: "" as Tone };
       mid.append(h("div", "nm", N.agent(id)), h("div", `doing ${st.tone}`, st.text));
       slot.append(key, face(id), mid);
       slot.onclick = () => follow(id);
@@ -343,6 +400,7 @@ export const mountUI: Plugin = (rt) => {
     switch (e.type) {
       case "spawn": {
         registerSpawn(N, e);
+        setExamples(false); // a quest started: fold the example cards away
         if (!spawned.includes(e.agent)) spawned.unshift(e.agent);
         const nq = quest(e.agent, e.task, true);
         nq.status = "Arrived in the foyer";
@@ -756,6 +814,9 @@ export const mountUI: Plugin = (rt) => {
     removeEventListener(PRESENCE_EVENTS.status, onStatus);
     removeEventListener(PRESENCE_EVENTS.mode, onMode);
     removeEventListener("keydown", onKey);
+    removeEventListener(PRESENCE_EVENTS.commission, onCommissioned);
+    removeEventListener(GYM_EVENTS.state, onGymState);
+    removeEventListener(GYM_EVENTS.scoreboard, onScoreboard);
     root.remove();
     style.remove();
   };
