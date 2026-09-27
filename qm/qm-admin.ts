@@ -154,6 +154,17 @@ export async function waitQmRun(runId: string, timeoutMs: number): Promise<any> 
   }
 }
 
+// Messages QM delivered into a web session (recorded deliveries: what the user sees after the fork's check).
+export async function deliveredTexts(sessionId: string): Promise<string[]> {
+  const r = await portal("GET", `/api/sessions/${encodeURIComponent(sessionId)}`);
+  try {
+    const entries = (JSON.parse(r.body).entries ?? []) as { type: string; payload?: { text?: string; deliveryKey?: string } }[];
+    return entries.filter((e) => e.type === "assistant" && e.payload?.deliveryKey && e.payload.text).map((e) => e.payload!.text!);
+  } catch {
+    return [];
+  }
+}
+
 const TASKS: Record<string, string> = {
   legal: "Can we sign the Gripworks contract this week?",
   finance: "What did we promise Ada in the last board meeting?",
@@ -172,7 +183,8 @@ export function teamBrief(agent: string, task: string, stations: string[], sourc
     `for you once it has replied. When the route is walked, call loci-${agent}_answer citing only verified stations (a ` +
     `station you handed off counts once its owner has replied: if the answer is blocked because a handoff is still open, wait ` +
     `briefly and answer again). State every gap and stale station, and any station you could not visit, as a gap. Never ` +
-    `invent content for a gap. Finally, post your answer as your reply.`
+    `invent content for a gap. Finally, post your answer to this conversation with the web tool (action "post", only ` +
+    `"text"; no ts, channel or recipient). The harness runs its grounding check before it is delivered. Then finish.`
   );
 }
 
@@ -203,9 +215,15 @@ export async function recordRun(run: string, name: string): Promise<string> {
 }
 
 async function demo(args: string[]) {
-  const ri = args.indexOf("--record");
-  const record = ri >= 0 ? args[ri + 1] : undefined;
-  const who = args.filter((a, i) => !a.startsWith("--") && (ri < 0 || i !== ri + 1));
+  const flag = (name: string) => (args.indexOf(name) >= 0 ? args[args.indexOf(name) + 1] : undefined);
+  const record = flag("--record");
+  // Route-gate tests. The protocol is given the full assigned route, but the agent's brief leaves one
+  // station out, as if the agent skipped it:
+  //   --skip <station>       the agent never hears of it: its answer skips a route station, unstated
+  //   --skip-gap <station>   the agent is told the station is unavailable and must state it as a gap
+  const skip = flag("--skip") ?? flag("--skip-gap");
+  const skipAsGap = !!flag("--skip-gap");
+  const who = args.filter((a, i) => !a.startsWith("--") && !["--record", "--skip", "--skip-gap"].includes(args[i - 1] ?? ""));
   const agents = who.length ? who : ["legal", "finance", "eng"];
   const scopes = await teamScopes();
   for (const a of agents) if (!scopes[a]) throw new Error(`no QM project named ${a}; run: bun qm/qm-admin.ts setup`);
@@ -224,7 +242,12 @@ async function demo(args: string[]) {
       await protoPost("/route", { agent: a, routeId: route.routeId, stations: route.stations, source: route.source, run });
       const threadRef = `web:${ADMIN}:loci-${a}-${Date.now()}`;
       await adapterBind({ run, agent: a, threadRef, route: route.stations });
-      const t = await sendTurn(scopes[a]!, a, teamBrief(a, task, route.stations, route.source, route.routeId), threadRef);
+      const skipping = !!skip && route.stations.includes(skip);
+      let text = teamBrief(a, task, skipping ? route.stations.filter((s) => s !== skip) : route.stations, route.source, route.routeId);
+      if (skipping && skipAsGap)
+        text += `\n\nNote: ${skip} is on your route but unavailable today. Do not claim or visit it; state it in your answer as a gap ("${skip}: gap, not visited").`;
+      if (skipping) text += `\n\nCall answer once, and post your answer with the web tool even if the answer call is blocked.`;
+      const t = await sendTurn(scopes[a]!, a, text, threadRef);
       if (t.runId) await adapterBind({ run, agent: a, threadRef, qmRunId: t.runId, route: route.stations });
       console.log(`${a} (${scopes[a]}): HTTP ${t.status} QM run ${t.runId ?? t.body.slice(0, 200)}`);
       turns.push({ agent: a, runId: t.runId });
@@ -235,8 +258,14 @@ async function demo(args: string[]) {
   const outcomes = await relay.settled();
   relay.stop();
   const ev = await runEvents(run);
-  console.log("\n== QM turns");
-  for (const r of results) console.log(`  ${r.agent}: ${r.res?.timedOut ? "TIMED OUT" : r.res?.run?.status ?? r.res?.status ?? "?"}`);
+  await Bun.sleep(4000); // let QM drain the web deliveries into the transcripts
+  console.log("\n== QM turns (what QM delivered after the fork's pre-post grounding check)");
+  for (const r of results) {
+    const sid = r.res?.result?.sessionId as string | undefined;
+    const posted = sid ? await deliveredTexts(sid) : [];
+    console.log(`  ${r.agent}: ${r.res?.timedOut ? "TIMED OUT" : r.res?.status ?? "?"}${posted.length ? "" : " (nothing delivered)"}`);
+    for (const p of posted) console.log(`    posted: ${p.replace(/\s+/g, " ").slice(0, 220)}`);
+  }
   console.log("== handoffs");
   for (const o of outcomes) console.log(`  ${o.id} ${o.agent} -> ${o.toAgent} ${o.memoryId}: ${o.source} after ${(o.ms / 1000).toFixed(1)} s: ${o.answer?.slice(0, 140)}`);
   console.log("== answers");

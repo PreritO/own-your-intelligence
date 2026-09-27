@@ -56,13 +56,12 @@ export function withGroundingCheck(store: DeliveryStore): DeliveryStore {
         g.verdict === "block"
           ? `⛔ Answer blocked by the loci grounding check (protocol service): ${g.reason ?? "cites stations not verified in this run"}.`
           : (g.verdict === "annotate" && g.text ? g.text : input.text) + replayLink(g.run);
-      // A web reply in its own thread normally "settles" against the assistant entry the model already
-      // streamed. When the check changed the text, record the checked text as its own transcript entry.
-      const provenance =
-        input.provenance && g.verdict !== "ok" && input.provenance.sourceAssistantEntrySeq !== undefined
-          ? (({ sourceAssistantEntrySeq: _drop, ...rest }) => rest)(input.provenance)
-          : input.provenance;
-      return store.enqueue({ ...input, text, ...(provenance ? { provenance } : {}) });
+      // A web post into its own thread is normally only pushed live (the transcript keeps the model's
+      // tool call). Record the checked text as a transcript reply, so what was delivered, including a
+      // blocked notice, stays visible in the conversation.
+      const destination =
+        input.destination.type === "web" && !input.destination.webTranscript ? { ...input.destination, webTranscript: { kind: "reply" as const } } : input.destination;
+      return store.enqueue({ ...input, destination, text });
     },
   };
 }
