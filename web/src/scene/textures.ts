@@ -240,8 +240,8 @@ export function lectern(seed = 14) {
 export function book(seed = 15) {
   return paint(16, 16, seed, (p) => {
     for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
-      let c: RGB = noisy(p, [132, 58, 40], 0.06);
-      if (x < 2) c = [92, 38, 28];
+      let c: RGB = noisy(p, [214, 170, 110], 0.06);
+      if (x < 2) c = [150, 104, 60];
       if ((x > 12 || x < 4) && (y < 3 || y > 12)) c = [236, 196, 84];
       if (y === 7 || y === 8) c = x > 3 && x < 13 ? [236, 196, 84] : c;
       if (x === 15) c = [245, 238, 220];

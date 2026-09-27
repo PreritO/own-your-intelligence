@@ -24,11 +24,11 @@ type Style = "foyer" | "legal" | "finance" | "eng" | "people" | "gym" | "worksho
 interface Palette { wall: () => HTMLCanvasElement; cap: () => HTMLCanvasElement; floor: () => HTMLCanvasElement; color: string }
 const PALETTES: Record<Style, Palette> = {
   foyer: { wall: () => TX.polished([206, 204, 196], 21), cap: () => TX.polished([236, 232, 220], 22, true), floor: () => TX.checker([236, 232, 220], [128, 128, 134], 23), color: FOYER_COLOR },
-  legal: { wall: () => TX.bricks([128, 108, 150], [72, 60, 88], 31), cap: () => TX.polished([168, 128, 190], 32, true), floor: () => TX.checker([96, 80, 116], [66, 56, 82], 33), color: "#bb9af7" },
+  legal: { wall: () => TX.bricks([128, 108, 150], [72, 60, 88], 31), cap: () => TX.polished([168, 128, 190], 32, true), floor: () => TX.checker([156, 136, 176], [120, 102, 142], 33), color: "#bb9af7" },
   finance: { wall: () => TX.sandstone([222, 204, 152], 41), cap: () => TX.metalBlock([240, 196, 70], 42), floor: () => TX.checker([230, 214, 168], [204, 182, 128], 43), color: "#e0af68" },
   eng: { wall: () => TX.cobble([128, 128, 124], [86, 142, 56], 51), cap: () => TX.cobble([96, 132, 70], [70, 120, 44], 52), floor: () => TX.checker([126, 130, 124], [104, 108, 102], 53), color: "#9ece6a" },
   people: { wall: () => TX.planks([180, 140, 86], 61), cap: () => TX.bark([106, 78, 46], 62), floor: () => TX.planks([120, 86, 54], 63), color: "#7aa2f7" },
-  gym: { wall: () => TX.metalBlock([204, 208, 214], 71), cap: () => TX.metalBlock([150, 154, 162], 72), floor: () => TX.checker([62, 64, 70], [52, 54, 60], 73), color: "#e06c75" },
+  gym: { wall: () => TX.metalBlock([204, 208, 214], 71), cap: () => TX.metalBlock([150, 154, 162], 72), floor: () => TX.checker([112, 70, 70], [96, 60, 62], 73), color: "#e06c75" },
   workshop: { wall: () => TX.planks([156, 112, 64], 81), cap: () => TX.polished([92, 92, 98], 82, true), floor: () => TX.planks([104, 74, 46], 83), color: "#d19a66" },
   "loose-ends": { wall: () => TX.cobble([136, 128, 118], null, 91), cap: () => TX.bark([96, 72, 44], 92), floor: () => TX.gravel([132, 124, 112], 93), color: "#56b6c2" },
 };
@@ -49,6 +49,11 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = !params.has("noshadows");
   renderer.shadowMap.type = THREE.PCFShadowMap;
+  // The world is static and the sun doesn't move: render the shadow map on demand, not every frame
+  // (saves ~25 draw calls/frame). Call bumpShadows() after anything that changes casters.
+  renderer.shadowMap.autoUpdate = false;
+  let shadowFrames = 3;
+  const bumpShadows = (frames = 2) => { shadowFrames = Math.max(shadowFrames, frames); };
   renderer.info.autoReset = false;
   mount.appendChild(renderer.domElement);
 
@@ -57,7 +62,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   scene.background = HORIZON.clone();
   scene.fog = new THREE.Fog(HORIZON.clone(), 110, 330);
 
-  const HEMI_I = 1.35, SUN_I = 2.3;
+  const HEMI_I = 1.05, SUN_I = 2.7;
   const hemi = new THREE.HemisphereLight("#d6ebff", "#8c7a52", HEMI_I);
   const sun = new THREE.DirectionalLight("#fff3dc", SUN_I);
   const SUN_DIR = new THREE.Vector3(0.55, 1, 0.35).normalize();
@@ -226,7 +231,6 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const banners = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.8, 1.6), new THREE.MeshLambertMaterial({ map: bannerTex, alphaTest: 0.5, side: THREE.DoubleSide }), Math.max(1, bannerMats.length));
   banners.name = "banners";
   bannerMats.forEach((mm, i) => { banners.setMatrixAt(i, mm); banners.setColorAt(i, bannerDefs[i].color); });
-  banners.castShadow = true;
   root.add(banners);
 
   // ---------- torches: emissive blocks on interior walls (no PointLights) ----------
@@ -298,7 +302,6 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const bookGeo = new THREE.BoxGeometry(0.4, 0.1, 0.3);
   const books = new THREE.InstancedMesh(bookGeo, new THREE.MeshBasicMaterial({ map: TX.pixelTex(TX.book()), toneMapped: false }), CAP);
   books.name = "books";
-  books.castShadow = true;
   const haloMat = new THREE.ShaderMaterial({
     vertexShader: /* glsl */ `
       varying vec3 vC; varying vec2 vUv;
@@ -435,7 +438,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   labelGeo.setAttribute("aRect", rectAttr);
   labelGeo.setAttribute("aAnchor", anchorAttr);
   const labelMat = new THREE.ShaderMaterial({
-    uniforms: { map: { value: atlas.tex }, uH: { value: 0.26 } },
+    uniforms: { map: { value: atlas.tex }, uH: { value: 0.17 } },
     vertexShader: /* glsl */ `
       attribute vec4 aRect; attribute vec3 aAnchor; uniform float uH; varying vec2 vUv;
       void main() {
@@ -502,13 +505,13 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     const { tex, aspect } = TX.signTexture(title, caption, roomHex(r.id));
     const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, alphaTest: 0.5, fog: true });
     const sp = new THREE.Sprite(mat);
-    const h = isFoyer ? 1.9 : 1.55;
+    const h = isFoyer ? 3.2 : 2.8;
     sp.scale.set(h * aspect, h, 1);
     const entry = r.doors.find((d) => roomById.has(d.to));
-    if (isFoyer || !entry) sp.position.set(r.center[0], r.size[1] + 2.4, r.center[2]);
+    if (isFoyer || !entry) sp.position.set(r.center[0], r.size[1] + 3.2, r.center[2]);
     else {
       const [x, z] = snapDoor(r, entry.pos);
-      sp.position.set(x, r.size[1] + 1.2, z);
+      sp.position.set(x, r.size[1] + 1.6, z);
     }
     sp.name = `sign:${r.id}`;
     signs.add(sp);
@@ -699,7 +702,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       const g = memGlow(i), rf = roomF(mems[i].room);
       const k = gapped.has(i) ? 0 : 1;
       books.setColorAt(i, tmpC.copy(memBase[i]).multiplyScalar((0.45 + 0.42 * Math.min(g, 3)) * (0.3 + 0.7 * rf)));
-      halos.setColorAt(i, tmpC.copy(memBase[i]).multiplyScalar(k * 0.2 * Math.max(0, Math.min(g, 4) - 0.4) * rf));
+      halos.setColorAt(i, tmpC.copy(memBase[i]).multiplyScalar(k * 0.34 * Math.max(0, Math.min(g, 4) - 0.4) * rf));
       lecterns.setColorAt(i, tmpC.setScalar(0.25 + 0.75 * rf));
     }
     books.instanceColor!.needsUpdate = true;
@@ -925,7 +928,8 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       parts.count = n;
       parts.instanceMatrix.needsUpdate = true;
       if (parts.instanceColor) parts.instanceColor.needsUpdate = true;
-    } else parts.count = 0;
+      parts.visible = n > 0;
+    } else parts.visible = false;
     if (columnT >= 0) {
       columnT += dt;
       const f = columnT < 0.15 ? columnT / 0.15 : Math.max(0, 1 - (columnT - 0.15) / 1.4);
@@ -951,6 +955,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       }
     }
 
+    if (shadowFrames > 0) { renderer.shadowMap.needsUpdate = true; shadowFrames--; }
     if (useBloom) composer.render(dt);
     else renderer.render(scene, camera);
 
@@ -965,7 +970,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
           perfStrikes = 0;
           if (useBloom) useBloom = false;
           else if (pixelRatio > 1) { pixelRatio = 1; renderer.setPixelRatio(1); composer.setPixelRatio(1); }
-          else if (sun.shadow.mapSize.x > 1024) { sun.shadow.mapSize.set(1024, 1024); sun.shadow.map?.dispose(); sun.shadow.map = null; }
+          else if (sun.shadow.mapSize.x > 1024) { sun.shadow.mapSize.set(1024, 1024); sun.shadow.map?.dispose(); sun.shadow.map = null; bumpShadows(); }
         }
       } else perfStrikes = 0;
       if (debugEl) {
@@ -989,7 +994,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     links: (on) => { linkDots.visible = on; },
     roomLabels: (on) => { signs.visible = on; },
     memoryLabels: (on) => { memLabels.visible = on; },
-    ceiling: (on) => { ceiling.visible = on; },
+    ceiling: (on) => { ceiling.visible = on; bumpShadows(); },
     bloom: (on) => { useBloom = on; },
   };
 
@@ -1022,8 +1027,8 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     setLayerVisible(layer, visible) { layers[layer]?.(visible); },
     focusRooms(ids) {
       const set = ids && ids.length ? new Set(ids) : null;
-      for (const [id, v] of focus) v.target = !set || set.has(id) ? 1 : 0.3;
-      outTarget = set ? 0.55 : 1;
+      for (const [id, v] of focus) v.target = !set || set.has(id) ? 1 : 0.12;
+      outTarget = set ? 0.4 : 1;
     },
     addMemory(memory) {
       let i = memIndex.get(memory.id);
@@ -1048,6 +1053,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       lecterns.setMatrixAt(i, m4.compose(V(memory.pos[0], 0, memory.pos[2]), Q0, V(0.001, 0.001, 0.001)));
       lecterns.instanceMatrix.needsUpdate = true;
       spawnT.set(i, 0);
+      bumpShadows(80); // lectern pops in over ~0.5 s
       flare.set(i, 2.2);
       burst(V(memory.pos[0], 0.6, memory.pos[2]), new THREE.Color(roomHex(memory.room)));
     },
