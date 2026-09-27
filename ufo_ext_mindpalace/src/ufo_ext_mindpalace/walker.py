@@ -91,7 +91,7 @@ def next_action(task: str, history: list[dict], titles: dict[str, str] | None = 
     if not answers:
         cites = [m for m in stations if found[m]["verdict"] == "verified"]
         parts = [f"Gap: {titles.get(m, m)} ({found[m]['text']})." for m in stations if found[m]["verdict"] == "gap"]
-        parts += [found[m]["text"] for m in cites[-3:] if found[m]["text"]]
+        parts += [found[m]["text"] for m in cites[:5] if found[m]["text"]]
         parts += [f"Stale: {titles.get(m, m)} may be out of date." for m in stations if found[m]["verdict"] == "stale"]
         return {"tool": "loci_answer", "input": {"text": " ".join(parts), "citations": cites}}
 

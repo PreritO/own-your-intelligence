@@ -147,7 +147,7 @@ class Agent:
         parts = []
         for m in gaps:
             parts.append(f"Gap: {self.world['titles'].get(m, m)} ({self.found[m]['text']}).")
-        parts += [self.found[m]["text"] for m in cites[-3:]]
+        parts += [self.found[m]["text"] for m in cites[:5] if self.found[m]["text"]]
         for m in stale:
             parts.append(f"Stale: {self.world['titles'].get(m, m)} may be out of date.")
         self.c.post("/answer", {"agent": self.id, "text": " ".join(parts), "citations": cites})
@@ -166,6 +166,17 @@ def drive(c: Client, advance: Callable[[float], None], palace: dict, order: list
     world: dict = {"titles": {m["id"]: m["title"] for m in palace["memories"]}, "routes": routes}
     if tasks is None:
         tasks = [{"agent": a, "text": text, "route": rid} for a, text, rid in TASKS if rid in routes]
+        # The demo needs one claim collision. The seed's board-promises route no longer shares a station
+        # with soc2-owner, so the Finance agent explores one extra hop (who Ada is on the org chart) at
+        # the same step the Eng agent reaches people/org-chart. Honest about it: source = "explore".
+        by_id = {r["id"]: r for r in palace.get("routes", [])}
+        soc2 = by_id.get("soc2-owner", {}).get("stations", [])
+        for t in tasks:
+            st = by_id.get(t["route"], {}).get("stations", []) if isinstance(t["route"], str) else []
+            if t["agent"] == "finance" and "people/org-chart" in soc2 and "people/org-chart" not in st and len(st) >= 2:
+                i = soc2.index("people/org-chart")
+                stations = st[:i] + ["people/org-chart"] + st[i:] if i <= len(st) else st + ["people/org-chart"]
+                t["route"] = {"routeId": t["route"], "stations": stations, "source": "explore"}
     default_route = {a: rid for a, _, rid in TASKS}
     walkers = []
     for t in tasks:

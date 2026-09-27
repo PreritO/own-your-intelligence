@@ -2,7 +2,7 @@
 {"t": 0.12, "agent": "finance", "type": "task", "text": "What did we promise Ada in the last board meeting?", "run": "protocol-run"}
 {"t": 0.24, "agent": "legal", "type": "task", "text": "Can we sign the Gripworks contract this week?", "run": "protocol-run"}
 {"t": 0.56, "agent": "eng", "type": "route", "routeId": "soc2-owner", "stations": ["eng/soc2-renewal", "eng/security-policy", "people/org-chart", "eng/soc2-owner"], "source": "fallback", "run": "protocol-run"}
-{"t": 0.68, "agent": "finance", "type": "route", "routeId": "board-promises", "stations": ["finance/board-2026-q3", "people/ada-chen", "people/org-chart"], "source": "fallback", "run": "protocol-run"}
+{"t": 0.68, "agent": "finance", "type": "route", "routeId": "board-promises", "stations": ["finance/board-2026-q3", "people/ada-chen", "people/org-chart", "finance/board-action-items"], "source": "explore", "run": "protocol-run"}
 {"t": 0.8, "agent": "legal", "type": "route", "routeId": "contract-signoff", "stations": ["companies/gripworks", "legal/gripworks-msa", "finance/budget-2026-q4", "legal/approvals", "people/signatories"], "source": "fallback", "run": "protocol-run"}
 {"t": 1.12, "agent": "eng", "type": "claim", "memoryId": "eng/soc2-renewal", "run": "protocol-run"}
 {"t": 1.24, "agent": "finance", "type": "claim", "memoryId": "finance/board-2026-q3", "run": "protocol-run"}
@@ -16,7 +16,7 @@
 {"t": 2.36, "agent": "finance", "type": "claim", "memoryId": "people/ada-chen", "run": "protocol-run"}
 {"t": 2.48, "agent": "legal", "type": "move", "to": "room-legal-0", "run": "protocol-run"}
 {"t": 2.48, "agent": "legal", "type": "claim", "memoryId": "legal/gripworks-msa", "run": "protocol-run"}
-{"t": 2.8, "agent": "eng", "type": "visit", "memoryId": "eng/security-policy", "verdict": "stale", "note": "freshness 0.15 < 0.3", "run": "protocol-run"}
+{"t": 2.8, "agent": "eng", "type": "visit", "memoryId": "eng/security-policy", "verdict": "stale", "note": "freshness 0.00 < 0.3", "run": "protocol-run"}
 {"t": 2.92, "agent": "finance", "type": "visit", "memoryId": "people/ada-chen", "verdict": "verified", "run": "protocol-run"}
 {"t": 3.04, "agent": "legal", "type": "visit", "memoryId": "legal/gripworks-msa", "verdict": "verified", "run": "protocol-run"}
 {"t": 3.36, "agent": "eng", "type": "move", "to": "room-people-0", "run": "protocol-run"}
@@ -29,17 +29,20 @@
 {"t": 4.48, "agent": "eng", "type": "move", "to": "room-eng-0", "run": "protocol-run"}
 {"t": 4.48, "agent": "eng", "type": "claim", "memoryId": "eng/soc2-owner", "run": "protocol-run"}
 {"t": 4.6, "agent": "finance", "type": "visit", "memoryId": "people/org-chart", "verdict": "verified", "note": "reused eng's verdict", "run": "protocol-run"}
-{"t": 5.04, "agent": "eng", "type": "visit", "memoryId": "eng/soc2-owner", "verdict": "gap", "note": "page is empty", "run": "protocol-run"}
+{"t": 5.04, "agent": "eng", "type": "visit", "memoryId": "eng/soc2-owner", "verdict": "gap", "note": "no owner recorded", "run": "protocol-run"}
 {"t": 5.16, "agent": "finance", "type": "move", "to": "room-finance-1", "run": "protocol-run"}
 {"t": 5.16, "agent": "finance", "type": "claim", "memoryId": "finance/budget-2026-q4", "run": "protocol-run"}
-{"t": 5.6, "agent": "eng", "type": "answer", "text": "Gap: SOC 2 Owner (page is empty). SOC 2 Type II renewal window opens Nov 1. Acme Robotics, 48 people. Stale: Security Policy may be out of date.", "citations": ["eng/soc2-renewal", "people/org-chart"], "gaps": ["eng/soc2-owner"], "stale": ["eng/security-policy"], "run": "protocol-run"}
+{"t": 5.6, "agent": "eng", "type": "answer", "text": "Gap: SOC 2 Owner (no owner recorded). SOC 2 Type II renewal window opens Nov 1. Acme Robotics, 48 people. Stale: Security Policy may be out of date.", "citations": ["eng/soc2-renewal", "people/org-chart"], "gaps": ["eng/soc2-owner"], "stale": ["eng/security-policy"], "run": "protocol-run"}
 {"t": 5.72, "agent": "finance", "type": "visit", "memoryId": "finance/budget-2026-q4", "verdict": "verified", "run": "protocol-run"}
 {"t": 6.28, "agent": "finance", "type": "reply", "id": "h1", "answer": "Supplier line: $55k allocated, $15k committed.", "run": "protocol-run"}
-{"t": 6.84, "agent": "finance", "type": "answer", "text": "Committed to Ada Chen: a hardware gross-margin plan by Dec 15 and monthly burn updates. Board observer from Lumen Ventures. Acme Robotics, 48 people.", "citations": ["finance/board-2026-q3", "people/ada-chen", "people/org-chart"], "run": "protocol-run"}
+{"t": 6.84, "agent": "finance", "type": "move", "to": "room-finance-0", "run": "protocol-run"}
+{"t": 6.84, "agent": "finance", "type": "claim", "memoryId": "finance/board-action-items", "run": "protocol-run"}
 {"t": 6.96, "agent": "legal", "type": "move", "to": "room-legal-0", "run": "protocol-run"}
 {"t": 6.96, "agent": "legal", "type": "claim", "memoryId": "legal/approvals", "run": "protocol-run"}
+{"t": 7.4, "agent": "finance", "type": "visit", "memoryId": "finance/board-action-items", "verdict": "verified", "run": "protocol-run"}
 {"t": 7.52, "agent": "legal", "type": "visit", "memoryId": "legal/approvals", "verdict": "verified", "run": "protocol-run"}
+{"t": 7.96, "agent": "finance", "type": "answer", "text": "Committed to Ada Chen: a hardware gross-margin plan by Dec 15 and monthly burn updates. Board observer from Lumen Ventures. Acme Robotics, 48 people. Open board follow-ups.", "citations": ["finance/board-2026-q3", "people/ada-chen", "people/org-chart", "finance/board-action-items"], "run": "protocol-run"}
 {"t": 8.08, "agent": "legal", "type": "move", "to": "room-people-0", "run": "protocol-run"}
 {"t": 8.08, "agent": "legal", "type": "claim", "memoryId": "people/signatories", "run": "protocol-run"}
 {"t": 8.64, "agent": "legal", "type": "visit", "memoryId": "people/signatories", "verdict": "verified", "run": "protocol-run"}
-{"t": 9.2, "agent": "legal", "type": "answer", "text": "Supplier line: $55k allocated, $15k committed. Gripworks MSA v3 approved by Tomas Reyes on Sep 22, pending budget confirmation. Contracts over $30k need the CEO (Mara Okafor) or COO (Dev Lindqvist) to sign.", "citations": ["companies/gripworks", "legal/gripworks-msa", "finance/budget-2026-q4", "legal/approvals", "people/signatories"], "run": "protocol-run"}
+{"t": 9.2, "agent": "legal", "type": "answer", "text": "Supplier of soft robotic grippers. Master services agreement draft v3. Supplier line: $55k allocated, $15k committed. Gripworks MSA v3 approved by Tomas Reyes on Sep 22, pending budget confirmation. Contracts over $30k need the CEO (Mara Okafor) or COO (Dev Lindqvist) to sign.", "citations": ["companies/gripworks", "legal/gripworks-msa", "finance/budget-2026-q4", "legal/approvals", "people/signatories"], "run": "protocol-run"}
