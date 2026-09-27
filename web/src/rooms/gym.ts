@@ -269,21 +269,19 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
     return { eye, target };
   };
 
-  // ---------- River leaderboard (DOM): open near the Gym, or from the HUD's "Gym" button ----------
+  // ---------- River leaderboard (DOM): opens only from the HUD's "Gym" button ----------
+  // Never auto-opens when the camera passes the Gym (e.g. following a quest agent); it closes with ✕
+  // or once the camera leaves the Gym.
   const lb = mountLeaderboard(rt.hud, rt.palace);
   const gymPoint = pl.center.clone().setY(2);
-  const NEAR = 30, FAR = 38; // metres from the camera; the overview camera sits well beyond FAR
-  let dismissed = false; // closed with ✕: stay closed until the camera leaves the Gym
+  const FAR = 38; // metres from the camera; the overview camera sits well beyond FAR
   let pinned = false; // opened by the button: stay open until the fly ends or the camera leaves
   let endFly: (() => void) | null = null;
-  lb.onClose(() => { dismissed = true; pinned = false; });
+  lb.onClose(() => { pinned = false; });
   const offNear = rt.onFrame(() => {
-    const d = rt.camera.position.distanceTo(gymPoint);
-    if (d > FAR) { dismissed = false; if (!pinned) lb.hide(); }
-    else if (d < NEAR && !dismissed) lb.show();
+    if (!pinned && rt.camera.position.distanceTo(gymPoint) > FAR) lb.hide();
   });
   const onGo = () => {
-    dismissed = false;
     pinned = true;
     const p = pose();
     endFly = flyTo(rt, p.eye, p.target);
