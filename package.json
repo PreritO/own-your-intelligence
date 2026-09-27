@@ -10,7 +10,9 @@
     "ask": "bun server/ask.ts",
     "bridge": "bun server/bridge.ts",
     "fixtures": "bun scripts/make-fixtures.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "routes": "bun server/routes.ts",
+    "qm:mcp": "bun qm/loci-mcp.ts"
   },
   "dependencies": {
     "three": "^0.186.1",
