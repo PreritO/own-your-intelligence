@@ -166,6 +166,20 @@ def test_resolve_removes_a_legacy_overlay_that_would_shadow_the_page(world):
     assert r["write"]["overlayRemoved"] and r["recheck"]["verdict"] == "verified"
 
 
+def test_a_page_fixed_elsewhere_closes_its_item(world):
+    p, inbox = world["proto"], world["inbox"]
+    assert p.visit("eng", "eng/soc2-owner")["verdict"] == "gap"
+    page = world["brain_dir"] / "eng" / "soc2-owner.md"
+    page.write_text(page.read_text().replace("Owner: not recorded", "Owner: Dana Whitfield").replace("| Owner | (none recorded) |", "| Owner | Dana Whitfield |"))
+    p.start_run("r2")
+    assert p.visit("eng", "eng/soc2-owner")["verdict"] == "stale"  # fixed, but updated: is still April
+    assert inbox.get("eng/soc2-owner")["status"] == "open" and inbox.get("eng/soc2-owner")["verdict"] == "stale"
+    page.write_text(page.read_text().replace("updated: 2026-04-18", "updated: 2026-09-26"))
+    assert p.visit("eng", "eng/soc2-owner")["verdict"] == "verified"
+    it = inbox.get("eng/soc2-owner")
+    assert it["status"] == "resolved" and it["resolvedBy"] == "page re-verified" and it["verified"] is True
+
+
 def test_slack_webhook_is_used_when_configured(world):
     got = []
 

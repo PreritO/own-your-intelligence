@@ -194,9 +194,11 @@ class Inbox:
                 self._open(ev, c)
             elif ev.get("verdict") == "verified":
                 item = self.items.get(ev.get("memoryId", ""))
-                if item and item["status"] == "resolved" and not item.get("verified"):
+                if item and not item.get("verified") and not item.get("_busy"):
                     item["verified"] = True
                     item["recheck"] = {"agent": agent, "verdict": "verified", "note": ev.get("note"), "at": _now(), "run": ev.get("run")}
+                    if item["status"] == "open":  # the page was fixed elsewhere (a seed edit, a legacy overlay)
+                        item.update(status="resolved", resolvedBy="page re-verified", resolvedAt=_now())
                     self._save()
 
     def _asker(self, ev: dict, c: RunCtx) -> tuple[str, str, str]:
@@ -222,8 +224,7 @@ class Inbox:
         if item and item["status"] == "open":
             item["hits"] = item.get("hits", 1) + 1
             item["lastSeen"] = _now()
-            if ev["verdict"] == "gap" and item["verdict"] == "stale":  # a gap outranks stale
-                item["verdict"], item["note"] = "gap", ev.get("note")
+            item["verdict"], item["note"] = ev["verdict"], ev.get("note")  # the latest read of the page wins
             self._save()
             return
         asker, question, qsrc = self._asker(ev, c)
