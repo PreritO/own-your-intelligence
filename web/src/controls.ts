@@ -9,7 +9,7 @@ import { resolveCollision, type Box } from "./scene/layout";
 
 const WALK_MODE = new URLSearchParams(location.search).has("walk");
 /** Screen area the HUD covers in the overview (quest log left, party bar bottom), used to frame the palace. */
-export const HUD_INSETS = { left: 380, right: 30, top: 150, bottom: 110 };
+export const HUD_INSETS = { left: 380, right: 30, top: 380, bottom: 90 };
 /** Window events the HUD uses to drive the overview camera (not part of api.ts). */
 export const CAMERA_EVENTS = {
   home: "mp:camera-home", // detail: {}
