@@ -439,7 +439,11 @@ async function ingest(req: Request): Promise<Response> {
   const e = PalaceEvent.safeParse(raw);
   if (!e.success) return json({ error: `bad event: ${e.error.issues[0]?.message}` }, 400);
   if (!run || run.done) startRun("live", "POST /events", false);
-  const ok = emit(run!, e.data);
+  // The sender's t is its own clock. In a run someone else drives (e.g. a live quest) stamp it with the
+  // run's current t, or a far-ahead t makes the next protocol event look backwards and splits the run.
+  const r0 = run!;
+  const own = r0.source === "POST /events";
+  const ok = emit(r0, own ? e.data : { ...e.data, t: r0.lastT });
   if (run!.mode === "live") {
     clearTimeout(run!.idle);
     const r = run!;
