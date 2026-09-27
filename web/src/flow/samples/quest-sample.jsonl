@@ -1,0 +1,86 @@
+{"t": 0.0, "agent": "scout-1", "type": "spawn", "label": "Quest: Onboarding", "color": "#7dcfff", "home": "room-workshop", "task": "Onboard Gripworks as a new gripper supplier", "harness": "protocol", "run": "quest-sample"}
+{"t": 0.1, "agent": "scout-1", "type": "task", "text": "Onboard Gripworks as a new gripper supplier", "run": "quest-sample"}
+{"t": 0.5, "agent": "scout-1", "type": "phase", "phase": "plan", "note": "5 subtasks across 4 departments", "subtasks": [{"id": "s1", "title": "Vendor profile", "department": "people", "stations": ["companies/gripworks"]}, {"id": "s2", "title": "Onboarding steps & contract", "department": "legal", "stations": ["legal/vendor-onboarding", "legal/gripworks-msa"]}, {"id": "s3", "title": "Budget & PO", "department": "finance", "stations": ["finance/budget-2026-q4", "finance/purchase-order-policy"]}, {"id": "s4", "title": "Security review", "department": "eng", "stations": ["eng/vendor-risk-reviews", "eng/security-policy"]}, {"id": "s5", "title": "Sign-off", "department": "people", "stations": ["people/signatories"]}], "run": "quest-sample"}
+{"t": 1.1, "agent": "scout-1", "type": "phase", "phase": "explore", "run": "quest-sample"}
+{"t": 1.3, "agent": "scout-1", "type": "route", "routeId": "explore-onboarding", "source": "explore", "stations": ["companies/gripworks", "companies/voltcell", "legal/vendor-onboarding", "legal/gripworks-msa", "finance/purchase-order-policy", "finance/budget-2026-q4", "eng/vendor-risk-reviews", "eng/security-policy", "people/signatories"], "run": "quest-sample"}
+{"t": 1.7, "agent": "scout-1", "type": "move", "to": "room-people-0", "run": "quest-sample"}
+{"t": 2.1, "agent": "scout-1", "type": "claim", "memoryId": "companies/gripworks", "run": "quest-sample"}
+{"t": 2.6, "agent": "scout-1", "type": "visit", "memoryId": "companies/gripworks", "verdict": "verified", "subtask": "s1", "evidence": "Supplier of soft robotic grippers. Proposed a 12-month supply agreement at $40k.", "run": "quest-sample"}
+{"t": 3.0, "agent": "scout-1", "type": "move", "to": "room-people-1", "run": "quest-sample"}
+{"t": 3.4, "agent": "scout-1", "type": "claim", "memoryId": "companies/voltcell", "run": "quest-sample"}
+{"t": 3.9, "agent": "scout-1", "type": "visit", "memoryId": "companies/voltcell", "verdict": "verified", "subtask": "s1", "evidence": "Battery pack supplier for the arm's mobile base.", "note": "wrong vendor, dead end", "run": "quest-sample"}
+{"t": 4.3, "agent": "scout-1", "type": "move", "to": "room-legal-0", "run": "quest-sample"}
+{"t": 4.6, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h1", "toAgent": "legal", "memoryId": "legal/vendor-onboarding", "question": "What are the steps to onboard a new supplier?", "run": "quest-sample"}
+{"t": 4.9, "agent": "legal", "type": "move", "to": "room-legal-0", "run": "quest-sample"}
+{"t": 5.2, "agent": "legal", "type": "claim", "memoryId": "legal/vendor-onboarding", "run": "quest-sample"}
+{"t": 5.7, "agent": "legal", "type": "visit", "memoryId": "legal/vendor-onboarding", "verdict": "verified", "subtask": "s2", "evidence": "Steps to onboard a new supplier: NDA, vendor risk review, contract per playbook, PO.", "run": "quest-sample"}
+{"t": 6.0, "agent": "legal", "type": "reply", "id": "quest-sample-h1", "answer": "NDA, then an Eng vendor risk review, then the MSA, then a PO.", "run": "quest-sample"}
+{"t": 6.4, "agent": "scout-1", "type": "move", "to": "room-legal-0", "run": "quest-sample"}
+{"t": 6.7, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h2", "toAgent": "legal", "memoryId": "legal/gripworks-msa", "question": "Is the Gripworks MSA ready to sign?", "run": "quest-sample"}
+{"t": 7.0, "agent": "legal", "type": "move", "to": "room-legal-0", "run": "quest-sample"}
+{"t": 7.3, "agent": "legal", "type": "claim", "memoryId": "legal/gripworks-msa", "run": "quest-sample"}
+{"t": 7.8, "agent": "legal", "type": "visit", "memoryId": "legal/gripworks-msa", "verdict": "verified", "subtask": "s2", "evidence": "Master services agreement draft v3. Net-45 payment, 12-month term.", "run": "quest-sample"}
+{"t": 8.1, "agent": "legal", "type": "reply", "id": "quest-sample-h2", "answer": "MSA v3 is approved by Legal, pending budget confirmation.", "run": "quest-sample"}
+{"t": 8.5, "agent": "scout-1", "type": "move", "to": "room-finance-1", "run": "quest-sample"}
+{"t": 8.8, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h3", "toAgent": "finance", "memoryId": "finance/purchase-order-policy", "question": "Does a $40k supplier need PO approval?", "run": "quest-sample"}
+{"t": 9.1, "agent": "finance", "type": "move", "to": "room-finance-1", "run": "quest-sample"}
+{"t": 9.4, "agent": "finance", "type": "claim", "memoryId": "finance/purchase-order-policy", "run": "quest-sample"}
+{"t": 9.9, "agent": "finance", "type": "visit", "memoryId": "finance/purchase-order-policy", "verdict": "stale", "subtask": "s3", "evidence": "POs over $25k need the VP Finance.", "note": "freshness 0.33 is borderline", "run": "quest-sample"}
+{"t": 10.2, "agent": "finance", "type": "reply", "id": "quest-sample-h3", "answer": "Over $25k needs Raj Patel, but the policy page is stale.", "run": "quest-sample"}
+{"t": 10.6, "agent": "scout-1", "type": "move", "to": "room-finance-1", "run": "quest-sample"}
+{"t": 10.9, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h4", "toAgent": "finance", "memoryId": "finance/budget-2026-q4", "question": "Is Gripworks within the Q4 budget?", "run": "quest-sample"}
+{"t": 11.2, "agent": "finance", "type": "move", "to": "room-finance-1", "run": "quest-sample"}
+{"t": 11.5, "agent": "finance", "type": "claim", "memoryId": "finance/budget-2026-q4", "run": "quest-sample"}
+{"t": 12.0, "agent": "finance", "type": "visit", "memoryId": "finance/budget-2026-q4", "verdict": "verified", "subtask": "s3", "evidence": "Supplier line: $55k allocated, $15k committed. Gripworks ($40k) fits.", "run": "quest-sample"}
+{"t": 12.3, "agent": "finance", "type": "reply", "id": "quest-sample-h4", "answer": "Yes: $40k of the $55k supplier line.", "run": "quest-sample"}
+{"t": 12.7, "agent": "scout-1", "type": "move", "to": "room-eng-0", "run": "quest-sample"}
+{"t": 13.0, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h5", "toAgent": "eng", "memoryId": "eng/vendor-risk-reviews", "question": "Has Gripworks passed a vendor risk review?", "run": "quest-sample"}
+{"t": 13.3, "agent": "eng", "type": "move", "to": "room-eng-0", "run": "quest-sample"}
+{"t": 13.6, "agent": "eng", "type": "claim", "memoryId": "eng/vendor-risk-reviews", "run": "quest-sample"}
+{"t": 14.1, "agent": "eng", "type": "visit", "memoryId": "eng/vendor-risk-reviews", "verdict": "gap", "subtask": "s4", "evidence": "No Gripworks questionnaire on file.", "note": "no Gripworks entry", "run": "quest-sample"}
+{"t": 14.4, "agent": "eng", "type": "reply", "id": "quest-sample-h5", "answer": "No review on file for Gripworks. That's a gap.", "run": "quest-sample"}
+{"t": 14.8, "agent": "scout-1", "type": "move", "to": "room-eng-0", "run": "quest-sample"}
+{"t": 15.1, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h6", "toAgent": "eng", "memoryId": "eng/security-policy", "question": "Does the security policy cover hardware suppliers?", "run": "quest-sample"}
+{"t": 15.4, "agent": "eng", "type": "move", "to": "room-eng-0", "run": "quest-sample"}
+{"t": 15.7, "agent": "eng", "type": "claim", "memoryId": "eng/security-policy", "run": "quest-sample"}
+{"t": 16.2, "agent": "eng", "type": "visit", "memoryId": "eng/security-policy", "verdict": "stale", "subtask": "s4", "evidence": "Last reviewed March. Lists controls but no supplier section.", "run": "quest-sample"}
+{"t": 16.5, "agent": "eng", "type": "reply", "id": "quest-sample-h6", "answer": "Policy is stale and silent on suppliers.", "run": "quest-sample"}
+{"t": 16.9, "agent": "scout-1", "type": "move", "to": "room-people-0", "run": "quest-sample"}
+{"t": 17.3, "agent": "scout-1", "type": "claim", "memoryId": "people/signatories", "run": "quest-sample"}
+{"t": 17.8, "agent": "scout-1", "type": "visit", "memoryId": "people/signatories", "verdict": "verified", "subtask": "s5", "evidence": "Contracts over $30k need the CEO (Mara Okafor) or COO (Dev Lindqvist) to sign.", "run": "quest-sample"}
+{"t": 18.3, "agent": "scout-1", "type": "phase", "phase": "gym", "note": "training on the explore trajectory", "run": "quest-sample"}
+{"t": 18.6, "agent": "scout-1", "type": "move", "to": "room-gym", "run": "quest-sample"}
+{"t": 19.1, "agent": "scout-1", "type": "train_step", "step": 1, "reward": 0.31, "checkpoint": "onboarding-ckpt-1", "run": "quest-sample"}
+{"t": 19.6, "agent": "scout-1", "type": "train_step", "step": 2, "reward": 0.52, "checkpoint": "onboarding-ckpt-2", "run": "quest-sample"}
+{"t": 20.1, "agent": "scout-1", "type": "train_step", "step": 3, "reward": 0.68, "checkpoint": "onboarding-ckpt-3", "run": "quest-sample"}
+{"t": 20.6, "agent": "scout-1", "type": "train_step", "step": 4, "reward": 0.81, "checkpoint": "onboarding-ckpt-4", "run": "quest-sample"}
+{"t": 21.1, "agent": "scout-1", "type": "phase", "phase": "execute", "run": "quest-sample"}
+{"t": 21.3, "agent": "scout-1", "type": "route", "routeId": "supplier-onboarding", "source": "learned", "stations": ["companies/gripworks", "legal/vendor-onboarding", "finance/budget-2026-q4", "eng/vendor-risk-reviews", "people/signatories"], "run": "quest-sample"}
+{"t": 21.7, "agent": "scout-1", "type": "move", "to": "room-people-0", "run": "quest-sample"}
+{"t": 22.1, "agent": "scout-1", "type": "claim", "memoryId": "companies/gripworks", "run": "quest-sample"}
+{"t": 22.6, "agent": "scout-1", "type": "visit", "memoryId": "companies/gripworks", "verdict": "verified", "subtask": "s1", "evidence": "Proposed a 12-month supply agreement at $40k.", "run": "quest-sample"}
+{"t": 23.0, "agent": "scout-1", "type": "move", "to": "room-legal-0", "run": "quest-sample"}
+{"t": 23.3, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h7", "toAgent": "legal", "memoryId": "legal/vendor-onboarding", "question": "Onboarding checklist for Gripworks?", "run": "quest-sample"}
+{"t": 23.6, "agent": "legal", "type": "move", "to": "room-legal-0", "run": "quest-sample"}
+{"t": 23.9, "agent": "legal", "type": "claim", "memoryId": "legal/vendor-onboarding", "run": "quest-sample"}
+{"t": 24.4, "agent": "legal", "type": "visit", "memoryId": "legal/vendor-onboarding", "verdict": "verified", "subtask": "s2", "evidence": "NDA, vendor risk review, contract per playbook, PO.", "run": "quest-sample"}
+{"t": 24.7, "agent": "legal", "type": "reply", "id": "quest-sample-h7", "answer": "NDA signed; MSA v3 approved; risk review and PO outstanding.", "run": "quest-sample"}
+{"t": 25.1, "agent": "scout-1", "type": "move", "to": "room-finance-1", "run": "quest-sample"}
+{"t": 25.4, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h8", "toAgent": "finance", "memoryId": "finance/budget-2026-q4", "question": "Confirm Gripworks fits Q4?", "run": "quest-sample"}
+{"t": 25.7, "agent": "finance", "type": "move", "to": "room-finance-1", "run": "quest-sample"}
+{"t": 26.0, "agent": "finance", "type": "claim", "memoryId": "finance/budget-2026-q4", "run": "quest-sample"}
+{"t": 26.5, "agent": "finance", "type": "visit", "memoryId": "finance/budget-2026-q4", "verdict": "verified", "subtask": "s3", "evidence": "Supplier line: $55k allocated, $15k committed.", "run": "quest-sample"}
+{"t": 26.8, "agent": "finance", "type": "reply", "id": "quest-sample-h8", "answer": "Confirmed: $40k fits the Q4 supplier line.", "run": "quest-sample"}
+{"t": 27.2, "agent": "scout-1", "type": "move", "to": "room-eng-0", "run": "quest-sample"}
+{"t": 27.5, "agent": "scout-1", "type": "handoff", "id": "quest-sample-h9", "toAgent": "eng", "memoryId": "eng/vendor-risk-reviews", "question": "Any vendor risk review for Gripworks yet?", "run": "quest-sample"}
+{"t": 27.8, "agent": "eng", "type": "move", "to": "room-eng-0", "run": "quest-sample"}
+{"t": 28.1, "agent": "eng", "type": "claim", "memoryId": "eng/vendor-risk-reviews", "run": "quest-sample"}
+{"t": 28.6, "agent": "eng", "type": "visit", "memoryId": "eng/vendor-risk-reviews", "verdict": "gap", "subtask": "s4", "evidence": "No Gripworks questionnaire on file.", "run": "quest-sample"}
+{"t": 28.9, "agent": "eng", "type": "reply", "id": "quest-sample-h9", "answer": "Still none on file.", "run": "quest-sample"}
+{"t": 29.3, "agent": "scout-1", "type": "move", "to": "room-people-0", "run": "quest-sample"}
+{"t": 29.7, "agent": "scout-1", "type": "claim", "memoryId": "people/signatories", "run": "quest-sample"}
+{"t": 30.2, "agent": "scout-1", "type": "visit", "memoryId": "people/signatories", "verdict": "verified", "subtask": "s5", "evidence": "Contracts over $30k need the CEO or COO to sign.", "run": "quest-sample"}
+{"t": 30.6, "agent": "scout-1", "type": "move", "to": "room-workshop", "run": "quest-sample"}
+{"t": 31.1, "agent": "scout-1", "type": "artifact", "memory": {"id": "workshop/gripworks-onboarding", "title": "Gripworks Onboarding Brief", "type": "brief", "room": "room-workshop", "pos": [22, 1.1, -22], "freshness": 1, "path": "workshop/gripworks-onboarding.md", "excerpt": "Gripworks onboarding: NDA done, MSA v3 approved, fits Q4 budget. Blocked on an Eng vendor risk review. CEO or COO signs."}, "run": "quest-sample"}
+{"t": 31.5, "agent": "scout-1", "type": "answer", "text": "Gripworks can be onboarded once Eng completes a vendor risk review (none on file). MSA v3 is approved, the $40k fits the Q4 supplier line, and the CEO or COO signs.", "citations": ["companies/gripworks", "legal/vendor-onboarding", "finance/budget-2026-q4", "people/signatories"], "gaps": ["eng/vendor-risk-reviews"], "run": "quest-sample"}
+{"t": 31.8, "agent": "scout-1", "type": "phase", "phase": "done", "run": "quest-sample"}
