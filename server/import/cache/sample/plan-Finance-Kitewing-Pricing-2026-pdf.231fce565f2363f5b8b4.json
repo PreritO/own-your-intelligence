@@ -1,0 +1,24 @@
+{
+  "name": "plan-Finance/Kitewing Pricing 2026.pdf",
+  "model": "claude-sonnet-5",
+  "key": "231fce565f2363f5b8b4",
+  "output": {
+    "doc_date": "2026-01-20",
+    "pages": [
+      {
+        "key": "pricing-2026",
+        "title": "Kitewing Pricing 2026",
+        "type": "pricing",
+        "department": "finance",
+        "room": "Pricing",
+        "summary": "Kitewing's 2026 pricing has Starter at $149/location/month, Growth at $299/location/month, and Enterprise custom with a $249/location floor.",
+        "body": "Issued by Finance, January 20, 2026. Prices in USD. Billed annually unless noted.\n\n| PLAN | PRICE | WHO IT'S FOR |\n|---|---|---|\n| Starter | $149 / location / month | 1 location, self-serve |\n| Growth | $299 / location / month | 2 to 40 locations, AE-led |\n| Enterprise | custom, floor $249/location | 40+ locations or custom integrations |\n\nStarter can be billed monthly.\n\n### One-time Fees\n- Onboarding (Growth): $1,500 per location\n- Onboarding (Enterprise): waived\n- POS integration (non-standard POS): $2,000 per integration\n\n### Included\n- All plans: inventory counts, recipe costing, supplier catalog, mobile app.\n- Growth adds: multi-location transfers, par levels, invoice scanning (500 invoices / location / month).\n- Enterprise adds: SSO, custom roles, API access, dedicated CSM.\n\n### Payment Terms\n- Net 30. Annual prepay gets 10% off.\n- Multi-year contracts need Finance approval.\n\nQuestions: finance@kitewing.example",
+        "is_policy_or_process": false,
+        "owner": null,
+        "owner_person": null,
+        "gaps": []
+      }
+    ],
+    "entities": []
+  }
+}

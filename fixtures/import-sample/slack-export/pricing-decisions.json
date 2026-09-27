@@ -1,0 +1,31 @@
+{
+  "channel": "pricing-decisions",
+  "users": {
+    "U01NOOR": "Noor Haddad",
+    "U02WREN": "Wren Castellano",
+    "U03TOBI": "Tobias Mbeki",
+    "U04RAFA": "Rafa Oyelaran",
+    "U05KEIK": "Keiko Ferrante",
+    "U06FELX": "Felix Arrowood",
+    "U07MARI": "Marisol Quint"
+  },
+  "messages": [
+    { "type": "message", "user": "U02WREN", "ts": "1788534000.000100", "text": "Kicking off the Growth price thread. Win rate on Growth deals is 34% at $299 and we're underpriced vs Crate & Ladle by ~$60/location." },
+    { "type": "message", "user": "U04RAFA", "ts": "1788534300.000200", "thread_ts": "1788534000.000100", "text": "Competitive sheet agrees. Crate & Ladle Growth-equivalent is $359." },
+    { "type": "message", "user": "U05KEIK", "ts": "1788534600.000300", "thread_ts": "1788534000.000100", "text": "Please don't surprise existing customers. Last time we changed invoice-scanning limits we got 40 tickets in a day :sweat_smile:" },
+    { "type": "message", "user": "U07MARI", "ts": "1788535000.000400", "text": "anyone have the figma link for the new pricing page?" },
+    { "type": "message", "user": "U04RAFA", "ts": "1788535100.000500", "thread_ts": "1788535000.000400", "text": "pinned in #marketing" },
+    { "type": "message", "user": "U03TOBI", "ts": "1788876000.000600", "thread_ts": "1788534000.000100", "text": "Modelled it: $349 for new Growth customers adds ~$310k ARR over 12 months at current pipeline. Grandfathering existing customers for 6 months costs us ~$95k." },
+    { "type": "message", "user": "U06FELX", "ts": "1788876600.000700", "text": "lunch order for the Portland office is in, tacos again :taco:" },
+    { "type": "message", "user": "U01NOOR", "ts": "1788962400.000800", "thread_ts": "1788534000.000100", "text": "Decision: Growth goes from $299 to $349 per location per month for new customers starting October 1, 2026. Existing customers keep $299 through March 31, 2027, then move to $349 at renewal." },
+    { "type": "message", "user": "U01NOOR", "ts": "1788962500.000900", "thread_ts": "1788534000.000100", "text": "Wren owns customer comms for the change. Tobias owns reissuing the pricing sheet by September 30." },
+    { "type": "message", "user": "U02WREN", "ts": "1788962800.001000", "thread_ts": "1788534000.000100", "text": "On it. Keiko and I will send the grandfathering email to existing Growth accounts by September 22." },
+    { "type": "message", "user": "U05KEIK", "ts": "1788963000.001100", "thread_ts": "1788534000.000100", "text": "+1 :raised_hands:" },
+    { "type": "message", "user": "U07MARI", "ts": "1789135200.001200", "text": "Reminder: HubSpot price books need updating before Oct 1 or quotes will go out at $299." },
+    { "type": "message", "user": "U02WREN", "ts": "1789135500.001300", "thread_ts": "1789135200.001200", "text": "Marisol, can you own the HubSpot price book update? Due September 29." },
+    { "type": "message", "user": "U07MARI", "ts": "1789135800.001400", "thread_ts": "1789135200.001200", "text": "Yes, I'll own it." },
+    { "type": "message", "user": "U04RAFA", "ts": "1789222200.001500", "text": "We're also agreed that Starter stays at $149, right? Nobody's proposed changing it." },
+    { "type": "message", "user": "U01NOOR", "ts": "1789222500.001600", "thread_ts": "1789222200.001500", "text": "Correct. Starter stays at $149 for 2026. We'll revisit in the 2027 plan." },
+    { "type": "message", "subtype": "channel_join", "user": "U06FELX", "ts": "1789226000.001700", "text": "<@U06FELX> has joined the channel" }
+  ]
+}

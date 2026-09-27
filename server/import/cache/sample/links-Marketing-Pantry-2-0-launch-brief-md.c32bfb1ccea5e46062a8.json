@@ -1,0 +1,51 @@
+{
+  "name": "links-Marketing/Pantry 2.0 launch brief.md",
+  "model": "claude-sonnet-5",
+  "key": "c32bfb1ccea5e46062a8",
+  "output": {
+    "links": [
+      {
+        "from": "marketing/pantry-2-0-launch-brief",
+        "to": "people/rafa-oyelaran",
+        "kind": "owned_by",
+        "evidence": "Owner: Rafa Oyelaran"
+      },
+      {
+        "from": "marketing/pantry-2-0-launch-brief",
+        "to": "people/keiko-ferrante",
+        "kind": "mentions",
+        "evidence": "Keiko's team co-hosts"
+      },
+      {
+        "from": "marketing/pantry-2-0-launch-brief",
+        "to": "companies/juniper-row-group",
+        "kind": "mentions",
+        "evidence": "Case study with Juniper Row Group"
+      },
+      {
+        "from": "marketing/pantry-2-0-launch-brief",
+        "to": "people/felix-arrowood",
+        "kind": "depends_on",
+        "evidence": "feature flags on by Oct 30 (Felix)"
+      },
+      {
+        "from": "marketing/pantry-2-0-launch-brief",
+        "to": "people/wren-castellano",
+        "kind": "depends_on",
+        "evidence": "Sales enablement session Oct 21 (Wren)"
+      },
+      {
+        "from": "marketing/pantry-2-0-launch-brief",
+        "to": "sales/growth-and-starter-pricing-changes",
+        "kind": "references",
+        "evidence": "new Growth price ($349 per location per month for new customers from October 1)"
+      },
+      {
+        "from": "marketing/pantry-2-0-launch-brief",
+        "to": "finance/pricing-2026",
+        "kind": "conflicts_with",
+        "evidence": "Don't quote $299"
+      }
+    ]
+  }
+}

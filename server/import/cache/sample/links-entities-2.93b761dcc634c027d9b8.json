@@ -1,0 +1,375 @@
+{
+  "name": "links-entities-2",
+  "model": "claude-sonnet-5",
+  "key": "93b761dcc634c027d9b8",
+  "output": {
+    "links": [
+      {
+        "from": "people/ana-lindqvist",
+        "to": "eng/oncall-rotation",
+        "kind": "mentioned_in",
+        "evidence": "primary: Dmitri Solberg -> Felix Arrowood -> Ana Lindqvist -> Jonah Pereira"
+      },
+      {
+        "from": "people/ana-lindqvist",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "welcome Ana Lindqvist (platform eng)"
+      },
+      {
+        "from": "people/carmen-delacroix",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Board: Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures)"
+      },
+      {
+        "from": "people/carmen-delacroix",
+        "to": "companies/northbay-ventures",
+        "kind": "mentions",
+        "evidence": "Carmen Delacroix (Northbay Ventures)"
+      },
+      {
+        "from": "people/dmitri-solberg",
+        "to": "eng/oncall-rotation",
+        "kind": "owns",
+        "evidence": "maintained by Dmitri, last touched 2026-09-01"
+      },
+      {
+        "from": "people/dmitri-solberg",
+        "to": "eng/ordering-outage-postmortem",
+        "kind": "mentioned_in",
+        "evidence": "Author: Dmitri Solberg"
+      },
+      {
+        "from": "people/dmitri-solberg",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Dmitri Solberg | Engineering Manager, Platform"
+      },
+      {
+        "from": "people/dmitri-solberg",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "PagerDuty | on-call paging | Dmitri Solberg"
+      },
+      {
+        "from": "people/dmitri-solberg",
+        "to": "companies/pagerduty",
+        "kind": "mentions",
+        "evidence": "PagerDuty | on-call paging | Dmitri Solberg"
+      },
+      {
+        "from": "people/felix-arrowood",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Board: Noor Haddad, Felix Arrowood, Carmen Delacroix"
+      },
+      {
+        "from": "people/felix-arrowood",
+        "to": "eng/oncall-rotation",
+        "kind": "mentioned_in",
+        "evidence": "escalation after 30 min unacked: Felix (CTO)"
+      },
+      {
+        "from": "people/felix-arrowood",
+        "to": "eng/ordering-outage-postmortem",
+        "kind": "mentioned_in",
+        "evidence": "On-call (Felix Arrowood that week) declared the incident"
+      },
+      {
+        "from": "people/felix-arrowood",
+        "to": "people/company-overview",
+        "kind": "mentioned_in",
+        "evidence": "founded in 2023 by Noor Haddad (CEO) and Felix Arrowood (CTO)"
+      },
+      {
+        "from": "people/felix-arrowood",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Felix Arrowood | CTO & co-founder"
+      },
+      {
+        "from": "people/felix-arrowood",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "AWS | hosting (us-west-2) | Felix Arrowood"
+      },
+      {
+        "from": "people/felix-arrowood",
+        "to": "companies/aws",
+        "kind": "mentions",
+        "evidence": "AWS | hosting (us-west-2) | Felix Arrowood"
+      },
+      {
+        "from": "people/felix-arrowood",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "felix: postmortem for aug 14 outage is up"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "people/company-overview",
+        "kind": "owns",
+        "evidence": "Report concerns to Ines Takahara (Head of People)"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "people/remote-work-policy",
+        "kind": "owns",
+        "evidence": "Head of People"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "people/code-of-conduct",
+        "kind": "owns",
+        "evidence": "Report concerns to Ines Takahara (Head of People)"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "people/first-two-weeks-onboarding",
+        "kind": "owns",
+        "evidence": "Head of People"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "people/pto-and-leave",
+        "kind": "owns",
+        "evidence": "Owner: Ines Takahara"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Ines Takahara | Head of People"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "Cobaltcare | health insurance | Ines Takahara"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "companies/cobaltcare",
+        "kind": "mentions",
+        "evidence": "Cobaltcare | health insurance | Ines Takahara"
+      },
+      {
+        "from": "people/ines-takahara",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "ines: offsite in austin oct 20-22"
+      },
+      {
+        "from": "people/jonah-pereira",
+        "to": "eng/oncall-rotation",
+        "kind": "mentioned_in",
+        "evidence": "Jonah Pereira -> (repeat)"
+      },
+      {
+        "from": "people/jonah-pereira",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "welcome Ana Lindqvist (platform eng) + Jonah Pereira"
+      },
+      {
+        "from": "people/keiko-ferrante",
+        "to": "support/support-sla",
+        "kind": "owns",
+        "evidence": "Owner: Keiko Ferrante (Head of Customer Success)"
+      },
+      {
+        "from": "people/keiko-ferrante",
+        "to": "eng/ordering-outage-postmortem",
+        "kind": "mentioned_in",
+        "evidence": "Credit affected customers 1 day of subscription | Keiko Ferrante"
+      },
+      {
+        "from": "people/keiko-ferrante",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Keiko Ferrante | Head of Customer Success"
+      },
+      {
+        "from": "people/keiko-ferrante",
+        "to": "sales/kitewing-sales-playbook",
+        "kind": "mentioned_in",
+        "evidence": "Closed-won deals are handed to Keiko Ferrante's team"
+      },
+      {
+        "from": "people/marisol-quint",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Marisol Quint | RevOps Manager"
+      },
+      {
+        "from": "people/marisol-quint",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "updated 2026-08-20 by Marisol Quint"
+      },
+      {
+        "from": "people/marisol-quint",
+        "to": "sales/growth-and-starter-pricing-changes",
+        "kind": "mentioned_in",
+        "evidence": "Yes, I'll own it."
+      },
+      {
+        "from": "people/noor-haddad",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Prepared by Noor Haddad and Tobias Mbeki"
+      },
+      {
+        "from": "people/noor-haddad",
+        "to": "finance/expense-policy",
+        "kind": "mentioned_in",
+        "evidence": "Above $10,000, Noor Haddad also approves"
+      },
+      {
+        "from": "people/noor-haddad",
+        "to": "legal/customer-msa-standard-positions",
+        "kind": "mentioned_in",
+        "evidence": "Noor Haddad signs all customer contracts over $50k ARR"
+      },
+      {
+        "from": "people/noor-haddad",
+        "to": "people/company-overview",
+        "kind": "mentioned_in",
+        "evidence": "founded in 2023 by Noor Haddad (CEO)"
+      },
+      {
+        "from": "people/noor-haddad",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Noor Haddad | CEO & co-founder"
+      },
+      {
+        "from": "people/noor-haddad",
+        "to": "sales/kitewing-sales-playbook",
+        "kind": "mentioned_in",
+        "evidence": "needs Noor Haddad and Tobias Mbeki (finance)"
+      },
+      {
+        "from": "people/noor-haddad",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "noor: Q3 closing strong, ARR $4.1M"
+      },
+      {
+        "from": "people/noor-haddad",
+        "to": "sales/growth-and-starter-pricing-changes",
+        "kind": "mentioned_in",
+        "evidence": "Decision: Growth goes from $299 to $349"
+      },
+      {
+        "from": "people/rafa-oyelaran",
+        "to": "marketing/pantry-2-0-launch-brief",
+        "kind": "owns",
+        "evidence": "Owner: Rafa Oyelaran · Launch date: November 4, 2026"
+      },
+      {
+        "from": "people/rafa-oyelaran",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Launch plan owned by Rafa Oyelaran"
+      },
+      {
+        "from": "people/rafa-oyelaran",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Rafa Oyelaran | Product Marketing Lead"
+      },
+      {
+        "from": "people/rafa-oyelaran",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "rafa: pantry 2.0 launch nov 4"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "finance/expense-policy",
+        "kind": "owns",
+        "evidence": "Owner: Tobias Mbeki (Head of Finance)"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "legal/customer-msa-standard-positions",
+        "kind": "owns",
+        "evidence": "Kept by Tobias Mbeki until we hire in-house counsel"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Prepared by Noor Haddad and Tobias Mbeki"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Tobias Mbeki | Head of Finance"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "Ledgerline | billing + expenses | Tobias Mbeki"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "companies/ledgerline",
+        "kind": "mentions",
+        "evidence": "Ledgerline | billing + expenses | Tobias Mbeki"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "sales/kitewing-sales-playbook",
+        "kind": "mentioned_in",
+        "evidence": "needs Noor Haddad and Tobias Mbeki (finance)"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "tobias: expense policy reminder"
+      },
+      {
+        "from": "people/tobias-mbeki",
+        "to": "companies/expensify",
+        "kind": "mentions",
+        "evidence": "expensify is gone"
+      },
+      {
+        "from": "people/wren-castellano",
+        "to": "sales/kitewing-sales-playbook",
+        "kind": "owns",
+        "evidence": "Owner: Wren Castellano, VP Sales"
+      },
+      {
+        "from": "people/wren-castellano",
+        "to": "legal/customer-msa-standard-positions",
+        "kind": "mentioned_in",
+        "evidence": "Wren Castellano signs under $50k ARR"
+      },
+      {
+        "from": "people/wren-castellano",
+        "to": "people/team-directory",
+        "kind": "mentioned_in",
+        "evidence": "Wren Castellano | VP Sales"
+      },
+      {
+        "from": "people/wren-castellano",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "wren: growth pricing thread is in #pricing-decisions"
+      },
+      {
+        "from": "people/wren-castellano",
+        "to": "sales/growth-and-starter-pricing-changes",
+        "kind": "mentioned_in",
+        "evidence": "Wren owns customer comms for the change"
+      }
+    ]
+  }
+}

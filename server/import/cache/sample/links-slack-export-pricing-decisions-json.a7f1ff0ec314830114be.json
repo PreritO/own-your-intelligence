@@ -1,0 +1,51 @@
+{
+  "name": "links-slack-export/pricing-decisions.json",
+  "model": "claude-sonnet-5",
+  "key": "a7f1ff0ec314830114be",
+  "output": {
+    "links": [
+      {
+        "from": "sales/growth-and-starter-pricing-changes",
+        "to": "finance/pricing-2026",
+        "kind": "supersedes",
+        "evidence": "Growth goes from $299 to $349 per location per month"
+      },
+      {
+        "from": "sales/growth-and-starter-pricing-changes",
+        "to": "people/noor-haddad",
+        "kind": "decided_in",
+        "evidence": "Decision: Growth goes from $299 to $349... (Noor Haddad)"
+      },
+      {
+        "from": "sales/growth-and-starter-pricing-changes",
+        "to": "people/wren-castellano",
+        "kind": "mentions",
+        "evidence": "Wren owns customer comms for the change."
+      },
+      {
+        "from": "sales/growth-and-starter-pricing-changes",
+        "to": "people/tobias-mbeki",
+        "kind": "mentions",
+        "evidence": "Tobias owns reissuing the pricing sheet by September 30."
+      },
+      {
+        "from": "sales/growth-and-starter-pricing-changes",
+        "to": "people/keiko-ferrante",
+        "kind": "mentions",
+        "evidence": "Keiko and I will send the grandfathering email"
+      },
+      {
+        "from": "sales/growth-and-starter-pricing-changes",
+        "to": "people/marisol-quint",
+        "kind": "mentions",
+        "evidence": "Marisol, can you own the HubSpot price book update?"
+      },
+      {
+        "from": "sales/growth-and-starter-pricing-changes",
+        "to": "companies/hubspot",
+        "kind": "vendor",
+        "evidence": "own the HubSpot price book update"
+      }
+    ]
+  }
+}

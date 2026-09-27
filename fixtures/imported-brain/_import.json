@@ -1,0 +1,289 @@
+{
+  "model": "claude-sonnet-5",
+  "sources": [
+    {
+      "path": "Board/Q3 2026 Board Deck Outline.docx",
+      "format": "docx",
+      "pages": [
+        "finance/q3-2026-board-deck-outline"
+      ]
+    },
+    {
+      "path": "Eng/oncall.txt",
+      "format": "text",
+      "pages": [
+        "eng/oncall-rotation"
+      ]
+    },
+    {
+      "path": "Eng/postmortem-2026-08-14-ordering-outage.md",
+      "format": "markdown",
+      "pages": [
+        "eng/ordering-outage-postmortem"
+      ]
+    },
+    {
+      "path": "Finance/Kitewing Pricing 2026.pdf",
+      "format": "pdf",
+      "pages": [
+        "finance/pricing-2026"
+      ]
+    },
+    {
+      "path": "Finance/expense-policy.txt",
+      "format": "text",
+      "pages": [
+        "finance/expense-policy"
+      ]
+    },
+    {
+      "path": "Legal/customer-msa-notes.md",
+      "format": "markdown",
+      "pages": [
+        "legal/customer-msa-standard-positions"
+      ]
+    },
+    {
+      "path": "Marketing/Pantry 2.0 launch brief.md",
+      "format": "markdown",
+      "pages": [
+        "marketing/pantry-2-0-launch-brief"
+      ]
+    },
+    {
+      "path": "Notion Export/Kitewing Handbook 3f2a9c1e8b7d4a6f9e0c1b2a3d4e5f60.md",
+      "format": "notion",
+      "pages": [
+        "people/company-overview",
+        "people/remote-work-policy",
+        "people/code-of-conduct",
+        "people/first-two-weeks-onboarding"
+      ]
+    },
+    {
+      "path": "Notion Export/Kitewing Handbook/PTO and Leave 8a1b2c3d4e5f60718293a4b5c6d7e8f9.md",
+      "format": "notion",
+      "pages": [
+        "people/pto-and-leave"
+      ]
+    },
+    {
+      "path": "Notion Export/Team Directory 5c9d0e1f2a3b4c5d6e7f8091a2b3c4d5.md",
+      "format": "notion",
+      "pages": [
+        "people/team-directory"
+      ]
+    },
+    {
+      "path": "Ops/vendors.txt",
+      "format": "text",
+      "pages": [
+        "ops/vendor-list"
+      ]
+    },
+    {
+      "path": "Sales/Kitewing Sales Playbook.md",
+      "format": "gdocs",
+      "pages": [
+        "sales/kitewing-sales-playbook"
+      ]
+    },
+    {
+      "path": "Security/Information Security Policy.docx",
+      "format": "docx",
+      "pages": [
+        "eng/information-security-policy"
+      ]
+    },
+    {
+      "path": "Support/support-sla-and-refunds.md",
+      "format": "markdown",
+      "pages": [
+        "support/support-sla",
+        "support/refund-process"
+      ]
+    },
+    {
+      "path": "misc/all-hands-notes-2026-09-02.txt",
+      "format": "text",
+      "pages": [
+        "people/all-hands-2026-09-02"
+      ]
+    },
+    {
+      "path": "slack-export/pricing-decisions.json",
+      "format": "slack",
+      "pages": [
+        "sales/growth-and-starter-pricing-changes"
+      ]
+    }
+  ],
+  "skipped": [
+    {
+      "path": "misc/kitewing-logo.png",
+      "reason": "unsupported format (.png)"
+    }
+  ],
+  "slack": [
+    {
+      "channel": "pricing-decisions",
+      "path": "slack-export/pricing-decisions.json",
+      "messages": 16,
+      "kept": [
+        {
+          "i": 8,
+          "why": "decision",
+          "user": "Noor Haddad",
+          "date": "2026-09-09"
+        },
+        {
+          "i": 9,
+          "why": "owner",
+          "user": "Noor Haddad",
+          "date": "2026-09-09"
+        },
+        {
+          "i": 10,
+          "why": "owner",
+          "user": "Wren Castellano",
+          "date": "2026-09-09"
+        },
+        {
+          "i": 13,
+          "why": "owner",
+          "user": "Wren Castellano",
+          "date": "2026-09-11"
+        },
+        {
+          "i": 14,
+          "why": "owner",
+          "user": "Marisol Quint",
+          "date": "2026-09-11"
+        },
+        {
+          "i": 16,
+          "why": "decision",
+          "user": "Noor Haddad",
+          "date": "2026-09-12"
+        }
+      ]
+    }
+  ],
+  "departments": {
+    "eng": 3,
+    "finance": 3,
+    "legal": 1,
+    "marketing": 1,
+    "ops": 1,
+    "people": 31,
+    "sales": 2,
+    "support": 2
+  },
+  "pages": 44,
+  "links": 228,
+  "gaps": [
+    {
+      "page": "eng/information-security-policy",
+      "kind": "owner",
+      "text": "Information Security Policy: no owner recorded"
+    },
+    {
+      "page": "eng/information-security-policy",
+      "kind": "stated",
+      "text": "Policy owner field is blank"
+    },
+    {
+      "page": "eng/oncall-rotation",
+      "kind": "stated",
+      "text": "incident response runbook is out of date, don't trust the sev2 definition"
+    },
+    {
+      "page": "eng/ordering-outage-postmortem",
+      "kind": "stated",
+      "text": "No migration review checklist."
+    },
+    {
+      "page": "eng/ordering-outage-postmortem",
+      "kind": "stated",
+      "text": "Nobody owns the incident-response runbook since the security lead left, so the severity levels in it are out of date."
+    },
+    {
+      "page": "eng/ordering-outage-postmortem",
+      "kind": "stated",
+      "text": "Update incident-response runbook severity levels action item is unassigned."
+    },
+    {
+      "page": "finance/q3-2026-board-deck-outline",
+      "kind": "stated",
+      "text": "Board asked for a named security owner by the Q4 meeting."
+    },
+    {
+      "page": "finance/q3-2026-board-deck-outline",
+      "kind": "stated",
+      "text": "Security and compliance: no owner since July."
+    },
+    {
+      "page": "legal/customer-msa-standard-positions",
+      "kind": "stated",
+      "text": "There's no signed DPA with our billing vendor Ledgerline yet, which counsel flagged as a gap."
+    },
+    {
+      "page": "marketing/pantry-2-0-launch-brief",
+      "kind": "stated",
+      "text": "Case study with Juniper Row Group: approval pending from their marketing team"
+    },
+    {
+      "page": "marketing/pantry-2-0-launch-brief",
+      "kind": "stated",
+      "text": "Legal review of the \"save up to 8% on food cost\" claim: not yet assigned"
+    },
+    {
+      "page": "ops/vendor-list",
+      "kind": "stated",
+      "text": "Ledgerline DPA NOT signed"
+    },
+    {
+      "page": "ops/vendor-list",
+      "kind": "stated",
+      "text": "Nobody is assigned to run security reviews for new vendors touching customer data"
+    },
+    {
+      "page": "people/all-hands-2026-09-02",
+      "kind": "stated",
+      "text": "growth pricing decision coming next week (not yet decided)"
+    },
+    {
+      "page": "people/all-hands-2026-09-02",
+      "kind": "stated",
+      "text": "nobody officially owns the security policy yet"
+    },
+    {
+      "page": "people/team-directory",
+      "kind": "stated",
+      "text": "Security and compliance: no owner since Priyanka left in July. Felix is covering \"for now\"."
+    },
+    {
+      "page": "sales/kitewing-sales-playbook",
+      "kind": "stated",
+      "text": "We do not have a SOC 2 report yet; the Type I audit is planned for Q1 2027."
+    },
+    {
+      "page": "support/refund-process",
+      "kind": "owner",
+      "text": "Refund Process: no owner recorded"
+    },
+    {
+      "page": "support/refund-process",
+      "kind": "stated",
+      "text": "There is no written owner for this process"
+    },
+    {
+      "page": "support/refund-process",
+      "kind": "stated",
+      "text": "nobody has decided who approves refunds over $1,000 since the process was drafted"
+    }
+  ],
+  "warnings": [
+    "skipped misc/kitewing-logo.png: unsupported format (.png)"
+  ]
+}

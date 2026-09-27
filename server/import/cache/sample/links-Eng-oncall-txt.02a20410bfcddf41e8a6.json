@@ -1,0 +1,45 @@
+{
+  "name": "links-Eng/oncall.txt",
+  "model": "claude-sonnet-5",
+  "key": "02a20410bfcddf41e8a6",
+  "output": {
+    "links": [
+      {
+        "from": "eng/oncall-rotation",
+        "to": "companies/pagerduty",
+        "kind": "vendor",
+        "evidence": "PagerDuty service \"pantry-prod\""
+      },
+      {
+        "from": "eng/oncall-rotation",
+        "to": "people/dmitri-solberg",
+        "kind": "mentions",
+        "evidence": "maintained by Dmitri"
+      },
+      {
+        "from": "eng/oncall-rotation",
+        "to": "people/felix-arrowood",
+        "kind": "mentions",
+        "evidence": "escalate to Felix (CTO)"
+      },
+      {
+        "from": "eng/oncall-rotation",
+        "to": "people/ana-lindqvist",
+        "kind": "mentions",
+        "evidence": "Ana Lindqvist -> Jonah Pereira"
+      },
+      {
+        "from": "eng/oncall-rotation",
+        "to": "people/jonah-pereira",
+        "kind": "mentions",
+        "evidence": "Ana Lindqvist -> Jonah Pereira"
+      },
+      {
+        "from": "eng/oncall-rotation",
+        "to": "people/pto-and-leave",
+        "kind": "references",
+        "evidence": "days given back in January per PTO policy"
+      }
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "links-Security/Information Security Policy.docx",
+  "model": "claude-sonnet-5",
+  "key": "d35f068068f791cfa743",
+  "output": {
+    "links": [
+      {
+        "from": "eng/information-security-policy",
+        "to": "companies/kandji",
+        "kind": "vendor",
+        "evidence": "Laptops are managed with Kandji"
+      },
+      {
+        "from": "eng/information-security-policy",
+        "to": "companies/aws",
+        "kind": "vendor",
+        "evidence": "Customer data is stored in AWS us-west-2 only"
+      },
+      {
+        "from": "eng/information-security-policy",
+        "to": "ops/vendor-list",
+        "kind": "references",
+        "evidence": "The vendor list is kept by Ops"
+      },
+      {
+        "from": "eng/information-security-policy",
+        "to": "eng/oncall-rotation",
+        "kind": "references",
+        "evidence": "reported in #security-incidents and to the on-call engineer"
+      },
+      {
+        "from": "eng/information-security-policy",
+        "to": "people/team-directory",
+        "kind": "conflicts_with",
+        "evidence": "Owner: not recorded"
+      },
+      {
+        "from": "eng/information-security-policy",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "conflicts_with",
+        "evidence": "nobody officially owns the security policy yet"
+      },
+      {
+        "from": "eng/information-security-policy",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "conflicts_with",
+        "evidence": "security/compliance has had no owner since July"
+      }
+    ]
+  }
+}

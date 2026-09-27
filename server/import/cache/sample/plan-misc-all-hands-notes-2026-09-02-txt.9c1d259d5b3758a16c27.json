@@ -1,0 +1,88 @@
+{
+  "name": "plan-misc/all-hands-notes-2026-09-02.txt",
+  "model": "claude-sonnet-5",
+  "key": "9c1d259d5b3758a16c27",
+  "output": {
+    "doc_date": "2026-09-02",
+    "pages": [
+      {
+        "key": "all-hands-2026-09-02",
+        "title": "All-Hands Notes – Sept 2, 2026",
+        "type": "meeting",
+        "department": "shared",
+        "room": "Decisions",
+        "summary": "Q3 ARR hit $4.1M end of Aug with board meeting Sept 18, and nobody officially owns the security policy yet.",
+        "body": "- Noor: Q3 closing strong, ARR $4.1M end of Aug. Board mtg Sept 18\n- Welcome Ana Lindqvist (platform eng) + Jonah Pereira (platform eng)\n- Felix: postmortem for Aug 14 outage is up in the eng folder. New migration checklist is mandatory from today\n- Wren: growth pricing thread is in #pricing-decisions, decision coming next week\n- Rafa: Pantry 2.0 launch Nov 4, webinar Oct 28\n- Tobias: expense policy reminder, submit within 30 days. Ledgerline is the only expense tool now (Expensify is gone)\n- Ines: offsite in Austin Oct 20-22. Open enrollment for benefits in November\n\n**Q&A:** \"Who owns security now?\" -> Noor: we're hiring a security lead, Felix covers until then. Nobody officially owns the security policy yet.",
+        "is_policy_or_process": false,
+        "owner": null,
+        "owner_person": null,
+        "gaps": [
+          "nobody officially owns the security policy yet",
+          "growth pricing decision coming next week (not yet decided)"
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Noor",
+        "kind": "person",
+        "role": null,
+        "quote": "noor: Q3 closing strong, ARR $4.1M end of aug. board mtg sept 18"
+      },
+      {
+        "name": "Ana Lindqvist",
+        "kind": "person",
+        "role": "platform eng",
+        "quote": "welcome Ana Lindqvist (platform eng) + Jonah Pereira (platform eng)"
+      },
+      {
+        "name": "Jonah Pereira",
+        "kind": "person",
+        "role": "platform eng",
+        "quote": "welcome Ana Lindqvist (platform eng) + Jonah Pereira (platform eng)"
+      },
+      {
+        "name": "Felix",
+        "kind": "person",
+        "role": null,
+        "quote": "felix: postmortem for aug 14 outage is up in the eng folder. new migration checklist is mandatory from today"
+      },
+      {
+        "name": "Wren",
+        "kind": "person",
+        "role": null,
+        "quote": "wren: growth pricing thread is in #pricing-decisions, decision coming next week"
+      },
+      {
+        "name": "Rafa",
+        "kind": "person",
+        "role": null,
+        "quote": "rafa: pantry 2.0 launch nov 4, webinar oct 28"
+      },
+      {
+        "name": "Tobias",
+        "kind": "person",
+        "role": null,
+        "quote": "tobias: expense policy reminder, submit within 30 days. ledgerline is the only expense tool now (expensify is gone)"
+      },
+      {
+        "name": "Ines",
+        "kind": "person",
+        "role": null,
+        "quote": "ines: offsite in austin oct 20-22. open enrollment for benefits in november"
+      },
+      {
+        "name": "Ledgerline",
+        "kind": "company",
+        "role": "expense tool",
+        "quote": "ledgerline is the only expense tool now (expensify is gone)"
+      },
+      {
+        "name": "Expensify",
+        "kind": "company",
+        "role": "former expense tool",
+        "quote": "ledgerline is the only expense tool now (expensify is gone)"
+      }
+    ]
+  }
+}

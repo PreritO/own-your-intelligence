@@ -1,0 +1,39 @@
+{
+  "name": "links-Finance/expense-policy.txt",
+  "model": "claude-sonnet-5",
+  "key": "8740b2eead1d64808911",
+  "output": {
+    "links": [
+      {
+        "from": "finance/expense-policy",
+        "to": "people/tobias-mbeki",
+        "kind": "mentions",
+        "evidence": "Owner: Tobias Mbeki (Head of Finance)"
+      },
+      {
+        "from": "finance/expense-policy",
+        "to": "people/noor-haddad",
+        "kind": "mentions",
+        "evidence": "Above $10,000, Noor Haddad also approves"
+      },
+      {
+        "from": "finance/expense-policy",
+        "to": "companies/ledgerline",
+        "kind": "vendor",
+        "evidence": "Submit expenses in Ledgerline within 30 days"
+      },
+      {
+        "from": "finance/expense-policy",
+        "to": "eng/information-security-policy",
+        "kind": "references",
+        "evidence": "a security review if the tool touches customer data (see the Information Security Policy)"
+      },
+      {
+        "from": "finance/expense-policy",
+        "to": "people/remote-work-policy",
+        "kind": "references",
+        "evidence": "Home-office stipend and internet reimbursement are described in the handbook."
+      }
+    ]
+  }
+}

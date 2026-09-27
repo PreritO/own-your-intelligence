@@ -1,0 +1,93 @@
+{
+  "name": "links-Board/Q3 2026 Board Deck Outline.docx",
+  "model": "claude-sonnet-5",
+  "key": "b27310a3509b1c69d058",
+  "output": {
+    "links": [
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "people/noor-haddad",
+        "kind": "mentions",
+        "evidence": "Prepared by Noor Haddad and Tobias Mbeki"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "people/tobias-mbeki",
+        "kind": "mentions",
+        "evidence": "Tobias to present a 2027 operating plan"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "people/felix-arrowood",
+        "kind": "mentions",
+        "evidence": "Board: Noor Haddad, Felix Arrowood, Carmen Delacroix"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "people/carmen-delacroix",
+        "kind": "mentions",
+        "evidence": "Carmen Delacroix (Northbay Ventures)"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "companies/northbay-ventures",
+        "kind": "investor",
+        "evidence": "Carmen Delacroix (Northbay Ventures)"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "sales/growth-and-starter-pricing-changes",
+        "kind": "decided_in",
+        "evidence": "decided in #pricing-decisions on September 9"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "marketing/pantry-2-0-launch-brief",
+        "kind": "references",
+        "evidence": "Pantry 2.0 launch: Supplier price alerts and auto-reorder ship November 4, 2026"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "people/rafa-oyelaran",
+        "kind": "mentions",
+        "evidence": "Launch plan owned by Rafa Oyelaran"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "companies/saltgrass-hospitality",
+        "kind": "mentions",
+        "evidence": "Saltgrass Hospitality, Juniper Row Group, Marrow and Vine"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "companies/juniper-row-group",
+        "kind": "mentions",
+        "evidence": "Saltgrass Hospitality, Juniper Row Group, Marrow and Vine"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "companies/marrow-and-vine",
+        "kind": "mentions",
+        "evidence": "Saltgrass Hospitality, Juniper Row Group, Marrow and Vine"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "eng/ordering-outage-postmortem",
+        "kind": "references",
+        "evidence": "The August 14 ordering outage cost 6 hours of order submission; postmortem done"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "people/team-directory",
+        "kind": "conflicts_with",
+        "evidence": "Security and compliance: no owner since July"
+      },
+      {
+        "from": "finance/q3-2026-board-deck-outline",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "conflicts_with",
+        "evidence": "nobody officially owns the security policy yet"
+      }
+    ]
+  }
+}

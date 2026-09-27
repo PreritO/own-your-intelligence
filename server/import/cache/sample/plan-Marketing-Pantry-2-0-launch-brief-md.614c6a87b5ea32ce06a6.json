@@ -1,0 +1,40 @@
+{
+  "name": "plan-Marketing/Pantry 2.0 launch brief.md",
+  "model": "claude-sonnet-5",
+  "key": "614c6a87b5ea32ce06a6",
+  "output": {
+    "doc_date": "2026-09-19",
+    "pages": [
+      {
+        "key": "pantry-2-0-launch-brief",
+        "title": "Pantry 2.0 launch brief",
+        "type": "brief",
+        "department": "marketing",
+        "room": "Launches",
+        "summary": "Pantry 2.0 (supplier price alerts and auto-reorder) launches November 4, 2026 for Growth and Enterprise customers only.",
+        "body": "Launch date: **November 4, 2026**\n\n## What's launching\n- **Supplier price alerts**: get notified when a supplier raises a price by more than 5% on an item you order weekly.\n- **Auto-reorder**: par-level based reorder drafts, sent for approval every morning at 06:00 local time.\n\nBoth are Growth and Enterprise features. Starter does not get them.\n\n## Positioning\n\"Stop finding out about price increases on the invoice.\" Primary persona: Director of Operations at a 5 to 25 location group.\n\n## Channels\n- Customer webinar October 28 (Keiko's team co-hosts)\n- Email to all Growth and Enterprise admins on launch day\n- Case study with Juniper Row Group (approval pending from their marketing team)\n- Booth at the Pacific Restaurant Operators Expo, November 12 to 13\n\n## Pricing note\nLaunch messaging must use the new Growth price ($349 per location per month for new customers from October 1). Don't quote $299.\n\n## Dependencies\n- Engineering: feature flags on by Oct 30 (Felix)\n- Sales enablement session Oct 21 (Wren)\n- Legal review of the \"save up to 8% on food cost\" claim: not yet assigned",
+        "is_policy_or_process": false,
+        "owner": "Rafa Oyelaran",
+        "owner_person": "Rafa Oyelaran",
+        "gaps": [
+          "Case study with Juniper Row Group: approval pending from their marketing team",
+          "Legal review of the \"save up to 8% on food cost\" claim: not yet assigned"
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Rafa Oyelaran",
+        "kind": "person",
+        "role": null,
+        "quote": "Owner: Rafa Oyelaran · Launch date: **November 4, 2026** · Last updated Sept 19, 2026"
+      },
+      {
+        "name": "Juniper Row Group",
+        "kind": "company",
+        "role": "case study customer",
+        "quote": "Case study with Juniper Row Group (approval pending from their marketing team)"
+      }
+    ]
+  }
+}

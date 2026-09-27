@@ -1,0 +1,87 @@
+{
+  "name": "plan-Notion Export/Team Directory 5c9d0e1f2a3b4c5d6e7f8091a2b3c4d5.md",
+  "model": "claude-sonnet-5",
+  "key": "77706185098069f3da06",
+  "output": {
+    "doc_date": "2026-09-08",
+    "pages": [
+      {
+        "key": "team-directory",
+        "title": "Team Directory",
+        "type": "directory",
+        "department": "shared",
+        "room": "Directory",
+        "summary": "Leadership and team leads directory, with security and compliance unowned since Priyanka left in July.",
+        "body": "Leadership and team leads. Full directory is in Rippling.\n\n| Name | Role | Team | Reports to | Based in |\n| --- | --- | --- | --- | --- |\n| Noor Haddad | CEO & co-founder | Exec | Board | Portland |\n| Felix Arrowood | CTO & co-founder | Engineering | Noor Haddad | Portland |\n| Wren Castellano | VP Sales | Sales | Noor Haddad | Austin |\n| Tobias Mbeki | Head of Finance | Finance | Noor Haddad | Remote (Denver) |\n| Ines Takahara | Head of People | People | Noor Haddad | Portland |\n| Dmitri Solberg | Engineering Manager, Platform | Engineering | Felix Arrowood | Remote (Toronto) |\n| Keiko Ferrante | Head of Customer Success | Support | Wren Castellano | Austin |\n| Rafa Oyelaran | Product Marketing Lead | Marketing | Noor Haddad | Remote (Chicago) |\n| Marisol Quint | RevOps Manager | Ops | Wren Castellano | Austin |\n\nSecurity and compliance: no owner since Priyanka left in July. Felix is covering \"for now\".",
+        "is_policy_or_process": false,
+        "owner": null,
+        "owner_person": null,
+        "gaps": [
+          "Security and compliance: no owner since Priyanka left in July. Felix is covering \"for now\"."
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Noor Haddad",
+        "kind": "person",
+        "role": "CEO & co-founder",
+        "quote": "Noor Haddad | CEO & co-founder | Exec | Board | Portland"
+      },
+      {
+        "name": "Felix Arrowood",
+        "kind": "person",
+        "role": "CTO & co-founder",
+        "quote": "Felix Arrowood | CTO & co-founder | Engineering | Noor Haddad | Portland"
+      },
+      {
+        "name": "Wren Castellano",
+        "kind": "person",
+        "role": "VP Sales",
+        "quote": "Wren Castellano | VP Sales | Sales | Noor Haddad | Austin"
+      },
+      {
+        "name": "Tobias Mbeki",
+        "kind": "person",
+        "role": "Head of Finance",
+        "quote": "Tobias Mbeki | Head of Finance | Finance | Noor Haddad | Remote (Denver)"
+      },
+      {
+        "name": "Ines Takahara",
+        "kind": "person",
+        "role": "Head of People",
+        "quote": "Ines Takahara | Head of People | People | Noor Haddad | Portland"
+      },
+      {
+        "name": "Dmitri Solberg",
+        "kind": "person",
+        "role": "Engineering Manager, Platform",
+        "quote": "Dmitri Solberg | Engineering Manager, Platform | Engineering | Felix Arrowood | Remote (Toronto)"
+      },
+      {
+        "name": "Keiko Ferrante",
+        "kind": "person",
+        "role": "Head of Customer Success",
+        "quote": "Keiko Ferrante | Head of Customer Success | Support | Wren Castellano | Austin"
+      },
+      {
+        "name": "Rafa Oyelaran",
+        "kind": "person",
+        "role": "Product Marketing Lead",
+        "quote": "Rafa Oyelaran | Product Marketing Lead | Marketing | Noor Haddad | Remote (Chicago)"
+      },
+      {
+        "name": "Marisol Quint",
+        "kind": "person",
+        "role": "RevOps Manager",
+        "quote": "Marisol Quint | RevOps Manager | Ops | Wren Castellano | Austin"
+      },
+      {
+        "name": "Priyanka",
+        "kind": "person",
+        "role": null,
+        "quote": "Security and compliance: no owner since Priyanka left in July."
+      }
+    ]
+  }
+}

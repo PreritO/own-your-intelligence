@@ -1,0 +1,57 @@
+{
+  "name": "plan-Legal/customer-msa-notes.md",
+  "model": "claude-sonnet-5",
+  "key": "e8f5d8df0ce4ec2ab3ab",
+  "output": {
+    "doc_date": "2026-05-19",
+    "pages": [
+      {
+        "key": "customer-msa-standard-positions",
+        "title": "Customer MSA - standard positions",
+        "type": "reference",
+        "department": "legal",
+        "room": "Contracts",
+        "summary": "Standard Customer MSA terms include a 12-month term, liability cap of 12 months fees, and Net 30 payment.",
+        "body": "Notes from the May 2026 review with outside counsel (Harlow & Pike LLP).\n\n**Our paper:** Kitewing Customer MSA v4 plus an order form per deal. We sign customer paper only for groups over 40 locations.\n\n**Standard positions:**\n- Term: 12 months, auto-renews for 12 months unless cancelled 60 days before renewal.\n- Liability cap: 12 months of fees paid. Uncapped only for breach of confidentiality.\n- Payment: Net 30 (matches the pricing sheet).\n- Data: customer owns its data; we delete within 60 days of termination (matches the security policy).\n- SLA: 99.5% monthly uptime, service credits per the Support SLA.\n- Governing law: Oregon.\n\n**Redlines that need Noor's sign-off:** liability above 12 months of fees, MFN pricing clauses, any termination for convenience.\n\n**DPA:** we have a DPA template for customers who ask. There's no signed DPA with our billing vendor Ledgerline yet, which counsel flagged as a gap.\n\n**Signature authority:** Noor Haddad signs all customer contracts over $50k ARR. Wren Castellano signs under $50k ARR.",
+        "is_policy_or_process": false,
+        "owner": "Tobias Mbeki",
+        "owner_person": "Tobias Mbeki",
+        "gaps": [
+          "There's no signed DPA with our billing vendor Ledgerline yet, which counsel flagged as a gap."
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Harlow & Pike LLP",
+        "kind": "company",
+        "role": "outside counsel",
+        "quote": "Notes from the May 2026 review with outside counsel (Harlow & Pike LLP)."
+      },
+      {
+        "name": "Tobias Mbeki",
+        "kind": "person",
+        "role": null,
+        "quote": "Kept by Tobias Mbeki until we hire in-house counsel."
+      },
+      {
+        "name": "Noor Haddad",
+        "kind": "person",
+        "role": "signs all customer contracts over $50k ARR",
+        "quote": "Noor Haddad signs all customer contracts over $50k ARR."
+      },
+      {
+        "name": "Wren Castellano",
+        "kind": "person",
+        "role": "signs under $50k ARR",
+        "quote": "Wren Castellano signs under $50k ARR."
+      },
+      {
+        "name": "Ledgerline",
+        "kind": "company",
+        "role": "billing vendor",
+        "quote": "There's no signed DPA with our billing vendor Ledgerline yet, which counsel flagged as a gap."
+      }
+    ]
+  }
+}

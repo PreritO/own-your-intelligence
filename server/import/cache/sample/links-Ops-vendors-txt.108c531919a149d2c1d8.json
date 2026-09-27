@@ -1,0 +1,87 @@
+{
+  "name": "links-Ops/vendors.txt",
+  "model": "claude-sonnet-5",
+  "key": "108c531919a149d2c1d8",
+  "output": {
+    "links": [
+      {
+        "from": "ops/vendor-list",
+        "to": "companies/aws",
+        "kind": "vendor",
+        "evidence": "AWS | hosting (us-west-2) | Felix Arrowood"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "companies/ledgerline",
+        "kind": "vendor",
+        "evidence": "Ledgerline | billing + expenses | Tobias Mbeki | 2026-12-15 | yes | done 2025-11, DPA NOT signed"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "companies/hubspot",
+        "kind": "vendor",
+        "evidence": "HubSpot | CRM, price books, quotes | Marisol Quint"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "companies/pagerduty",
+        "kind": "vendor",
+        "evidence": "PagerDuty | on-call paging | Dmitri Solberg"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "companies/kandji",
+        "kind": "vendor",
+        "evidence": "Kandji | laptop management | Felix Arrowood"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "companies/cobaltcare",
+        "kind": "vendor",
+        "evidence": "Cobaltcare | health insurance | Ines Takahara"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "companies/harlow-and-pike-llp",
+        "kind": "vendor",
+        "evidence": "Harlow & Pike | outside counsel | Tobias Mbeki"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "people/felix-arrowood",
+        "kind": "owned_by",
+        "evidence": "contract owner | Felix Arrowood"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "people/tobias-mbeki",
+        "kind": "owned_by",
+        "evidence": "Tobias wants the DPA signed before renewing"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "people/marisol-quint",
+        "kind": "owned_by",
+        "evidence": "HubSpot ... Marisol Quint"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "people/dmitri-solberg",
+        "kind": "owned_by",
+        "evidence": "PagerDuty ... Dmitri Solberg"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "people/ines-takahara",
+        "kind": "owned_by",
+        "evidence": "Cobaltcare | health insurance | Ines Takahara"
+      },
+      {
+        "from": "ops/vendor-list",
+        "to": "eng/information-security-policy",
+        "kind": "governed_by",
+        "evidence": "security review first (security policy section 6)"
+      }
+    ]
+  }
+}

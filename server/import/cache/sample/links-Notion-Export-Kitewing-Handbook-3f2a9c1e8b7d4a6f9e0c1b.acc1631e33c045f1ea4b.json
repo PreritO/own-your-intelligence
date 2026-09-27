@@ -1,0 +1,93 @@
+{
+  "name": "links-Notion Export/Kitewing Handbook 3f2a9c1e8b7d4a6f9e0c1b2a3d4e5f60.md",
+  "model": "claude-sonnet-5",
+  "key": "acc1631e33c045f1ea4b",
+  "output": {
+    "links": [
+      {
+        "from": "people/company-overview",
+        "to": "people/noor-haddad",
+        "kind": "mentions",
+        "evidence": "founded in 2023 by Noor Haddad (CEO)"
+      },
+      {
+        "from": "people/company-overview",
+        "to": "people/felix-arrowood",
+        "kind": "mentions",
+        "evidence": "Felix Arrowood (CTO)"
+      },
+      {
+        "from": "people/company-overview",
+        "to": "companies/northbay-ventures",
+        "kind": "investor",
+        "evidence": "$9.5M Series A led by Northbay Ventures"
+      },
+      {
+        "from": "people/company-overview",
+        "to": "people/ines-takahara",
+        "kind": "owned_by",
+        "evidence": "Owner: Ines Takahara"
+      },
+      {
+        "from": "people/remote-work-policy",
+        "to": "finance/expense-policy",
+        "kind": "references",
+        "evidence": "see the Expense Policy from Finance"
+      },
+      {
+        "from": "people/remote-work-policy",
+        "to": "companies/ledgerline",
+        "kind": "vendor",
+        "evidence": "paid through Ledgerline expenses"
+      },
+      {
+        "from": "people/remote-work-policy",
+        "to": "people/ines-takahara",
+        "kind": "owned_by",
+        "evidence": "Owner: Ines Takahara"
+      },
+      {
+        "from": "people/code-of-conduct",
+        "to": "people/ines-takahara",
+        "kind": "mentions",
+        "evidence": "Report concerns to Ines Takahara (Head of People)"
+      },
+      {
+        "from": "people/code-of-conduct",
+        "to": "people/noor-haddad",
+        "kind": "mentions",
+        "evidence": "if the concern involves Ines, to Noor Haddad directly"
+      },
+      {
+        "from": "people/first-two-weeks-onboarding",
+        "to": "eng/information-security-policy",
+        "kind": "references",
+        "evidence": "see the Information Security Policy"
+      },
+      {
+        "from": "people/first-two-weeks-onboarding",
+        "to": "sales/kitewing-sales-playbook",
+        "kind": "references",
+        "evidence": "Read the Sales Playbook even if you are an engineer"
+      },
+      {
+        "from": "people/first-two-weeks-onboarding",
+        "to": "companies/cobaltcare",
+        "kind": "vendor",
+        "evidence": "Health insurance is through Cobaltcare"
+      },
+      {
+        "from": "people/first-two-weeks-onboarding",
+        "to": "people/pto-and-leave",
+        "kind": "references",
+        "evidence": "See PTO and Leave for time off information"
+      },
+      {
+        "from": "people/first-two-weeks-onboarding",
+        "to": "people/ines-takahara",
+        "kind": "owned_by",
+        "evidence": "Owner: Ines Takahara"
+      }
+    ]
+  }
+}

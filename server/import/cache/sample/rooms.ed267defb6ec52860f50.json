@@ -1,0 +1,104 @@
+{
+  "name": "rooms",
+  "model": "claude-sonnet-5",
+  "key": "ed267defb6ec52860f50",
+  "output": {
+    "rooms": [
+      {
+        "department": "eng",
+        "from": "Incidents",
+        "to": "Incidents"
+      },
+      {
+        "department": "eng",
+        "from": "On-call",
+        "to": "On-Call"
+      },
+      {
+        "department": "eng",
+        "from": "Policies",
+        "to": "Policy"
+      },
+      {
+        "department": "finance",
+        "from": "Board",
+        "to": "Board"
+      },
+      {
+        "department": "finance",
+        "from": "Policies",
+        "to": "Policy"
+      },
+      {
+        "department": "finance",
+        "from": "Pricing",
+        "to": "Pricing"
+      },
+      {
+        "department": "legal",
+        "from": "Contracts",
+        "to": "Contracts"
+      },
+      {
+        "department": "marketing",
+        "from": "Launches",
+        "to": "Launches"
+      },
+      {
+        "department": "ops",
+        "from": "Vendors",
+        "to": "Vendors"
+      },
+      {
+        "department": "people",
+        "from": "Decisions",
+        "to": "Decisions"
+      },
+      {
+        "department": "people",
+        "from": "Directory",
+        "to": "Directory"
+      },
+      {
+        "department": "people",
+        "from": "Handbook",
+        "to": "Policy"
+      },
+      {
+        "department": "people",
+        "from": "Onboarding",
+        "to": "Onboarding"
+      },
+      {
+        "department": "people",
+        "from": "Overview",
+        "to": "Overview"
+      },
+      {
+        "department": "people",
+        "from": "Policies",
+        "to": "Policy"
+      },
+      {
+        "department": "sales",
+        "from": "Playbooks",
+        "to": "Playbooks"
+      },
+      {
+        "department": "sales",
+        "from": "Pricing",
+        "to": "Pricing"
+      },
+      {
+        "department": "support",
+        "from": "Policies",
+        "to": "Policy"
+      },
+      {
+        "department": "support",
+        "from": "SLAs",
+        "to": "SLAs"
+      }
+    ]
+  }
+}
