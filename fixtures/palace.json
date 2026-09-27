@@ -13,7 +13,8 @@
         -20
       ],
       "rooms": [
-        "room-people-0"
+        "room-people-0",
+        "room-people-1"
       ]
     },
     {
@@ -27,7 +28,8 @@
         0
       ],
       "rooms": [
-        "room-legal-0"
+        "room-legal-0",
+        "room-legal-1"
       ]
     },
     {
@@ -56,7 +58,8 @@
         0
       ],
       "rooms": [
-        "room-eng-0"
+        "room-eng-0",
+        "room-eng-1"
       ]
     }
   ],
@@ -134,6 +137,40 @@
             0,
             -14
           ]
+        },
+        {
+          "to": "room-people-1",
+          "pos": [
+            0,
+            0,
+            -26
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-people-1",
+      "wing": "people",
+      "owner": "shared",
+      "label": "Partners",
+      "center": [
+        0,
+        0,
+        -34
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-people-0",
+          "pos": [
+            0,
+            0,
+            -28
+          ]
         }
       ]
     },
@@ -157,6 +194,40 @@
           "to": "foyer",
           "pos": [
             14,
+            0,
+            0
+          ]
+        },
+        {
+          "to": "room-legal-1",
+          "pos": [
+            26,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-legal-1",
+      "wing": "legal",
+      "owner": "legal",
+      "label": "Corporate",
+      "center": [
+        34,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-legal-0",
+          "pos": [
+            28,
             0,
             0
           ]
@@ -246,11 +317,87 @@
             0,
             0
           ]
+        },
+        {
+          "to": "room-eng-1",
+          "pos": [
+            -26,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-eng-1",
+      "wing": "eng",
+      "owner": "eng",
+      "label": "Platform",
+      "center": [
+        -34,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-eng-0",
+          "pos": [
+            -28,
+            0,
+            0
+          ]
         }
       ]
     }
   ],
   "memories": [
+    {
+      "id": "companies/axis-logistics",
+      "title": "Axis Logistics",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        2.47,
+        1.1,
+        -31.53
+      ],
+      "freshness": 0,
+      "excerpt": "Freight forwarder that ships finished arms to customers in the US and EU.",
+      "path": "companies/axis-logistics.md"
+    },
+    {
+      "id": "companies/brightline",
+      "title": "Brightline",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        0.55,
+        1.1,
+        -30.54
+      ],
+      "freshness": 0.46,
+      "excerpt": "Audit firm engaged for Acme's SOC 2 Type II. Performed the 2025 audit and is booked for the renewal window opening Nov 1.",
+      "path": "companies/brightline.md"
+    },
+    {
+      "id": "companies/ferro-castings",
+      "title": "Ferro Castings",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        -1.59,
+        1.1,
+        -30.88
+      ],
+      "freshness": 0.82,
+      "excerpt": "Aluminum castings supplier for the arm's shoulder and elbow housings.",
+      "path": "companies/ferro-castings.md"
+    },
     {
       "id": "companies/gripworks",
       "title": "Gripworks",
@@ -261,9 +408,219 @@
         1.1,
         -17.53
       ],
-      "freshness": 0.78,
-      "excerpt": "Supplier of soft robotic grippers. Proposed a 12-month supply agreement at $40k.",
+      "freshness": 0.86,
+      "excerpt": "Supplier of soft robotic grippers. Proposed a 12-month supply agreement at $40k for the Gripper v2 fingertip pads and actuators.",
       "path": "companies/gripworks.md"
+    },
+    {
+      "id": "companies/halden-compliance",
+      "title": "Halden Compliance",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        -3.12,
+        1.1,
+        -32.41
+      ],
+      "freshness": 0,
+      "excerpt": "Former compliance contractor. Ran Acme's 2025 SOC 2 audit prep as fractional compliance lead; the engagement ended in January 2026.",
+      "path": "companies/halden-compliance.md"
+    },
+    {
+      "id": "companies/harbor-cloud",
+      "title": "Harbor Cloud",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        -3.46,
+        1.1,
+        -34.55
+      ],
+      "freshness": 0.67,
+      "excerpt": "Cloud provider hosting the fleet telemetry platform and customer dashboards.",
+      "path": "companies/harbor-cloud.md"
+    },
+    {
+      "id": "companies/lumen-ventures",
+      "title": "Lumen Ventures",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        -2.47,
+        1.1,
+        -36.47
+      ],
+      "freshness": 0.37,
+      "excerpt": "Venture firm that led Acme's $12M Series A in 2024. Holds one board observer seat, filled by Ada Chen.",
+      "path": "companies/lumen-ventures.md"
+    },
+    {
+      "id": "companies/northgate-bank",
+      "title": "Northgate Bank",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        -0.55,
+        1.1,
+        -37.46
+      ],
+      "freshness": 0.35,
+      "excerpt": "Acme's operating bank and venture debt lender ($4M facility).",
+      "path": "companies/northgate-bank.md"
+    },
+    {
+      "id": "companies/voltcell",
+      "title": "Voltcell",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        1.59,
+        1.1,
+        -37.12
+      ],
+      "freshness": 0.42,
+      "excerpt": "Battery pack supplier for the arm's mobile base. 24-month supply agreement signed in 2025.",
+      "path": "companies/voltcell.md"
+    },
+    {
+      "id": "eng/access-review-2026-q2",
+      "title": "Access Review, Q2 2026",
+      "type": "review",
+      "room": "room-eng-0",
+      "pos": [
+        -17.53,
+        1.1,
+        2.47
+      ],
+      "freshness": 0.54,
+      "excerpt": "Quarterly access review for Q2 2026: 212 accounts reviewed, 9 revoked. Completed Jul 3, two days late. Q3 review not yet scheduled.",
+      "path": "eng/access-review-2026-q2.md"
+    },
+    {
+      "id": "eng/arm-controller",
+      "title": "Arm Controller",
+      "type": "system",
+      "room": "room-eng-1",
+      "pos": [
+        -31.53,
+        1.1,
+        2.47
+      ],
+      "freshness": 0.41,
+      "excerpt": "Real-time controller board for the arm: 1 kHz joint loop, safety-rated stop, telemetry uplink to the cloud platform.",
+      "path": "eng/arm-controller.md"
+    },
+    {
+      "id": "eng/cloud-infra",
+      "title": "Cloud Infrastructure",
+      "type": "system",
+      "room": "room-eng-1",
+      "pos": [
+        -34,
+        1.1,
+        3.5
+      ],
+      "freshness": 0.64,
+      "excerpt": "Fleet telemetry and customer dashboards run on Harbor Cloud: two regions (US-East, EU-Central), Postgres plus object storage, $29k per month.",
+      "path": "eng/cloud-infra.md"
+    },
+    {
+      "id": "eng/firmware-release-4-2",
+      "title": "Firmware 4.2",
+      "type": "release",
+      "room": "room-eng-1",
+      "pos": [
+        -36.47,
+        1.1,
+        2.47
+      ],
+      "freshness": 0.99,
+      "excerpt": "Arm controller firmware 4.2: adds Gripper v2 support and force-limited grasping. Release candidate cut Sep 24; ship target Oct 8.",
+      "path": "eng/firmware-release-4-2.md"
+    },
+    {
+      "id": "eng/gripper-v2",
+      "title": "Gripper v2",
+      "type": "project",
+      "room": "room-eng-1",
+      "pos": [
+        -37.5,
+        1.1,
+        0
+      ],
+      "freshness": 0.95,
+      "excerpt": "Second-generation soft gripper for the Acme arm. Pads and actuators sourced from Gripworks; pilot builds start in November once the MSA is signed.",
+      "path": "eng/gripper-v2.md"
+    },
+    {
+      "id": "eng/hardware-bom",
+      "title": "Hardware BOM",
+      "type": "reference",
+      "room": "room-eng-1",
+      "pos": [
+        -36.47,
+        1.1,
+        -2.47
+      ],
+      "freshness": 0.87,
+      "excerpt": "Bill of materials for the Acme arm: $14.2k unit cost. Top lines: castings $3.1k, battery pack $2.4k, controller board $1.9k, gripper $1.2k.",
+      "path": "eng/hardware-bom.md"
+    },
+    {
+      "id": "eng/incident-response",
+      "title": "Incident Response Plan",
+      "type": "runbook",
+      "room": "room-eng-0",
+      "pos": [
+        -20,
+        1.1,
+        3.5
+      ],
+      "freshness": 0.62,
+      "excerpt": "Severity levels, paging and customer notice rules. Sev-1 incidents page on-call and notify affected customers within 24 hours.",
+      "path": "eng/incident-response.md"
+    },
+    {
+      "id": "eng/manufacturing-yield",
+      "title": "Manufacturing Yield",
+      "type": "metric",
+      "room": "room-eng-1",
+      "pos": [
+        -34,
+        1.1,
+        -3.5
+      ],
+      "freshness": 0.84,
+      "excerpt": "First-pass yield 86% in August, down from 91% in June. Casting porosity accounts for most scrap.",
+      "path": "eng/manufacturing-yield.md"
+    },
+    {
+      "id": "eng/oncall-rotation",
+      "title": "On-call Rotation",
+      "type": "schedule",
+      "room": "room-eng-1",
+      "pos": [
+        -31.53,
+        1.1,
+        -2.47
+      ],
+      "freshness": 0.99,
+      "excerpt": "Weekly on-call rotation across six firmware and cloud engineers. This week's primary: Nikhil Brandt.",
+      "path": "eng/oncall-rotation.md"
+    },
+    {
+      "id": "eng/roadmap-2026-h2",
+      "title": "Eng Roadmap, H2 2026",
+      "type": "plan",
+      "room": "room-eng-1",
+      "pos": [
+        -30.5,
+        1.1,
+        0
+      ],
+      "freshness": 0.56,
+      "excerpt": "H2 priorities: ship Gripper v2 pilot, Firmware 4.2, cut BOM cost 8%, pass SOC 2 renewal. Compliance ownership listed as \"TBD\".",
+      "path": "eng/roadmap-2026-h2.md"
     },
     {
       "id": "eng/security-policy",
@@ -271,13 +628,41 @@
       "type": "policy",
       "room": "room-eng-0",
       "pos": [
-        -17.53,
+        -22.47,
         1.1,
         2.47
       ],
-      "freshness": 0.15,
+      "freshness": 0,
       "excerpt": "Information security policy, last reviewed March. Lists controls but names no compliance owner.",
       "path": "eng/security-policy.md"
+    },
+    {
+      "id": "eng/soc2-2025-report",
+      "title": "SOC 2 2025 Report",
+      "type": "report",
+      "room": "room-eng-0",
+      "pos": [
+        -23.5,
+        1.1,
+        0
+      ],
+      "freshness": 0,
+      "excerpt": "SOC 2 Type II report for the 2025 period, issued by Brightline in December 2025. Unqualified opinion, two exceptions (late access review, one missing vendor review).",
+      "path": "eng/soc2-2025-report.md"
+    },
+    {
+      "id": "eng/soc2-evidence-tracker",
+      "title": "SOC 2 Evidence Tracker",
+      "type": "tracker",
+      "room": "room-eng-0",
+      "pos": [
+        -22.47,
+        1.1,
+        -2.47
+      ],
+      "freshness": 0.51,
+      "excerpt": "Evidence checklist for the 2026 SOC 2 audit. 34 controls, 3 with evidence filed, 31 not started. Owner column is blank for every control.",
+      "path": "eng/soc2-evidence-tracker.md"
     },
     {
       "id": "eng/soc2-owner",
@@ -285,12 +670,12 @@
       "type": "role",
       "room": "room-eng-0",
       "pos": [
-        -23.38,
+        -20,
         1.1,
-        0.91
+        -3.5
       ],
       "freshness": 0.1,
-      "excerpt": "",
+      "excerpt": "Role page for the SOC 2 program owner. Owner: not recorded.",
       "path": "eng/soc2-owner.md"
     },
     {
@@ -299,17 +684,45 @@
       "type": "project",
       "room": "room-eng-0",
       "pos": [
-        -19.09,
+        -17.53,
         1.1,
-        -3.38
+        -2.47
       ],
       "freshness": 0.5,
-      "excerpt": "SOC 2 Type II renewal window opens Nov 1. Auditor: Brightline. Evidence collection not started.",
+      "excerpt": "SOC 2 Type II renewal window opens Nov 1. Auditor: Brightline. Evidence collection not started. Owner: see SOC 2 Owner page.",
       "path": "eng/soc2-renewal.md"
     },
     {
-      "id": "finance/board-2026-q3",
-      "title": "Q3 Board Meeting Notes",
+      "id": "eng/vendor-risk-reviews",
+      "title": "Vendor Risk Reviews",
+      "type": "log",
+      "room": "room-eng-0",
+      "pos": [
+        -16.5,
+        1.1,
+        0
+      ],
+      "freshness": 0.69,
+      "excerpt": "Security questionnaires for suppliers with data or network access. 2026: Gripworks passed (Aug), Harbor Cloud passed (Jul), Brightline passed (Jun).",
+      "path": "eng/vendor-risk-reviews.md"
+    },
+    {
+      "id": "finance/audit-2025",
+      "title": "2025 Financial Audit",
+      "type": "report",
+      "room": "room-finance-1",
+      "pos": [
+        2.47,
+        1.1,
+        36.47
+      ],
+      "freshness": 0.33,
+      "excerpt": "FY2025 financial statement audit completed April 2026 with a clean opinion. One recommendation: formalize PO approvals.",
+      "path": "finance/audit-2025.md"
+    },
+    {
+      "id": "finance/board-2026-q2",
+      "title": "Q2 Board Meeting Notes",
       "type": "meeting",
       "room": "room-finance-0",
       "pos": [
@@ -317,9 +730,51 @@
         1.1,
         22.47
       ],
-      "freshness": 0.66,
-      "excerpt": "Committed to Ada Chen: a hardware gross-margin plan by Dec 15 and monthly burn updates.",
+      "freshness": 0.32,
+      "excerpt": "Q2 board meeting, May 14. Approved the 2026 operating plan revision and the venture debt drawdown. No commitments to observers.",
+      "path": "finance/board-2026-q2.md"
+    },
+    {
+      "id": "finance/board-2026-q3",
+      "title": "Q3 Board Meeting Notes",
+      "type": "meeting",
+      "room": "room-finance-0",
+      "pos": [
+        -0.39,
+        1.1,
+        23.48
+      ],
+      "freshness": 0.76,
+      "excerpt": "Committed to Ada Chen: a hardware gross-margin plan by Dec 15 and monthly burn updates. Meeting held Aug 13; attendees Mara Okafor, Raj Patel, two directors and observer Ada Chen.",
       "path": "finance/board-2026-q3.md"
+    },
+    {
+      "id": "finance/board-action-items",
+      "title": "Board Action Items",
+      "type": "tracker",
+      "room": "room-finance-0",
+      "pos": [
+        -2.96,
+        1.1,
+        21.86
+      ],
+      "freshness": 0.79,
+      "excerpt": "Open board follow-ups. From Q3: gross-margin plan due Dec 15 (Raj Patel, not started); monthly burn updates (Iris Kowalczyk, August sent).",
+      "path": "finance/board-action-items.md"
+    },
+    {
+      "id": "finance/budget-2026-q3",
+      "title": "Q3 2026 Budget",
+      "type": "budget",
+      "room": "room-finance-1",
+      "pos": [
+        -0.39,
+        1.1,
+        37.48
+      ],
+      "freshness": 0.51,
+      "excerpt": "Q3 supplier line $70k, fully committed (Voltcell battery packs and Ferro castings). Closed at 4% over plan.",
+      "path": "finance/budget-2026-q3.md"
     },
     {
       "id": "finance/budget-2026-q4",
@@ -327,13 +782,125 @@
       "type": "budget",
       "room": "room-finance-1",
       "pos": [
-        2.47,
+        -2.96,
         1.1,
-        36.47
+        35.86
       ],
-      "freshness": 0.74,
-      "excerpt": "Supplier line: $55k allocated, $15k committed. Gripworks ($40k) fits within the line.",
+      "freshness": 0.93,
+      "excerpt": "Supplier line: $55k allocated, $15k committed. Gripworks ($40k) fits within the line. Owner: Raj Patel.",
       "path": "finance/budget-2026-q4.md"
+    },
+    {
+      "id": "finance/burn-report-2026-08",
+      "title": "Burn Report, August 2026",
+      "type": "report",
+      "room": "room-finance-0",
+      "pos": [
+        -3.3,
+        1.1,
+        18.84
+      ],
+      "freshness": 0.89,
+      "excerpt": "August net burn $610k, cash $7.9M, runway 13 months. First monthly burn update sent to the board per the Q3 commitment.",
+      "path": "finance/burn-report-2026-08.md"
+    },
+    {
+      "id": "finance/expense-policy",
+      "title": "Expense Policy",
+      "type": "policy",
+      "room": "room-finance-1",
+      "pos": [
+        -3.3,
+        1.1,
+        32.84
+      ],
+      "freshness": 0,
+      "excerpt": "Employee expenses: submit within 30 days, receipts over $50, travel booked through the company tool. Managers approve up to $2k.",
+      "path": "finance/expense-policy.md"
+    },
+    {
+      "id": "finance/gross-margin-plan",
+      "title": "Gross Margin Plan",
+      "type": "plan",
+      "room": "room-finance-0",
+      "pos": [
+        -1.16,
+        1.1,
+        16.7
+      ],
+      "freshness": 0.88,
+      "excerpt": "Draft plan to lift hardware gross margin from 31% to 45% by end of 2027. Due to the board Dec 15, promised at the Q3 board meeting. Owner: Raj Patel.",
+      "path": "finance/gross-margin-plan.md"
+    },
+    {
+      "id": "finance/operating-plan-2026",
+      "title": "2026 Operating Plan",
+      "type": "plan",
+      "room": "room-finance-0",
+      "pos": [
+        1.86,
+        1.1,
+        17.04
+      ],
+      "freshness": 0.44,
+      "excerpt": "2026 plan: $9.5M revenue, 52 people by year end, hardware gross margin 38%. Revised in April; the margin target has since slipped.",
+      "path": "finance/operating-plan-2026.md"
+    },
+    {
+      "id": "finance/purchase-order-policy",
+      "title": "Purchase Order Policy",
+      "type": "policy",
+      "room": "room-finance-1",
+      "pos": [
+        -1.16,
+        1.1,
+        30.7
+      ],
+      "freshness": 0.32,
+      "excerpt": "POs up to $25k are approved by the Controller; POs over $25k need the VP Finance (Raj Patel). A PO is not a contract signature.",
+      "path": "finance/purchase-order-policy.md"
+    },
+    {
+      "id": "finance/runway-forecast",
+      "title": "Runway Forecast",
+      "type": "forecast",
+      "room": "room-finance-0",
+      "pos": [
+        3.48,
+        1.1,
+        19.61
+      ],
+      "freshness": 0.92,
+      "excerpt": "Base case runway 13 months at current burn; 17 months with the undrawn $2M of venture debt.",
+      "path": "finance/runway-forecast.md"
+    },
+    {
+      "id": "finance/supplier-spend-ledger",
+      "title": "Supplier Spend Ledger",
+      "type": "ledger",
+      "room": "room-finance-1",
+      "pos": [
+        1.86,
+        1.1,
+        31.04
+      ],
+      "freshness": 0.98,
+      "excerpt": "Committed and paid supplier spend by quarter. Q4 to date: Ferro Castings PO $15k committed. Gripworks not yet committed.",
+      "path": "finance/supplier-spend-ledger.md"
+    },
+    {
+      "id": "finance/venture-debt-facility",
+      "title": "Venture Debt Facility",
+      "type": "agreement",
+      "room": "room-finance-1",
+      "pos": [
+        3.48,
+        1.1,
+        33.61
+      ],
+      "freshness": 0.38,
+      "excerpt": "$4M facility from Northgate Bank; $2M drawn in May. Covenant: monthly financials and minimum cash $2M.",
+      "path": "finance/venture-debt-facility.md"
     },
     {
       "id": "legal/approvals",
@@ -345,9 +912,79 @@
         1.1,
         2.47
       ],
-      "freshness": 0.8,
-      "excerpt": "Gripworks MSA v3 approved by Tomas Reyes on Sep 22, pending budget confirmation.",
+      "freshness": 0.97,
+      "excerpt": "Gripworks MSA v3 approved by Tomas Reyes on Sep 22, pending budget confirmation. Signature requires an authorized signatory for contracts over $30k.",
       "path": "legal/approvals.md"
+    },
+    {
+      "id": "legal/axis-logistics-msa",
+      "title": "Axis Logistics MSA",
+      "type": "contract",
+      "room": "room-legal-0",
+      "pos": [
+        20.31,
+        1.1,
+        3.49
+      ],
+      "freshness": 0,
+      "excerpt": "Freight MSA with Axis Logistics. Rate card renews annually; the 2026 rate card was never attached to the signed copy.",
+      "path": "legal/axis-logistics-msa.md"
+    },
+    {
+      "id": "legal/board-consents",
+      "title": "Board Consents",
+      "type": "log",
+      "room": "room-legal-1",
+      "pos": [
+        36.47,
+        1.1,
+        2.47
+      ],
+      "freshness": 0.76,
+      "excerpt": "Written consents of the board. The Aug 14 consent reconfirmed signature authority: contracts over $30k need the CEO or COO.",
+      "path": "legal/board-consents.md"
+    },
+    {
+      "id": "legal/contract-playbook",
+      "title": "Contract Playbook",
+      "type": "guide",
+      "room": "room-legal-0",
+      "pos": [
+        17.99,
+        1.1,
+        2.87
+      ],
+      "freshness": 0.59,
+      "excerpt": "Legal's standard positions for vendor contracts: Net-45 payment, liability cap at 1x fees, 12-month default term, Delaware law.",
+      "path": "legal/contract-playbook.md"
+    },
+    {
+      "id": "legal/export-controls",
+      "title": "Export Controls",
+      "type": "policy",
+      "room": "room-legal-1",
+      "pos": [
+        33.61,
+        1.1,
+        3.48
+      ],
+      "freshness": 0.36,
+      "excerpt": "The arm and controller ship under EAR99; no license needed for US and EU customers. Shipments to embargoed destinations are blocked.",
+      "path": "legal/export-controls.md"
+    },
+    {
+      "id": "legal/ferro-castings-po-terms",
+      "title": "Ferro Castings PO Terms",
+      "type": "contract",
+      "room": "room-legal-0",
+      "pos": [
+        16.62,
+        1.1,
+        0.91
+      ],
+      "freshness": 0.82,
+      "excerpt": "Standard purchase order terms for Ferro Castings. Per-PO pricing, Net-30, scrap over 4% is credited back.",
+      "path": "legal/ferro-castings-po-terms.md"
     },
     {
       "id": "legal/gripworks-msa",
@@ -355,13 +992,139 @@
       "type": "contract",
       "room": "room-legal-0",
       "pos": [
-        17.53,
+        16.83,
         1.1,
-        -2.47
+        -1.48
       ],
-      "freshness": 0.9,
-      "excerpt": "Master services agreement draft v3. Net-45 payment, 12-month term, liability cap 1x fees. Redlines resolved Sep 20.",
+      "freshness": 0.96,
+      "excerpt": "Master services agreement draft v3. Net-45 payment, 12-month term, liability cap 1x fees. Redlines resolved Sep 20. Contract value $40k.",
       "path": "legal/gripworks-msa.md"
+    },
+    {
+      "id": "legal/harbor-cloud-dpa",
+      "title": "Harbor Cloud DPA",
+      "type": "contract",
+      "room": "room-legal-0",
+      "pos": [
+        18.52,
+        1.1,
+        -3.17
+      ],
+      "freshness": 0.58,
+      "excerpt": "Data processing agreement with Harbor Cloud covering fleet telemetry and customer dashboard data. Standard contractual clauses attached for EU customers.",
+      "path": "legal/harbor-cloud-dpa.md"
+    },
+    {
+      "id": "legal/ip-assignment",
+      "title": "IP Assignment",
+      "type": "policy",
+      "room": "room-legal-1",
+      "pos": [
+        31.04,
+        1.1,
+        1.86
+      ],
+      "freshness": 0.16,
+      "excerpt": "Every employee and contractor signs the invention assignment agreement on day one. Contractor agreements without it are void for Eng work.",
+      "path": "legal/ip-assignment.md"
+    },
+    {
+      "id": "legal/nda-template",
+      "title": "NDA Template",
+      "type": "template",
+      "room": "room-legal-0",
+      "pos": [
+        20.91,
+        1.1,
+        -3.38
+      ],
+      "freshness": 0,
+      "excerpt": "Mutual NDA template, two-year term, used for every supplier and customer conversation before pricing is shared.",
+      "path": "legal/nda-template.md"
+    },
+    {
+      "id": "legal/patent-soft-wrist",
+      "title": "Soft Wrist Patent",
+      "type": "filing",
+      "room": "room-legal-1",
+      "pos": [
+        30.7,
+        1.1,
+        -1.16
+      ],
+      "freshness": 0.52,
+      "excerpt": "US provisional patent for the compliant wrist joint used with Gripper v2. Non-provisional filing due March 2027.",
+      "path": "legal/patent-soft-wrist.md"
+    },
+    {
+      "id": "legal/privacy-policy",
+      "title": "Privacy Policy",
+      "type": "policy",
+      "room": "room-legal-1",
+      "pos": [
+        32.84,
+        1.1,
+        -3.3
+      ],
+      "freshness": 0.47,
+      "excerpt": "Customer privacy policy for fleet telemetry and dashboards. Telemetry is retained 13 months; customers can request deletion.",
+      "path": "legal/privacy-policy.md"
+    },
+    {
+      "id": "legal/series-a-docs",
+      "title": "Series A Documents",
+      "type": "reference",
+      "room": "room-legal-1",
+      "pos": [
+        35.86,
+        1.1,
+        -2.96
+      ],
+      "freshness": 0,
+      "excerpt": "Series A financing documents: $12M led by Lumen Ventures in 2024. Investor rights include one board observer and monthly financials.",
+      "path": "legal/series-a-docs.md"
+    },
+    {
+      "id": "legal/trademark-acme",
+      "title": "Acme Trademarks",
+      "type": "filing",
+      "room": "room-legal-1",
+      "pos": [
+        37.48,
+        1.1,
+        -0.39
+      ],
+      "freshness": 0.31,
+      "excerpt": "Registered marks: ACME ROBOTICS (US, EU) and GRIPPER V2 (pending US). Renewal docket owned by Legal.",
+      "path": "legal/trademark-acme.md"
+    },
+    {
+      "id": "legal/vendor-onboarding",
+      "title": "Vendor Onboarding",
+      "type": "process",
+      "room": "room-legal-0",
+      "pos": [
+        22.87,
+        1.1,
+        -2.01
+      ],
+      "freshness": 0.72,
+      "excerpt": "Steps to onboard a new supplier: NDA, vendor risk review, contract per playbook, budget confirmation from Finance, then signature.",
+      "path": "legal/vendor-onboarding.md"
+    },
+    {
+      "id": "legal/voltcell-supply-agreement",
+      "title": "Voltcell Supply Agreement",
+      "type": "contract",
+      "room": "room-legal-0",
+      "pos": [
+        23.49,
+        1.1,
+        0.31
+      ],
+      "freshness": 0.45,
+      "excerpt": "24-month battery supply agreement with Voltcell, signed March 2025. $180k per year, Net-30, price review each April.",
+      "path": "legal/voltcell-supply-agreement.md"
     },
     {
       "id": "people/ada-chen",
@@ -369,13 +1132,111 @@
       "type": "person",
       "room": "room-people-0",
       "pos": [
-        -1.59,
+        0.91,
         1.1,
-        -16.88
+        -16.62
       ],
       "freshness": 0.85,
-      "excerpt": "Board observer from Lumen Ventures. At the Q3 board meeting she asked for a hardware gross-margin plan by year end.",
+      "excerpt": "Board observer from Lumen Ventures. At the Q3 board meeting she asked for a hardware gross-margin plan by year end, and she follows up on monthly burn numbers.",
       "path": "people/ada-chen.md"
+    },
+    {
+      "id": "people/dev-lindqvist",
+      "title": "Dev Lindqvist",
+      "type": "person",
+      "room": "room-people-0",
+      "pos": [
+        -0.91,
+        1.1,
+        -16.62
+      ],
+      "freshness": 0.48,
+      "excerpt": "COO. Runs operations, logistics and manufacturing, and signs contracts over $30k when the CEO is unavailable.",
+      "path": "people/dev-lindqvist.md"
+    },
+    {
+      "id": "people/employee-handbook",
+      "title": "Employee Handbook",
+      "type": "policy",
+      "room": "room-people-1",
+      "pos": [
+        3.12,
+        1.1,
+        -35.59
+      ],
+      "freshness": 0,
+      "excerpt": "Company handbook: working hours, PTO, expenses, equipment and security basics for every employee.",
+      "path": "people/employee-handbook.md"
+    },
+    {
+      "id": "people/iris-kowalczyk",
+      "title": "Iris Kowalczyk",
+      "type": "person",
+      "room": "room-people-0",
+      "pos": [
+        -2.47,
+        1.1,
+        -17.53
+      ],
+      "freshness": 0.91,
+      "excerpt": "Controller. Runs month-end close, the supplier spend ledger and the monthly burn report.",
+      "path": "people/iris-kowalczyk.md"
+    },
+    {
+      "id": "people/lena-vogt",
+      "title": "Lena Vogt",
+      "type": "person",
+      "room": "room-people-0",
+      "pos": [
+        -3.38,
+        1.1,
+        -19.09
+      ],
+      "freshness": 0.08,
+      "excerpt": "Head of People. Runs hiring, onboarding and the employee handbook.",
+      "path": "people/lena-vogt.md"
+    },
+    {
+      "id": "people/mara-okafor",
+      "title": "Mara Okafor",
+      "type": "person",
+      "room": "room-people-0",
+      "pos": [
+        -3.38,
+        1.1,
+        -20.91
+      ],
+      "freshness": 0.39,
+      "excerpt": "CEO and co-founder of Acme Robotics. Chairs the board and signs contracts over $30k.",
+      "path": "people/mara-okafor.md"
+    },
+    {
+      "id": "people/nikhil-brandt",
+      "title": "Nikhil Brandt",
+      "type": "person",
+      "room": "room-people-0",
+      "pos": [
+        -2.47,
+        1.1,
+        -22.47
+      ],
+      "freshness": 0.49,
+      "excerpt": "Firmware lead. Owns the arm controller firmware and release trains.",
+      "path": "people/nikhil-brandt.md"
+    },
+    {
+      "id": "people/onboarding-guide",
+      "title": "Onboarding Guide",
+      "type": "guide",
+      "room": "room-people-1",
+      "pos": [
+        3.46,
+        1.1,
+        -33.45
+      ],
+      "freshness": 0.96,
+      "excerpt": "First-week checklist for new hires: accounts, handbook, security training, team intros.",
+      "path": "people/onboarding-guide.md"
     },
     {
       "id": "people/org-chart",
@@ -383,13 +1244,27 @@
       "type": "reference",
       "room": "room-people-0",
       "pos": [
-        -3.46,
+        -0.91,
         1.1,
-        -20.55
+        -23.38
       ],
       "freshness": 0.55,
-      "excerpt": "Acme Robotics, 48 people. Teams: Finance (Raj Patel), Legal (Tomas Reyes), Eng (Priya Nand), People (Lena Vogt).",
+      "excerpt": "Acme Robotics, 48 people. Teams: Finance (Raj Patel), Legal (Tomas Reyes), Eng (Priya Nand), People (Lena Vogt). CEO Mara Okafor, COO Dev Lindqvist.",
       "path": "people/org-chart.md"
+    },
+    {
+      "id": "people/priya-nand",
+      "title": "Priya Nand",
+      "type": "person",
+      "room": "room-people-0",
+      "pos": [
+        0.91,
+        1.1,
+        -23.38
+      ],
+      "freshness": 0.74,
+      "excerpt": "VP Engineering and co-founder. Leads the 34-person Eng team: hardware, firmware and cloud.",
+      "path": "people/priya-nand.md"
     },
     {
       "id": "people/raj-patel",
@@ -397,9 +1272,9 @@
       "type": "person",
       "room": "room-people-0",
       "pos": [
-        -0.55,
+        2.47,
         1.1,
-        -23.46
+        -22.47
       ],
       "freshness": 0.62,
       "excerpt": "VP Finance. Owns the Q4 budget and signs purchase orders over $25k.",
@@ -411,45 +1286,379 @@
       "type": "policy",
       "room": "room-people-0",
       "pos": [
-        3.12,
+        3.38,
         1.1,
-        -21.59
+        -20.91
       ],
       "freshness": 0.7,
-      "excerpt": "Contracts over $30k need the CEO (Mara Okafor) or COO (Dev Lindqvist) to sign.",
+      "excerpt": "Contracts over $30k need the CEO (Mara Okafor) or COO (Dev Lindqvist) to sign. Contracts up to $30k can be signed by the General Counsel (Tomas Reyes) once budget is confirmed.",
       "path": "people/signatories.md"
+    },
+    {
+      "id": "people/tomas-reyes",
+      "title": "Tomas Reyes",
+      "type": "person",
+      "room": "room-people-0",
+      "pos": [
+        3.38,
+        1.1,
+        -19.09
+      ],
+      "freshness": 0.86,
+      "excerpt": "General Counsel. Leads Legal, approves every vendor contract and keeps the approvals log.",
+      "path": "people/tomas-reyes.md"
     }
   ],
   "links": [
+    {
+      "from": "companies/axis-logistics",
+      "to": "legal/axis-logistics-msa",
+      "kind": "contract"
+    },
+    {
+      "from": "companies/axis-logistics",
+      "to": "legal/export-controls",
+      "kind": "governed_by"
+    },
+    {
+      "from": "companies/axis-logistics",
+      "to": "people/dev-lindqvist",
+      "kind": "managed_by"
+    },
+    {
+      "from": "companies/brightline",
+      "to": "eng/soc2-2025-report",
+      "kind": "audited"
+    },
+    {
+      "from": "companies/brightline",
+      "to": "eng/soc2-renewal",
+      "kind": "auditor_for"
+    },
+    {
+      "from": "companies/brightline",
+      "to": "eng/vendor-risk-reviews",
+      "kind": "reviewed_in"
+    },
+    {
+      "from": "companies/ferro-castings",
+      "to": "eng/hardware-bom",
+      "kind": "supplies"
+    },
+    {
+      "from": "companies/ferro-castings",
+      "to": "eng/manufacturing-yield",
+      "kind": "affects"
+    },
+    {
+      "from": "companies/ferro-castings",
+      "to": "legal/ferro-castings-po-terms",
+      "kind": "contract"
+    },
+    {
+      "from": "companies/gripworks",
+      "to": "eng/gripper-v2",
+      "kind": "supplies"
+    },
+    {
+      "from": "companies/gripworks",
+      "to": "eng/vendor-risk-reviews",
+      "kind": "reviewed_in"
+    },
     {
       "from": "companies/gripworks",
       "to": "legal/gripworks-msa",
       "kind": "contract"
     },
     {
-      "from": "legal/gripworks-msa",
-      "to": "legal/approvals",
-      "kind": "approved_in"
+      "from": "companies/halden-compliance",
+      "to": "eng/soc2-2025-report",
+      "kind": "prepared"
     },
     {
-      "from": "legal/gripworks-msa",
+      "from": "companies/halden-compliance",
+      "to": "people/org-chart",
+      "kind": "formerly_listed_in"
+    },
+    {
+      "from": "companies/harbor-cloud",
+      "to": "eng/cloud-infra",
+      "kind": "hosts"
+    },
+    {
+      "from": "companies/harbor-cloud",
+      "to": "eng/soc2-evidence-tracker",
+      "kind": "evidence_for"
+    },
+    {
+      "from": "companies/harbor-cloud",
+      "to": "legal/harbor-cloud-dpa",
+      "kind": "contract"
+    },
+    {
+      "from": "companies/lumen-ventures",
+      "to": "finance/gross-margin-plan",
+      "kind": "expects"
+    },
+    {
+      "from": "companies/lumen-ventures",
+      "to": "legal/series-a-docs",
+      "kind": "invested_via"
+    },
+    {
+      "from": "companies/lumen-ventures",
+      "to": "people/ada-chen",
+      "kind": "observer"
+    },
+    {
+      "from": "companies/northgate-bank",
+      "to": "finance/burn-report-2026-08",
+      "kind": "receives"
+    },
+    {
+      "from": "companies/northgate-bank",
+      "to": "finance/venture-debt-facility",
+      "kind": "lender_for"
+    },
+    {
+      "from": "companies/voltcell",
+      "to": "eng/hardware-bom",
+      "kind": "supplies"
+    },
+    {
+      "from": "companies/voltcell",
+      "to": "legal/voltcell-supply-agreement",
+      "kind": "contract"
+    },
+    {
+      "from": "eng/access-review-2026-q2",
+      "to": "eng/oncall-rotation",
+      "kind": "performed_by"
+    },
+    {
+      "from": "eng/access-review-2026-q2",
+      "to": "eng/security-policy",
+      "kind": "required_by"
+    },
+    {
+      "from": "eng/access-review-2026-q2",
+      "to": "eng/soc2-evidence-tracker",
+      "kind": "evidence_for"
+    },
+    {
+      "from": "eng/arm-controller",
+      "to": "eng/cloud-infra",
+      "kind": "uplinks_to"
+    },
+    {
+      "from": "eng/arm-controller",
+      "to": "eng/firmware-release-4-2",
+      "kind": "runs"
+    },
+    {
+      "from": "eng/arm-controller",
+      "to": "eng/hardware-bom",
+      "kind": "listed_in"
+    },
+    {
+      "from": "eng/cloud-infra",
+      "to": "companies/harbor-cloud",
+      "kind": "hosted_by"
+    },
+    {
+      "from": "eng/cloud-infra",
+      "to": "eng/arm-controller",
+      "kind": "receives"
+    },
+    {
+      "from": "eng/cloud-infra",
       "to": "finance/budget-2026-q4",
       "kind": "funded_by"
     },
     {
-      "from": "legal/approvals",
-      "to": "people/signatories",
+      "from": "eng/firmware-release-4-2",
+      "to": "eng/arm-controller",
+      "kind": "runs_on"
+    },
+    {
+      "from": "eng/firmware-release-4-2",
+      "to": "eng/gripper-v2",
+      "kind": "enables"
+    },
+    {
+      "from": "eng/firmware-release-4-2",
+      "to": "people/nikhil-brandt",
+      "kind": "owned_by"
+    },
+    {
+      "from": "eng/gripper-v2",
+      "to": "companies/gripworks",
+      "kind": "supplier"
+    },
+    {
+      "from": "eng/gripper-v2",
+      "to": "eng/hardware-bom",
+      "kind": "listed_in"
+    },
+    {
+      "from": "eng/gripper-v2",
+      "to": "legal/patent-soft-wrist",
+      "kind": "protected_by"
+    },
+    {
+      "from": "eng/gripper-v2",
+      "to": "people/priya-nand",
+      "kind": "owned_by"
+    },
+    {
+      "from": "eng/hardware-bom",
+      "to": "companies/ferro-castings",
+      "kind": "supplier"
+    },
+    {
+      "from": "eng/hardware-bom",
+      "to": "companies/gripworks",
+      "kind": "supplier"
+    },
+    {
+      "from": "eng/hardware-bom",
+      "to": "companies/voltcell",
+      "kind": "supplier"
+    },
+    {
+      "from": "eng/hardware-bom",
+      "to": "finance/gross-margin-plan",
+      "kind": "input_to"
+    },
+    {
+      "from": "eng/incident-response",
+      "to": "eng/oncall-rotation",
+      "kind": "pages"
+    },
+    {
+      "from": "eng/incident-response",
+      "to": "eng/security-policy",
+      "kind": "required_by"
+    },
+    {
+      "from": "eng/incident-response",
+      "to": "legal/privacy-policy",
+      "kind": "follows"
+    },
+    {
+      "from": "eng/manufacturing-yield",
+      "to": "companies/ferro-castings",
+      "kind": "driven_by"
+    },
+    {
+      "from": "eng/manufacturing-yield",
+      "to": "finance/gross-margin-plan",
+      "kind": "input_to"
+    },
+    {
+      "from": "eng/manufacturing-yield",
+      "to": "people/dev-lindqvist",
+      "kind": "tracked_by"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "eng/access-review-2026-q2",
+      "kind": "covers"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "eng/incident-response",
+      "kind": "follows"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "people/nikhil-brandt",
+      "kind": "includes"
+    },
+    {
+      "from": "eng/roadmap-2026-h2",
+      "to": "eng/firmware-release-4-2",
+      "kind": "includes"
+    },
+    {
+      "from": "eng/roadmap-2026-h2",
+      "to": "eng/gripper-v2",
+      "kind": "includes"
+    },
+    {
+      "from": "eng/roadmap-2026-h2",
+      "to": "eng/soc2-renewal",
+      "kind": "includes"
+    },
+    {
+      "from": "eng/roadmap-2026-h2",
+      "to": "people/priya-nand",
+      "kind": "owned_by"
+    },
+    {
+      "from": "eng/security-policy",
+      "to": "companies/halden-compliance",
+      "kind": "formerly_owned_by"
+    },
+    {
+      "from": "eng/security-policy",
+      "to": "eng/access-review-2026-q2",
       "kind": "requires"
     },
     {
-      "from": "finance/board-2026-q3",
-      "to": "people/ada-chen",
-      "kind": "attended"
+      "from": "eng/security-policy",
+      "to": "eng/incident-response",
+      "kind": "requires"
     },
     {
-      "from": "finance/budget-2026-q4",
-      "to": "people/raj-patel",
-      "kind": "owned_by"
+      "from": "eng/security-policy",
+      "to": "eng/soc2-renewal",
+      "kind": "governs"
+    },
+    {
+      "from": "eng/soc2-2025-report",
+      "to": "companies/brightline",
+      "kind": "audited_by"
+    },
+    {
+      "from": "eng/soc2-2025-report",
+      "to": "companies/halden-compliance",
+      "kind": "prepared_by"
+    },
+    {
+      "from": "eng/soc2-2025-report",
+      "to": "eng/access-review-2026-q2",
+      "kind": "led_to"
+    },
+    {
+      "from": "eng/soc2-evidence-tracker",
+      "to": "eng/access-review-2026-q2",
+      "kind": "collects"
+    },
+    {
+      "from": "eng/soc2-evidence-tracker",
+      "to": "eng/soc2-renewal",
+      "kind": "feeds"
+    },
+    {
+      "from": "eng/soc2-evidence-tracker",
+      "to": "eng/vendor-risk-reviews",
+      "kind": "collects"
+    },
+    {
+      "from": "eng/soc2-owner",
+      "to": "eng/soc2-renewal",
+      "kind": "role_for"
+    },
+    {
+      "from": "eng/soc2-owner",
+      "to": "people/org-chart",
+      "kind": "listed_in"
+    },
+    {
+      "from": "eng/soc2-renewal",
+      "to": "companies/brightline",
+      "kind": "audited_by"
     },
     {
       "from": "eng/soc2-renewal",
@@ -458,18 +1667,743 @@
     },
     {
       "from": "eng/soc2-renewal",
+      "to": "eng/soc2-2025-report",
+      "kind": "previous"
+    },
+    {
+      "from": "eng/soc2-renewal",
+      "to": "eng/soc2-evidence-tracker",
+      "kind": "evidence_in"
+    },
+    {
+      "from": "eng/soc2-renewal",
       "to": "eng/soc2-owner",
       "kind": "owned_by"
     },
     {
-      "from": "eng/soc2-owner",
+      "from": "eng/vendor-risk-reviews",
+      "to": "companies/gripworks",
+      "kind": "reviewed"
+    },
+    {
+      "from": "eng/vendor-risk-reviews",
+      "to": "companies/harbor-cloud",
+      "kind": "reviewed"
+    },
+    {
+      "from": "eng/vendor-risk-reviews",
+      "to": "eng/soc2-evidence-tracker",
+      "kind": "evidence_for"
+    },
+    {
+      "from": "eng/vendor-risk-reviews",
+      "to": "legal/vendor-onboarding",
+      "kind": "step_of"
+    },
+    {
+      "from": "finance/audit-2025",
+      "to": "finance/operating-plan-2026",
+      "kind": "anchors"
+    },
+    {
+      "from": "finance/audit-2025",
+      "to": "finance/purchase-order-policy",
+      "kind": "led_to"
+    },
+    {
+      "from": "finance/board-2026-q2",
+      "to": "finance/board-2026-q3",
+      "kind": "precedes"
+    },
+    {
+      "from": "finance/board-2026-q2",
+      "to": "finance/operating-plan-2026",
+      "kind": "reviewed"
+    },
+    {
+      "from": "finance/board-2026-q2",
+      "to": "finance/venture-debt-facility",
+      "kind": "approved"
+    },
+    {
+      "from": "finance/board-2026-q3",
+      "to": "finance/board-2026-q2",
+      "kind": "follows"
+    },
+    {
+      "from": "finance/board-2026-q3",
+      "to": "finance/board-action-items",
+      "kind": "tracked_in"
+    },
+    {
+      "from": "finance/board-2026-q3",
+      "to": "finance/burn-report-2026-08",
+      "kind": "committed"
+    },
+    {
+      "from": "finance/board-2026-q3",
+      "to": "finance/gross-margin-plan",
+      "kind": "committed"
+    },
+    {
+      "from": "finance/board-2026-q3",
+      "to": "people/ada-chen",
+      "kind": "attended"
+    },
+    {
+      "from": "finance/board-action-items",
+      "to": "finance/board-2026-q3",
+      "kind": "from"
+    },
+    {
+      "from": "finance/board-action-items",
+      "to": "finance/burn-report-2026-08",
+      "kind": "tracks"
+    },
+    {
+      "from": "finance/board-action-items",
+      "to": "finance/gross-margin-plan",
+      "kind": "tracks"
+    },
+    {
+      "from": "finance/budget-2026-q3",
+      "to": "finance/budget-2026-q4",
+      "kind": "precedes"
+    },
+    {
+      "from": "finance/budget-2026-q3",
+      "to": "finance/operating-plan-2026",
+      "kind": "derived_from"
+    },
+    {
+      "from": "finance/budget-2026-q3",
+      "to": "finance/supplier-spend-ledger",
+      "kind": "detailed_in"
+    },
+    {
+      "from": "finance/budget-2026-q4",
+      "to": "finance/operating-plan-2026",
+      "kind": "derived_from"
+    },
+    {
+      "from": "finance/budget-2026-q4",
+      "to": "finance/supplier-spend-ledger",
+      "kind": "detailed_in"
+    },
+    {
+      "from": "finance/budget-2026-q4",
+      "to": "legal/gripworks-msa",
+      "kind": "funds"
+    },
+    {
+      "from": "finance/budget-2026-q4",
+      "to": "people/raj-patel",
+      "kind": "owned_by"
+    },
+    {
+      "from": "finance/burn-report-2026-08",
+      "to": "companies/northgate-bank",
+      "kind": "sent_to"
+    },
+    {
+      "from": "finance/burn-report-2026-08",
+      "to": "finance/board-2026-q3",
+      "kind": "promised_in"
+    },
+    {
+      "from": "finance/burn-report-2026-08",
+      "to": "finance/runway-forecast",
+      "kind": "feeds"
+    },
+    {
+      "from": "finance/burn-report-2026-08",
+      "to": "people/iris-kowalczyk",
+      "kind": "prepared_by"
+    },
+    {
+      "from": "finance/expense-policy",
+      "to": "finance/purchase-order-policy",
+      "kind": "escalates_to"
+    },
+    {
+      "from": "finance/expense-policy",
+      "to": "people/employee-handbook",
+      "kind": "summarized_in"
+    },
+    {
+      "from": "finance/gross-margin-plan",
+      "to": "eng/hardware-bom",
+      "kind": "depends_on"
+    },
+    {
+      "from": "finance/gross-margin-plan",
+      "to": "eng/manufacturing-yield",
+      "kind": "depends_on"
+    },
+    {
+      "from": "finance/gross-margin-plan",
+      "to": "finance/board-2026-q3",
+      "kind": "promised_in"
+    },
+    {
+      "from": "finance/gross-margin-plan",
+      "to": "people/raj-patel",
+      "kind": "owned_by"
+    },
+    {
+      "from": "finance/operating-plan-2026",
+      "to": "finance/board-2026-q2",
+      "kind": "reviewed_in"
+    },
+    {
+      "from": "finance/operating-plan-2026",
+      "to": "finance/budget-2026-q3",
+      "kind": "drives"
+    },
+    {
+      "from": "finance/operating-plan-2026",
+      "to": "finance/budget-2026-q4",
+      "kind": "drives"
+    },
+    {
+      "from": "finance/purchase-order-policy",
+      "to": "people/iris-kowalczyk",
+      "kind": "approver"
+    },
+    {
+      "from": "finance/purchase-order-policy",
+      "to": "people/raj-patel",
+      "kind": "approver"
+    },
+    {
+      "from": "finance/purchase-order-policy",
+      "to": "people/signatories",
+      "kind": "distinct_from"
+    },
+    {
+      "from": "finance/runway-forecast",
+      "to": "finance/burn-report-2026-08",
+      "kind": "uses"
+    },
+    {
+      "from": "finance/runway-forecast",
+      "to": "finance/venture-debt-facility",
+      "kind": "uses"
+    },
+    {
+      "from": "finance/runway-forecast",
+      "to": "people/raj-patel",
+      "kind": "owned_by"
+    },
+    {
+      "from": "finance/supplier-spend-ledger",
+      "to": "companies/ferro-castings",
+      "kind": "lists"
+    },
+    {
+      "from": "finance/supplier-spend-ledger",
+      "to": "companies/gripworks",
+      "kind": "lists"
+    },
+    {
+      "from": "finance/supplier-spend-ledger",
+      "to": "companies/voltcell",
+      "kind": "lists"
+    },
+    {
+      "from": "finance/supplier-spend-ledger",
+      "to": "finance/budget-2026-q4",
+      "kind": "rolls_up_to"
+    },
+    {
+      "from": "finance/venture-debt-facility",
+      "to": "companies/northgate-bank",
+      "kind": "lender"
+    },
+    {
+      "from": "finance/venture-debt-facility",
+      "to": "finance/runway-forecast",
+      "kind": "used_by"
+    },
+    {
+      "from": "finance/venture-debt-facility",
+      "to": "legal/board-consents",
+      "kind": "approved_in"
+    },
+    {
+      "from": "legal/approvals",
+      "to": "legal/ferro-castings-po-terms",
+      "kind": "logs"
+    },
+    {
+      "from": "legal/approvals",
+      "to": "legal/gripworks-msa",
+      "kind": "logs"
+    },
+    {
+      "from": "legal/approvals",
+      "to": "legal/harbor-cloud-dpa",
+      "kind": "logs"
+    },
+    {
+      "from": "legal/approvals",
+      "to": "people/signatories",
+      "kind": "requires"
+    },
+    {
+      "from": "legal/approvals",
+      "to": "people/tomas-reyes",
+      "kind": "kept_by"
+    },
+    {
+      "from": "legal/axis-logistics-msa",
+      "to": "companies/axis-logistics",
+      "kind": "counterparty"
+    },
+    {
+      "from": "legal/axis-logistics-msa",
+      "to": "legal/contract-playbook",
+      "kind": "follows"
+    },
+    {
+      "from": "legal/axis-logistics-msa",
+      "to": "legal/export-controls",
+      "kind": "governed_by"
+    },
+    {
+      "from": "legal/board-consents",
+      "to": "finance/board-2026-q3",
+      "kind": "follows"
+    },
+    {
+      "from": "legal/board-consents",
+      "to": "finance/venture-debt-facility",
+      "kind": "approves"
+    },
+    {
+      "from": "legal/board-consents",
+      "to": "people/signatories",
+      "kind": "sets"
+    },
+    {
+      "from": "legal/contract-playbook",
+      "to": "legal/approvals",
+      "kind": "precedes"
+    },
+    {
+      "from": "legal/contract-playbook",
+      "to": "legal/nda-template",
+      "kind": "uses"
+    },
+    {
+      "from": "legal/contract-playbook",
+      "to": "legal/vendor-onboarding",
+      "kind": "requires"
+    },
+    {
+      "from": "legal/export-controls",
+      "to": "companies/axis-logistics",
+      "kind": "applies_to"
+    },
+    {
+      "from": "legal/export-controls",
+      "to": "legal/axis-logistics-msa",
+      "kind": "applies_to"
+    },
+    {
+      "from": "legal/ferro-castings-po-terms",
+      "to": "companies/ferro-castings",
+      "kind": "counterparty"
+    },
+    {
+      "from": "legal/ferro-castings-po-terms",
+      "to": "finance/purchase-order-policy",
+      "kind": "governed_by"
+    },
+    {
+      "from": "legal/ferro-castings-po-terms",
+      "to": "legal/approvals",
+      "kind": "approved_in"
+    },
+    {
+      "from": "legal/gripworks-msa",
+      "to": "companies/gripworks",
+      "kind": "counterparty"
+    },
+    {
+      "from": "legal/gripworks-msa",
+      "to": "eng/gripper-v2",
+      "kind": "scope"
+    },
+    {
+      "from": "legal/gripworks-msa",
+      "to": "finance/budget-2026-q4",
+      "kind": "funded_by"
+    },
+    {
+      "from": "legal/gripworks-msa",
+      "to": "legal/approvals",
+      "kind": "approved_in"
+    },
+    {
+      "from": "legal/gripworks-msa",
+      "to": "legal/contract-playbook",
+      "kind": "follows"
+    },
+    {
+      "from": "legal/harbor-cloud-dpa",
+      "to": "companies/harbor-cloud",
+      "kind": "counterparty"
+    },
+    {
+      "from": "legal/harbor-cloud-dpa",
+      "to": "legal/approvals",
+      "kind": "approved_in"
+    },
+    {
+      "from": "legal/harbor-cloud-dpa",
+      "to": "legal/privacy-policy",
+      "kind": "implements"
+    },
+    {
+      "from": "legal/ip-assignment",
+      "to": "legal/patent-soft-wrist",
+      "kind": "protects"
+    },
+    {
+      "from": "legal/ip-assignment",
+      "to": "people/onboarding-guide",
+      "kind": "enforced_by"
+    },
+    {
+      "from": "legal/nda-template",
+      "to": "legal/contract-playbook",
+      "kind": "used_by"
+    },
+    {
+      "from": "legal/nda-template",
+      "to": "legal/vendor-onboarding",
+      "kind": "used_by"
+    },
+    {
+      "from": "legal/patent-soft-wrist",
+      "to": "eng/gripper-v2",
+      "kind": "covers"
+    },
+    {
+      "from": "legal/patent-soft-wrist",
+      "to": "legal/ip-assignment",
+      "kind": "relies_on"
+    },
+    {
+      "from": "legal/privacy-policy",
+      "to": "eng/security-policy",
+      "kind": "relies_on"
+    },
+    {
+      "from": "legal/privacy-policy",
+      "to": "legal/harbor-cloud-dpa",
+      "kind": "implemented_by"
+    },
+    {
+      "from": "legal/series-a-docs",
+      "to": "companies/lumen-ventures",
+      "kind": "investor"
+    },
+    {
+      "from": "legal/series-a-docs",
+      "to": "finance/burn-report-2026-08",
+      "kind": "requires"
+    },
+    {
+      "from": "legal/series-a-docs",
+      "to": "legal/trademark-acme",
+      "kind": "lists"
+    },
+    {
+      "from": "legal/trademark-acme",
+      "to": "eng/gripper-v2",
+      "kind": "covers"
+    },
+    {
+      "from": "legal/trademark-acme",
+      "to": "legal/series-a-docs",
+      "kind": "listed_in"
+    },
+    {
+      "from": "legal/vendor-onboarding",
+      "to": "eng/vendor-risk-reviews",
+      "kind": "requires"
+    },
+    {
+      "from": "legal/vendor-onboarding",
+      "to": "finance/purchase-order-policy",
+      "kind": "requires"
+    },
+    {
+      "from": "legal/vendor-onboarding",
+      "to": "legal/contract-playbook",
+      "kind": "follows"
+    },
+    {
+      "from": "legal/vendor-onboarding",
+      "to": "legal/nda-template",
+      "kind": "requires"
+    },
+    {
+      "from": "legal/vendor-onboarding",
+      "to": "people/signatories",
+      "kind": "ends_with"
+    },
+    {
+      "from": "legal/voltcell-supply-agreement",
+      "to": "companies/voltcell",
+      "kind": "counterparty"
+    },
+    {
+      "from": "legal/voltcell-supply-agreement",
+      "to": "finance/supplier-spend-ledger",
+      "kind": "tracked_in"
+    },
+    {
+      "from": "legal/voltcell-supply-agreement",
+      "to": "people/mara-okafor",
+      "kind": "signed_by"
+    },
+    {
+      "from": "people/ada-chen",
+      "to": "companies/lumen-ventures",
+      "kind": "observer_for"
+    },
+    {
+      "from": "people/ada-chen",
+      "to": "finance/board-2026-q3",
+      "kind": "attended"
+    },
+    {
+      "from": "people/ada-chen",
+      "to": "finance/board-action-items",
+      "kind": "tracked_in"
+    },
+    {
+      "from": "people/dev-lindqvist",
+      "to": "companies/axis-logistics",
+      "kind": "manages"
+    },
+    {
+      "from": "people/dev-lindqvist",
+      "to": "eng/manufacturing-yield",
+      "kind": "tracks"
+    },
+    {
+      "from": "people/dev-lindqvist",
+      "to": "people/signatories",
+      "kind": "signer_for"
+    },
+    {
+      "from": "people/employee-handbook",
+      "to": "eng/security-policy",
+      "kind": "references"
+    },
+    {
+      "from": "people/employee-handbook",
+      "to": "finance/expense-policy",
+      "kind": "references"
+    },
+    {
+      "from": "people/employee-handbook",
+      "to": "people/lena-vogt",
+      "kind": "owned_by"
+    },
+    {
+      "from": "people/iris-kowalczyk",
+      "to": "finance/burn-report-2026-08",
+      "kind": "owns"
+    },
+    {
+      "from": "people/iris-kowalczyk",
+      "to": "finance/supplier-spend-ledger",
+      "kind": "owns"
+    },
+    {
+      "from": "people/iris-kowalczyk",
+      "to": "people/raj-patel",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/lena-vogt",
+      "to": "people/employee-handbook",
+      "kind": "owns"
+    },
+    {
+      "from": "people/lena-vogt",
+      "to": "people/onboarding-guide",
+      "kind": "owns"
+    },
+    {
+      "from": "people/lena-vogt",
       "to": "people/org-chart",
       "kind": "listed_in"
+    },
+    {
+      "from": "people/mara-okafor",
+      "to": "finance/board-2026-q3",
+      "kind": "chairs"
+    },
+    {
+      "from": "people/mara-okafor",
+      "to": "people/priya-nand",
+      "kind": "cofounded_with"
+    },
+    {
+      "from": "people/mara-okafor",
+      "to": "people/signatories",
+      "kind": "signer_for"
+    },
+    {
+      "from": "people/nikhil-brandt",
+      "to": "eng/firmware-release-4-2",
+      "kind": "owns"
+    },
+    {
+      "from": "people/nikhil-brandt",
+      "to": "eng/oncall-rotation",
+      "kind": "listed_in"
+    },
+    {
+      "from": "people/nikhil-brandt",
+      "to": "people/priya-nand",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/onboarding-guide",
+      "to": "eng/access-review-2026-q2",
+      "kind": "references"
+    },
+    {
+      "from": "people/onboarding-guide",
+      "to": "people/employee-handbook",
+      "kind": "requires"
+    },
+    {
+      "from": "people/onboarding-guide",
+      "to": "people/org-chart",
+      "kind": "references"
+    },
+    {
+      "from": "people/org-chart",
+      "to": "companies/halden-compliance",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/org-chart",
+      "to": "people/dev-lindqvist",
+      "kind": "lists"
+    },
+    {
+      "from": "people/org-chart",
+      "to": "people/lena-vogt",
+      "kind": "lists"
+    },
+    {
+      "from": "people/org-chart",
+      "to": "people/mara-okafor",
+      "kind": "lists"
+    },
+    {
+      "from": "people/org-chart",
+      "to": "people/priya-nand",
+      "kind": "lists"
     },
     {
       "from": "people/org-chart",
       "to": "people/raj-patel",
       "kind": "lists"
+    },
+    {
+      "from": "people/org-chart",
+      "to": "people/tomas-reyes",
+      "kind": "lists"
+    },
+    {
+      "from": "people/priya-nand",
+      "to": "eng/gripper-v2",
+      "kind": "owns"
+    },
+    {
+      "from": "people/priya-nand",
+      "to": "eng/roadmap-2026-h2",
+      "kind": "owns"
+    },
+    {
+      "from": "people/priya-nand",
+      "to": "eng/soc2-renewal",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/raj-patel",
+      "to": "finance/budget-2026-q4",
+      "kind": "owns"
+    },
+    {
+      "from": "people/raj-patel",
+      "to": "finance/gross-margin-plan",
+      "kind": "owns"
+    },
+    {
+      "from": "people/raj-patel",
+      "to": "people/iris-kowalczyk",
+      "kind": "manages"
+    },
+    {
+      "from": "people/raj-patel",
+      "to": "people/mara-okafor",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/raj-patel",
+      "to": "people/signatories",
+      "kind": "defers_to"
+    },
+    {
+      "from": "people/signatories",
+      "to": "finance/purchase-order-policy",
+      "kind": "related"
+    },
+    {
+      "from": "people/signatories",
+      "to": "legal/approvals",
+      "kind": "preceded_by"
+    },
+    {
+      "from": "people/signatories",
+      "to": "legal/board-consents",
+      "kind": "authorized_by"
+    },
+    {
+      "from": "people/signatories",
+      "to": "people/dev-lindqvist",
+      "kind": "signer"
+    },
+    {
+      "from": "people/signatories",
+      "to": "people/mara-okafor",
+      "kind": "signer"
+    },
+    {
+      "from": "people/tomas-reyes",
+      "to": "legal/approvals",
+      "kind": "maintains"
+    },
+    {
+      "from": "people/tomas-reyes",
+      "to": "legal/contract-playbook",
+      "kind": "maintains"
+    },
+    {
+      "from": "people/tomas-reyes",
+      "to": "people/signatories",
+      "kind": "listed_in"
     }
   ],
   "agents": [
