@@ -2,7 +2,7 @@
 
 For the integrator agent. Implement the build list, then help rehearse. Written at 3:20 PM from an Opus review of HEAD `512f670` plus earlier Astra (gpt-6-astra) reviews. **HEAD has moved since then (`170ac1f` added the Marketing wing, 103 memories): re-check every number and room reference below against the current `fixtures/palace.json` before relying on it.**
 
-Features freeze at 4:15. Demo is recorded after the build list lands. Only ever present from `?demo` replays, never live services.
+Update 15:30 (integrator): items A, B, C are done and committed; `quest-security-questionnaire.jsonl` was recorded live (4 departments, 20 handoffs, 2 gaps, 4 stale, 13 -> 7 stations) and should replace onboarding as the Commission beat. The time freeze was lifted by the user: round 3 builds real LLM verification + claim-level grounding, Loose Ends write-back to GBrain, true QM multiplayer, a River-served Legal agent, and doc import. Present from `?demo` replays; live is optional.
 
 ## The pitch
 
@@ -109,7 +109,7 @@ Re-time these against the actual replays in rehearsal; if the quest runs long, t
 | River | Narrowly | "We fine-tuned a Legal specialist on palace routes." Never call the Gym sparkline "learning": quest train steps are `checkpoint:"sim"` (`server/commission/quest.ts:429`) and real RL rewards are noisy. | SFT loss log + job ids |
 | UFO | Yes | "Same protocol, different harness." | `?demo=ufo-contract` |
 | Memorable | **No** | No CLI or key (`NOTES-qm-fork.md:99-103`); both runs are hand-authored. | — |
-| Superset | Yes | "Built by ~13 parallel agents, PRs #1–#13." | Merge log + workspace list + screen recording |
+| Superset | Narrowly | "Orchestrated from one Superset workspace: an integrator agent ran ~20 parallel Claude Code agents in git worktrees, PRs #1-#14+." (They were Claude Code subagents, not Superset workspaces; Superset CLI login failed.) | Merge log (`git log --merges`) |
 
 Not wired, don't mention: Slack, Finance waking to reply to handoffs via QM, Loose End write-back to GBrain (it writes to `server/protocol/.overlay/`).
 
