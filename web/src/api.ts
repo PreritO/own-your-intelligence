@@ -5,6 +5,7 @@ import type { Palace, Verdict } from "../../server/schema";
 import type { EventStream } from "./events";
 
 export type StationState = "claimed" | Verdict | null;
+export type SceneLayer = "links" | "roomLabels" | "memoryLabels" | "ceiling" | "bloom";
 
 export interface PalaceRuntime {
   palace: Palace;
@@ -26,6 +27,11 @@ export interface PalaceRuntime {
   controls: { release(): void; restore(): void; readonly locked: boolean };
   /** Per-frame callback; returns an unsubscribe function. dt in seconds. */
   onFrame(cb: (dt: number) => void): () => void;
+
+  /** Optional (voxel reskin): show/hide scene layers. UI calls it if present. */
+  setLayerVisible?(layer: SceneLayer, visible: boolean): void;
+  /** Optional: dim everything except these rooms (follow mode); null clears. */
+  focusRooms?(roomIds: string[] | null): void;
 }
 
 export type Plugin = (rt: PalaceRuntime) => void | (() => void);
