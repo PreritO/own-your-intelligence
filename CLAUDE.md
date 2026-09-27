@@ -45,6 +45,12 @@ Ports: web 5173 · ask 8787 · bridge `/events` 8788 · protocol service 8790 (`
 | `humans` | `web/src/agents/avatar.ts`, `web/src/agents/human/` |
 | `voxel` / `ui-v2` | `web/src/scene/` (ui-v2 also owns the `ui` row and `web/src/rooms/`, `web/src/flow/`) |
 | `flow` | `web/src/flow/` |
+| `verify` | `server/protocol/loci.py`, `server/protocol/judge.py`, `server/protocol/tests/` |
+| `loose-ends` | `server/protocol/loose_ends.py`, `server/gbrain/`, `web/src/rooms/looseEnds.ts` |
+| `qm-multi` | `qm/`, `server/commission/qm.ts` |
+| `river-serve` | `server/train/serve.py`, `server/commission/models.ts` |
+| `import` | `server/import/` |
+| shared, integrator-merged | `server/protocol/service.py` (small registration hooks only; keep diffs minimal) |
 | `training` | `server/train/`, `web/src/rooms/` |
 | integrator | `server/layout.ts`, `server/export.ts`, `CLAUDE.md`, `docs/`, `server/schema.ts`, `server/validate.ts`, `web/src/api.ts`, `web/src/events.ts`, `web/src/plugins.ts`, `package.json`, `.claude/` |
 

@@ -88,10 +88,15 @@ export const PalaceEvent = z.discriminatedUnion("type", [
   z.object({ ...base, type: z.literal("move"), to: z.string() }), // a room id
   z.object({ ...base, type: z.literal("claim"), memoryId: z.string() }),
   z.object({ ...base, type: z.literal("wait"), memoryId: z.string(), heldBy: z.string() }),
-  z.object({ ...base, type: z.literal("visit"), memoryId: z.string(), verdict: Verdict, note: z.string().optional(), evidence: z.string().optional(), subtask: z.string().optional() }),
+  z.object({ ...base, type: z.literal("visit"), memoryId: z.string(), verdict: Verdict, note: z.string().optional(), evidence: z.string().optional(), subtask: z.string().optional(),
+    // LLM relevance judgement: does this page actually answer the subtask? evidence is then an exact quote.
+    support: z.enum(["answers", "partial", "silent", "contradicts"]).optional(), judge: z.enum(["llm", "rules"]).optional() }),
   z.object({ ...base, type: z.literal("handoff"), id: z.string(), toAgent: z.string(), memoryId: z.string(), question: z.string() }),
   z.object({ ...base, type: z.literal("reply"), id: z.string(), answer: z.string() }),
-  z.object({ ...base, type: z.literal("answer"), text: z.string(), citations: z.array(z.string()), gaps: z.array(z.string()).optional(), stale: z.array(z.string()).optional(), blocked: z.boolean().optional() }),
+  z.object({ ...base, type: z.literal("answer"), text: z.string(), citations: z.array(z.string()), gaps: z.array(z.string()).optional(), stale: z.array(z.string()).optional(), blocked: z.boolean().optional(),
+    // Claim-level grounding: every sentence-level claim mapped to an exact quote from a station verified in this run.
+    claims: z.array(z.object({ text: z.string(), status: z.enum(["supported", "unsupported", "gap"]), memoryId: z.string().optional(), quote: z.string().optional() })).optional(),
+    reasons: z.array(z.string()).optional() }),
   z.object({ ...base, type: z.literal("train_step"), team: Team.optional(), step: z.number(), reward: z.number(), checkpoint: z.string().optional() }),
   // Commissioned agents: a user-specified task spawns a new agent that tours departments,
   // trains in the Gym, returns to execute, and reports completion.
@@ -99,7 +104,9 @@ export const PalaceEvent = z.discriminatedUnion("type", [
   z.object({ ...base, type: z.literal("phase"), phase: z.enum(["plan", "explore", "gym", "execute", "done"]), note: z.string().optional(),
     // plan phase: the task breakdown (Memorable-style task flow). visit.subtask refers to Subtask.id.
     subtasks: z.array(z.object({ id: z.string(), title: z.string(), department: z.string().optional(), stations: z.array(z.string()).optional() })).optional() }),
-  z.object({ ...base, type: z.literal("artifact"), memory: Memory }), // a page the agent wrote; renderer adds a lectern
+  z.object({ ...base, type: z.literal("artifact"), memory: Memory }),
+  // A human closed a Loose End: the page was written back to GBrain; the next visit re-verifies it.
+  z.object({ ...base, type: z.literal("resolved"), memoryId: z.string(), by: z.string(), text: z.string(), channel: z.string().optional() }), // a page the agent wrote; renderer adds a lectern
 ]);
 
 export type Vec3 = z.infer<typeof Vec3>;
