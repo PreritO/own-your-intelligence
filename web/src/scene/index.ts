@@ -744,7 +744,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
 
   // ---------- picking ----------
   const ray = new THREE.Raycaster();
-  ray.far = 60;
+  ray.far = 220; // overview camera sits 50-100 m out
   const ndc = new THREE.Vector2();
   const pointer = new THREE.Vector2(0, 0);
   let pointerInside = false;
