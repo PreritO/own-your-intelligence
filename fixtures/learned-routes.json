@@ -1,0 +1,57 @@
+[
+  {
+    "routeId": "contract-signoff",
+    "task": "Can we sign the Gripworks contract this week?",
+    "stations": [
+      "companies/gripworks",
+      "legal/gripworks-msa",
+      "finance/budget-2026-q4",
+      "legal/approvals",
+      "people/signatories"
+    ],
+    "uses": 4
+  },
+  {
+    "routeId": "board-promises",
+    "task": "What did we promise Ada in the last board meeting?",
+    "stations": [
+      "finance/board-2026-q3",
+      "people/ada-chen",
+      "finance/board-action-items"
+    ],
+    "uses": 2
+  },
+  {
+    "routeId": "soc2-owner",
+    "task": "Who owns the SOC 2 renewal?",
+    "stations": [
+      "eng/soc2-renewal",
+      "eng/security-policy",
+      "people/org-chart",
+      "eng/soc2-owner"
+    ],
+    "uses": 1
+  },
+  {
+    "routeId": "vendor-onboarding",
+    "task": "What do we need before onboarding a new supplier?",
+    "stations": [
+      "legal/vendor-onboarding",
+      "legal/nda-template",
+      "eng/vendor-risk-reviews",
+      "legal/contract-playbook",
+      "people/signatories"
+    ],
+    "uses": 3
+  },
+  {
+    "routeId": "burn-update",
+    "task": "What is our current burn and runway?",
+    "stations": [
+      "finance/burn-report-2026-08",
+      "finance/runway-forecast",
+      "finance/venture-debt-facility"
+    ],
+    "uses": 5
+  }
+]
