@@ -1,12 +1,70 @@
 # NOTES — qm-fork
 
-## QM gate (2:15): PARTIAL, so UFO is the live harness
+## QM gate: PASSED at about 14:20 (late). Three scoped QM agents ran live on claude-sonnet-5
 
-- **Stock QM runs locally.** At about 14:02, upstream `yc-software/qm@a5a3667` came up with the mock harness, the web surface only, and Postgres in Docker. A `POST /api/turn` returned 202, and `GET /api/runs/<id>` then returned `done` with a reply. After the test it was shut down cleanly.
-- **The three scoped agents were not shown.** Legal, Finance and Eng would each need a channel scope, and none was set up. There is no model key in env (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY` and `OPENROUTER_API_KEY` are all unset), so the mock harness can't call tools. There are no Slack tokens either.
-  - When I tried to start it a second time from this agent's isolated worktree, the sandbox refused to run the upstream `scripts/dev-instance.sh`. I did not push past that.
-- **What this means for the demo:** live agents run on UFO plus the protocol service (ufo-ext). QM's part is shown as the fork diff (see `qm/FORK.md`) plus the MCP adapter in `qm/loci-mcp.ts`. The bridge (`server/bridge.ts`) doesn't care which harness is driving, so nothing downstream changes.
-- **To finish the gate:** set `ANTHROPIC_API_KEY` in `.env` (or use `HARNESS=codex`, since `~/.codex/auth.json` exists). Then run the commands in `qm/README.md` and send three turns with `scopeId` `channel:legal`, `channel:finance` and `channel:eng`. This takes about 10 minutes.
+- **What ran.** Stock QM `yc-software/qm@a5a3667` ran with a real model: the pi harness, `PI_MODEL=claude-sonnet-5` and the key from `.env`. It used the web surface with Postgres in Docker.
+- **The three agents.** Each is a QM project scope with its own memory, files and sandbox:
+  - legal = `group:web-project-7d89e9ed-…`
+  - finance = `group:web-project-9e79ca02-…`
+  - eng = `group:web-project-4db84b6c-…`
+- **The connectors.** `loci-legal`, `loci-finance` and `loci-eng` are registered through the signed core admin API (`bun qm/qm-admin.ts setup`). They all point at `qm/loci-mcp.ts` (:8791), which forwards to the protocol service (:8790).
+- **The protocol service isn't on origin yet.** ufo-ext's service was already running locally on :8790 from their worktree, and I used it as-is. My calls added events to their shared dev run. One probe of mine (`POST /answer`, citing `people/signatories`) emitted a blocked answer event into their run `ufo-loose-end-1`.
+
+### What the live QM run showed
+Seen with `bun qm/qm-admin.ts demo` and `curl -N localhost:8788/events`:
+
+- **Legal**
+  - Walked contract-signoff: `companies/gripworks` then `legal/gripworks-msa`, both verified.
+  - Trying to claim `finance/budget-2026-q4` was **refused by the service**: "legal may not enter room-finance-1 (owned by finance); send a handoff".
+  - It then called `loci-legal_handoff` to finance (event `h1`), and went on through `legal/approvals` and `people/signatories`.
+  - Its answer passed.
+- **Finance** walked board-promises (three stations verified) and answered.
+- **Eng**
+  - Walked soc2-owner: `eng/security-policy` was **stale**, and `eng/soc2-owner` was a **gap** ("page is empty").
+  - Its first `answer` was **blocked live**: "eng/security-policy: verdict is stale, not verified; eng/soc2-owner: verdict is gap, not verified".
+  - It re-answered citing only verified stations and stating the gap and the stale page, and that answer passed. In the second demo run, the legal and eng agents each had one blocked answer and then a corrected one.
+- **The bridge** followed :8790 and streamed everything on :8788/events. It saved the runs to `fixtures/replays/run-*.jsonl`, which are now gitignored, and learned the routes into `fixtures/learned-routes.json`.
+
+### Fork changes now running in the QM clone (`qm/patches/qm-fork.patch`)
+1. **Scope-bound loci connectors** (`src/harness/agent-tools.ts`, MCP `execute`).
+   - The harness refuses a call from one team's scope to another team's `loci-<team>_*` tool. This happened in the first run, when the legal agent called `loci-finance_handoff`.
+   - It also injects `_qm: {scopeId, runId}`.
+   - Scopes are mapped to agents through the `LOCI_SCOPES` env var: JSON `{scopeId: agent}`.
+2. **`withGroundingCheck`** (`src/delivery/grounding-delivery.ts` + `src/wiring.ts`). It wraps QM's single `DeliveryStore`, so a delivery from a team scope goes through `POST :8790/grounding` first. The endpoint exists and fails closed.
+   - **Not demonstrated:** web replies stream from session entries rather than deliveries, so this wrapper only acts on Slack and cross-scope posts, and Slack is off.
+   - Live, the blocking is done by the service's `answer` check. The agent sees `isError` and must re-answer, and the palace shows `answer {blocked:true}`.
+
+### Still open
+- **Handoff reply loop.** `handoff` is logged and threaded in the protocol service, but nothing wakes the Finance QM scope to `reply`. That needs FORK.md §2 (a webhook or core route) plus Slack tokens.
+- **Runs split in the bridge.** The service's run id changes, `t` resets, and ufo-ext is driving the same service at the same time. As a result the bridge splits a QM demo into several `run-*` files.
+  - `qm/loci-mcp.ts` now sends the QM runId as `qmRunId`, not as `run`, so the three agents share the service's current run.
+  - Set `LOCI_RUN=<id>` to pin one.
+- **Model note.** The pi harness returns `finish_silently` after posting with the `web` tool, so `result.reply` is null. The answer lives in the web transcript and in the `answer` event.
+
+## Demo commands (QM as the harness)
+
+```bash
+# 0. The protocol service on :8790 (ufo-ext) must be running.
+# 1. QM, with a real model. Run from the QM clone. Its .env is a symlink to this repo's .env.
+cd ~/Desktop/projects/qm-upstream
+npm_config_legacy_peer_deps=false npm run build:connector-sdk
+LOCI_SCOPES='{"group:web-project-7d89e9ed-fe85-4fc2-a2ab-df191ca041bc":"legal","group:web-project-9e79ca02-0f9a-4dc6-88ad-caa3fe90823c":"finance","group:web-project-4db84b6c-03c1-47a9-a92f-0c0d9fefcfb9":"eng"}' \
+  PI_MODEL=claude-sonnet-5 node scripts/dev/cli.ts up --surface web   # portal :8129, core :8081
+# 2. In this repo:
+bun run qm:mcp                      # loci MCP adapter :8791 -> :8790
+bun run bridge                      # :8788, follows :8790/events
+bun qm/qm-admin.ts setup            # creates the legal/finance/eng scopes if missing + registers the connectors
+curl -N localhost:8788/events       # watch (or open the palace at :5173)
+bun qm/qm-admin.ts demo             # the 3 demo tasks, one per team scope, in parallel
+bun qm/qm-admin.ts demo legal       # just contract-signoff
+bun qm/qm-admin.ts run <runId> | python3 qm/summarize-run.py   # tool calls and verdicts inside QM
+# Web UI: http://localhost:8129 shows the legal/finance/eng projects with their transcripts.
+# Stop: node scripts/dev/cli.ts down && docker stop qm-dev-postgres
+```
+A fresh database gets new project ids. After `setup`, copy the ids from `bun qm/qm-admin.ts scopes` into `LOCI_SCOPES`, then run `dev up` again, which reloads in place. The QM clone must have `qm/patches/qm-fork.patch` applied and `qm/overlay/` copied in.
+
+## Earlier status (14:05): PARTIAL
+Stock QM ran with the mock harness only. There was no model key, and the sandbox refused `scripts/dev-instance.sh`. The workaround was to run `node scripts/dev/cli.ts` directly from the clone.
 
 ## What's built here
 
@@ -17,6 +75,8 @@
 | `qm/loci-mcp.ts` | MCP server (streamable HTTP, JSON responses) exposing `visit`, `claim`, `handoff`, `reply` and `answer`. Each tool is a thin POST to :8790. Register it in QM with the admin API; no core change is needed. |
 | `qm/overlay/src/delivery/grounding-delivery.ts` | `withGroundingCheck(DeliveryStore)`. It checks every outgoing QM answer against :8790 and then blocks it, annotates it, or adds the palace replay link. |
 | `qm/FORK.md` | The fork diff: where each change lands in upstream QM, with file and line references. |
+| `qm/patches/qm-fork.patch` | The applied fork diff: scope-bound loci connectors and the grounding delivery wiring. Apply with `git apply`, plus copy `qm/overlay/`. |
+| `qm/qm-admin.ts` | Dev CLI for a local QM: signed core admin calls, team scope setup, connector registration, and demo turns (the route comes from `routes.ts`). |
 
 ## QM facts (from reading upstream at a5a3667)
 
