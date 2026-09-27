@@ -6,6 +6,8 @@ Mind Palace turns a company's shared brain into a walkable, block-built building
 
 Built in one afternoon at the YC "Own Your Intelligence" hackathon (September 27, 2026).
 
+**▶ Demo video:** _Loom link coming_ · **Judges:** [`docs/SUBMISSION.md`](docs/SUBMISSION.md) has the per-sponsor evidence, and [`docs/DEMO-SCRIPT.md`](docs/DEMO-SCRIPT.md) the walkthrough.
+
 ## Why it's useful
 
 Before a company commits to something (signing a contract, filling out a security questionnaire, renewing SOC 2), someone has to answer three questions:
@@ -19,9 +21,10 @@ Today that lives in someone's head or a Slack thread. Mind Palace makes agents a
 - **Routes are checklists.** A task has an ordered list of stations (pages). The agent visits every one; it can't answer from half the context.
 - **Ownership is enforced.** Each room belongs to a team. An agent that reaches a room it doesn't own must stop at the door and send a handoff to that team's agent.
 - **An agent can't cite a room it never walked into.** Before an answer posts, the protocol service checks every citation against the stations that agent actually visited. Ungrounded answers are blocked, and the agent has to go back and do the work.
+- **Every claim needs a quote.** At each station a Claude judge decides whether the page actually answers the question and records an exact quote. The final answer is split into claims, and any claim without a supporting quote from a verified page is blocked (e.g. "liability cap 2x" when the page says 1x).
 - **Gaps are loud.** An empty or missing station is reported as a gap ("no SOC 2 owner recorded"), never filled in with a guess. Gaps land on a Loose Ends board for a human to answer.
 
-What it does *not* claim: "verified" means a page exists, is fresh and has the fields the station expects. It does not mean a model judged the page to support the answer. And a page's position in the building doesn't change how it's retrieved; the building is how you see and audit the run.
+What it does *not* claim: a page's position in the building doesn't change how it's retrieved; the building is how you see and audit the run. Without an Anthropic key, verification falls back to rules (blank fields, freshness) and says so (`judge: "rules"`).
 
 ## Quick start (recorded demo, no keys, no network)
 
@@ -101,25 +104,29 @@ scripted ───┘           (ownership, claims, verdicts,
 
 | Tool | How we use it |
 | --- | --- |
-| **GBrain** | The company brain: an isolated brain seeded with Acme Robotics' pages and typed links. The ask bar queries it when `MP_GBRAIN_HOME` is set; the palace exporter reads the same Markdown directly. |
-| **QM** | The main harness. Our fork gives three team-scoped agents the loci tools, and the grounding check blocks answers that cite unvisited stations. Slack delivery and handoff wake-ups aren't wired yet. |
-| **UFO** | Second harness, same protocol: an extension exposing the loci tools, plus the Loose End loop (a gap is posted to the owning team, a human's reply is written back, and the station re-verifies). |
-| **River AI** | Fine-tuned a Legal specialist on palace routes (real SFT and RL jobs; ids and logs in `docs/NOTES-training.md`). The Gym's in-quest training steps are simulated. |
-| **Superset** | Where it was built: one Superset workspace ran an integrator agent that coordinated about 20 parallel Claude Code agents in git worktrees, merged through PRs (`git log --merges`). |
+| **GBrain** | The company brain: an isolated brain (96 pages, 180 typed links) seeded with Acme Robotics' pages. The loci retrieval skill reports gaps instead of guessing, and answers are grounded claim by claim. When a human answers a Loose End, it's written back to the page and `gbrain put` to the brain, then re-verified. `bun run gbrain:seed && bun run gbrain:stats`. |
+| **QM** | The main harness. Our fork gives each team-scoped QM agent the loci tools. **Handoffs wake the owning team's QM agent, which replies itself.** The pre-post grounding gate blocks answers that cite unvisited stations or skip route stations. See `qm/FORK.md`, `docs/NOTES-qm-multi.md`, `?demo=qm-contract`, `?demo=qm-handoff`. |
+| **UFO** | Second harness, same protocol: an extension exposing the loci tools. A UFO agent on Claude completed the contract route (`?demo=ufo-contract`). The Loose End loop is the business automation: a gap goes to the owning team, a human replies, the page updates, and the station re-verifies. |
+| **River AI** | Department agents fine-tuned on Qwen3.5-9B from their own verified runs, with the palace's grounding check as the metric and the promotion gate. The 🏋 Gym leaderboard shows the Legal ladder: base 90% grounded; gen1 regressed to 20% and was not promoted; gen2 is training on River. Real job ids are in `fixtures/river-runs.json` and `docs/NOTES-river-serve.md`. The Gym's in-quest training steps are a labelled local sim. |
+| **Memorable** | The learned-route store. Successful runs are ingested via `/v1/extract`, and new tasks recall a matching route (`memorable-cli`). `bun run memorable:demo "Fill out the security review Northwind sent us"` recalls the 7-station security-questionnaire route. |
+| **Superset** | Where it was built: one Superset workspace ran an integrator agent that coordinated about 20 parallel Claude Code agents in git worktrees, merged through 23 PRs (`git log --merges`). |
 
 ## Repo layout
 
 ```
 docs/SPEC.md          original build spec
-docs/DEMO-PLAN.md     demo script, sponsor claims, build list
+docs/SUBMISSION.md    per-sponsor evidence and honest limits
+docs/DEMO-SCRIPT.md   timed walkthrough script
+docs/DEMO-PLAN.md     demo plan and build list
+docs/NOTES-*.md       each build agent's notes and lessons
 DEMO.md               stage runbook
 CLAUDE.md             rules every build agent followed
 fixtures/             seed brain, palace.json, replays, learned routes
-server/               exporter, layout, ask, bridge, routes, commission quests, protocol service, River training
+server/               exporter, layout, ask, bridge, routes, commission quests, protocol service + judge,
+                      GBrain write-back, Memorable client, doc importer, River training/serving
 qm/                   QM fork patch and MCP tool server
 ufo_ext_mindpalace/   UFO extension
 web/src/              three.js scene, agents, UI, rooms, flow panel
-NOTES-*.md            each build agent's notes and lessons
 ```
 
 ## Development
