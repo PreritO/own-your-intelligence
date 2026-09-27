@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-09-27T15:46:04",
+  "task": "department handoff replies, held-out questions per team",
+  "metric": "grounded = every claim carries a verbatim quote from the page (claim-level judge); correct = expected facts present; latency_ms = p50 per reply",
+  "promotionRule": "a generation is promoted only if it beats the incumbent's held-out grounded and loses at most 2 points of correct",
+  "rows": [
+    {
+      "team": "legal",
+      "key": "base",
+      "generation": 0,
+      "model": "Base Qwen3.5-9B (River, no fine-tune)",
+      "n": 20,
+      "grounded": 0.9,
+      "correct": 1.0,
+      "latency_ms": 1628,
+      "jobId": null,
+      "checkpoint": null,
+      "trainedOn": "none (base weights)",
+      "promoted": true,
+      "note": "starting incumbent"
+    },
+    {
+      "team": "legal",
+      "key": "gen1",
+      "generation": 1,
+      "model": "Legal gen 1 (River route-plan SFT, Qwen3.5-9B)",
+      "n": 20,
+      "grounded": 0.2,
+      "correct": 0.95,
+      "latency_ms": 2230,
+      "jobId": "50692a37-0f22-4aa7-b1f6-903fbd180ffe:model:1",
+      "checkpoint": "river://6932ec36-6bda-43e0-b9a9-4f576919f06a/sampler_weights/sft-legal",
+      "trainedOn": "270 route-plan examples (palace tasks + replays), 30 steps",
+      "promoted": false,
+      "note": "rejected vs gen 0: grounded -0.70, correct -0.05 (regression)"
+    },
+    {
+      "team": "legal",
+      "key": "gen2",
+      "generation": 2,
+      "model": "Legal gen 2 (River sft-reply, Qwen3.5-9B)",
+      "status": "training",
+      "jobId": "e2d0d761-454e-4992-a46a-94fedefc2078:model:1",
+      "checkpoint": null,
+      "trainedOn": "106 grounded Claude replies (11 from replays), 30 steps",
+      "n": null,
+      "grounded": null,
+      "correct": null,
+      "latency_ms": null,
+      "promoted": null,
+      "note": "not benched yet"
+    },
+    {
+      "team": "legal",
+      "key": "claude",
+      "generation": null,
+      "model": "Claude (claude-sonnet-5)",
+      "n": 20,
+      "grounded": 1.0,
+      "correct": 1.0,
+      "latency_ms": 1332,
+      "jobId": null,
+      "checkpoint": null,
+      "trainedOn": "frontier reference, not trained",
+      "promoted": null,
+      "note": "reference line (Claude, not a River generation)"
+    }
+  ]
+}
