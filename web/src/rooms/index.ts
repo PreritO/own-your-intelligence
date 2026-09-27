@@ -1,6 +1,6 @@
 // OWNED BY: training. Workshop, Loose Ends and Gym rooms. See skill river-gym.
-// Special rooms are not in palace.json: they sit at fixed diagonal slots outside the wings
-// (Loose Ends -24,-24 · Workshop 24,-24 · Gym 24,24; nudged outward if a wing would overlap).
+// Contents go into the palace's commons rooms (room-loose-ends -24,-24 · room-workshop 24,-24 ·
+// room-gym 24,24, server/layout.ts COMMONS). Older palaces without them get the same fixed slots.
 // Built only against PalaceRuntime (web/src/api.ts), so any scene implementation works.
 import type { Plugin } from "../api";
 import { flyTo, placeRooms, type SpecialRoomId } from "./layout";
@@ -46,7 +46,10 @@ export const mountRooms: Plugin = (rt) => {
     <div class="row replays" hidden></div>
     <span class="hint">Esc returns to your view</span>
   </div>`;
-  rt.hud.appendChild(hud);
+  // The rooms are walkable palace rooms now (overview + follow mode reach them), so the switcher is
+  // opt-in: `?rooms` shows it, and it stays on for older palaces without the commons rooms.
+  const params = new URLSearchParams(location.search);
+  if (params.has("rooms") || !slots.gym.inPalace) rt.hud.appendChild(hud);
   hud.querySelectorAll<HTMLButtonElement>("button[data-room]").forEach((b) => b.addEventListener("click", () => go(b.dataset.room as SpecialRoomId)));
   const n = hud.querySelector<HTMLSpanElement>("summary .n")!;
   let lastCount = 0;
@@ -71,7 +74,7 @@ export const mountRooms: Plugin = (rt) => {
     });
   });
 
-  const start = new URLSearchParams(location.search).get("room") as SpecialRoomId | null;
+  const start = params.get("room") as SpecialRoomId | null;
   if (start && start in poses) setTimeout(() => go(start), 300);
 
   (window as any).rooms = { go, looseEnds, workshop, gym, slots }; // browser QA

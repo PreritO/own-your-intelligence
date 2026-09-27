@@ -153,7 +153,7 @@ def _real_once(river, rl, client, base, renderer, PalaceEnv, rows, run, init, te
         print(json.dumps({"checkpoint": ck.path}))
 
 
-def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: float, from_base: bool) -> None:
+def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: float, from_base: bool, loss: str = "importance_sampling") -> None:
     """GRPO with River primitives (docs.river.ai/guides/rl-primitives), no AsyncTrainer.
 
     The policy writes the SFT plan JSON (route, handoffs, citations, gaps, answer). The plan is executed
@@ -216,9 +216,13 @@ def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: flo
                     tokens += len(s.tokens)
             updated = False
             if batch:
+                # Token-mean normalisation folded into the advantages, then the same plain optim_step
+                # call SFT uses (River's cispo + gradient_scale path returned backend errors today).
+                for d in batch:
+                    d["advantages"] = [x / max(tokens, 1) for x in d["advantages"]]
                 for start in range(0, len(batch), 8):
-                    model.forward_backward(batch[start : start + 8], loss_fn="cispo", eps_max=6.0, zero_out=(start == 0))
-                model.optim_step(lr=lr, beta1=0.9, beta2=0.95, eps=1e-8, weight_decay=0.0, grad_clip_norm=1.0, gradient_scale=1.0 / max(tokens, 1))
+                    model.forward_backward(batch[start : start + 8], loss_fn=loss, zero_out=(start == 0))
+                model.optim_step(lr=lr, grad_clip_norm=1.0)
                 updated = True
             mean_r = sum(rewards) / max(len(rewards), 1)
             ckpt = None
@@ -249,13 +253,14 @@ def main() -> None:
     ap.add_argument("--from-base", action="store_true", help="real mode: ignore the SFT checkpoint and start from base weights")
     ap.add_argument("--thinking", action="store_true", help="real mode: enable the model's thinking mode in rollouts")
     ap.add_argument("--simple", action="store_true", help="real mode: single-turn plan GRPO on River primitives (no AsyncTrainer)")
+    ap.add_argument("--loss", default="importance_sampling", help="--simple: River loss_fn (importance_sampling | cispo | ppo)")
     a = ap.parse_args()
     if a.dry_run or not river_key():
         if not a.dry_run:
             print("RIVER_API_KEY not set: running --dry-run.")
         dry_run(a.team, a.steps or 30, a.groups_per_step, a.group_size, a.lr or 0.6, a.pace, a.seed)
     elif a.simple:
-        simple(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 2e-5, a.from_base)
+        simple(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 2e-5, a.from_base, a.loss)
     else:
         real(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 1e-5, a.protocol, a.from_base, a.thinking)
 

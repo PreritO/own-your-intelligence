@@ -14,7 +14,10 @@ const SLOTS: Record<SpecialRoomId, [number, number]> = {
 };
 export const ROOM_SIZE: [number, number] = [14, 14]; // x, z
 
-export interface Placement { id: SpecialRoomId; center: THREE.Vector3; size: [number, number] }
+export interface Placement { id: SpecialRoomId; center: THREE.Vector3; size: [number, number]; /** true when palace.json has the room (the scene draws floor/walls/label) */ inPalace: boolean }
+
+/** palace.json room ids for the special rooms (server/layout.ts COMMONS). */
+export const PALACE_ROOM: Record<SpecialRoomId, string> = { "loose-ends": "room-loose-ends", workshop: "room-workshop", gym: "room-gym" };
 
 function overlaps(p: Palace, cx: number, cz: number, pad = 2): boolean {
   const [hw, hd] = [ROOM_SIZE[0] / 2 + pad, ROOM_SIZE[1] / 2 + pad];
@@ -28,9 +31,15 @@ function overlaps(p: Palace, cx: number, cz: number, pad = 2): boolean {
 export function placeRooms(palace: Palace): Record<SpecialRoomId, Placement> {
   const out = {} as Record<SpecialRoomId, Placement>;
   for (const id of Object.keys(SLOTS) as SpecialRoomId[]) {
+    const room = palace.rooms.find((r) => r.id === PALACE_ROOM[id]);
+    if (room) {
+      out[id] = { id, center: new THREE.Vector3(room.center[0], 0, room.center[2]), size: [room.size[0], room.size[2]], inPalace: true };
+      continue;
+    }
+    // Older palace.json without the commons rooms: fixed diagonal slot, nudged clear of the wings.
     let [x, z] = SLOTS[id];
     for (let i = 0; i < 40 && overlaps(palace, x, z); i++) { x += Math.sign(x) * 2; z += Math.sign(z) * 2; }
-    out[id] = { id, center: new THREE.Vector3(x, 0, z), size: ROOM_SIZE };
+    out[id] = { id, center: new THREE.Vector3(x, 0, z), size: ROOM_SIZE, inPalace: false };
   }
   return out;
 }
@@ -40,6 +49,8 @@ export function buildShell(rt: PalaceRuntime, pl: Placement, label: string, colo
   const g = new THREE.Group();
   g.name = `special-room:${pl.id}`;
   g.position.copy(pl.center);
+  rt.scene.add(g);
+  if (pl.inPalace) return g; // the scene already draws this room's floor, walls, doors and label
   const [w, d] = pl.size;
   // Unlit, calm materials: no PointLights, readable from the high overview camera.
   const floor = new THREE.Mesh(
@@ -113,7 +124,7 @@ export function makeBoard(width: number, height: number, px = 1024): Board {
 /** Boards lean back like a lectern so they read from the high "dollhouse" overview and up close. */
 export const BOARD_TILT = 0.95; // radians back from vertical
 
-export function mountOnFarWall(pl: Placement, obj: THREE.Object3D, height: number, depth = 0.3) {
+export function mountOnFarWall(pl: Placement, obj: THREE.Object3D, height: number, depth = 0.11) {
   const sx = Math.sign(pl.center.x) || 1, sz = Math.sign(pl.center.z) || 1;
   // Across the far-corner diagonal, facing the palace origin (plane normal is +z), tilted to face up.
   const y = (height / 2) * Math.cos(BOARD_TILT) + 0.4;
@@ -135,8 +146,9 @@ export function signAbove(g: THREE.Group, board: THREE.Object3D, height: number)
 export function framePose(pl: Placement, obj: THREE.Object3D, distance: number) {
   // Look straight down the tilted board's normal.
   const target = pl.center.clone().add(obj.position);
-  const normal = new THREE.Vector3(0, 0, 1).applyEuler(obj.rotation);
-  const eye = target.clone().addScaledVector(normal, distance);
+  // Steeper than the board normal so the palace's room walls (4 m) never sit between camera and board.
+  const dir = new THREE.Vector3(0, 0, 1).applyEuler(obj.rotation).add(new THREE.Vector3(0, 1.3, 0)).normalize();
+  const eye = target.clone().addScaledVector(dir, distance * 1.15);
   return { eye, target };
 }
 

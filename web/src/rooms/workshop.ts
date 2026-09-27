@@ -14,10 +14,10 @@ const TOOL_EVENTS = new Set(["claim", "visit", "handoff", "reply", "answer", "wa
 
 export function mountWorkshop(rt: PalaceRuntime, pl: Placement) {
   const g = buildShell(rt, pl, "Workshop", "#7dcfff");
-  const board = makeBoard(10, 5.6, 2048);
-  mountOnFarWall(pl, board.mesh, 5.6);
+  const board = makeBoard(8, 4.5, 2048);
+  mountOnFarWall(pl, board.mesh, 4.5);
   g.add(board.mesh);
-  signAbove(g, board.mesh, 5.6);
+  signAbove(g, board.mesh, 4.5);
 
   let routes: LearnedRoute[] = [];
   let routesSource: "learned" | "fallback" = "fallback";

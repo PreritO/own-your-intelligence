@@ -17,10 +17,10 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
   const sx = Math.sign(pl.center.x) || 1, sz = Math.sign(pl.center.z) || 1;
 
   // ---------- scoreboard ----------
-  const board = makeBoard(9, 5, 2048);
-  mountOnFarWall(pl, board.mesh, 5, 0.36);
+  const board = makeBoard(8, 4.4, 2048);
+  mountOnFarWall(pl, board.mesh, 4.4);
   g.add(board.mesh);
-  signAbove(g, board.mesh, 5);
+  signAbove(g, board.mesh, 4.4);
 
   // ---------- weight rack: one post per team, a plate per saved checkpoint ----------
   const racks = new Map<string, THREE.Group>();
@@ -34,8 +34,8 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
     label.position.y = 3.1;
     label.scale.multiplyScalar(0.6);
     rack.add(post, base, label);
-    // Weight rack runs along the far-x wall, beside the scoreboard.
-    rack.position.set(sx * (pl.size[0] / 2 - 1.1), 0, sz * (-5.2 + i * 2.1));
+    // Weight rack along the near-x wall (clear of the tilted scoreboard and the door).
+    rack.position.set(-sx * (pl.size[0] / 2 - 1.1), 0, sz * (0.8 + i * 1.5));
     g.add(rack);
     racks.set(team, rack);
   });
@@ -54,52 +54,75 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
     lanes.add(belt, ghost);
     ghosts.push({ mesh: ghost, mat, phase: i * 0.7, reward: 0 });
   }
-  lanes.position.set(sx * 0.6, 0, sz * 0.4);
+  lanes.position.set(-sx * 2.2, 0, -sz * 2.2);
   lanes.rotation.y = Math.atan2(-pl.center.x, -pl.center.z); // lanes run toward the foyer
   g.add(lanes);
 
-  // ---------- state ----------
+  // ---------- state: one row per trainee (a team, or a commissioned agent like quest-1) ----------
   const stats = new Map<string, TeamStats>(TEAMS.map((t) => [t, { team: t, points: [], checkpoints: [], best: -Infinity }]));
-  let activeTeam = "legal";
+  const agentColor = new Map<string, string>(rt.palace.agents.map((a) => [a.id, a.color]));
+  const agentLabel = new Map<string, string>(rt.palace.agents.map((a) => [a.id, a.label]));
+  let activeKey = "legal";
   let lastStepAt = 0;
+  /** Team specialists train under their team; any other agent (quest-N) gets its own row and colour. */
+  const keyOf = (e: TrainStep) => (e.team && (e.agent === e.team || !e.agent.startsWith("quest")) ? e.team : e.agent);
+  const colorOf = (k: string) => (TEAMS.includes(k) ? teamColor(rt.palace, k) : agentColor.get(k) ?? "#7dcfff");
+  const labelOf = (k: string) => (TEAMS.includes(k) ? k[0].toUpperCase() + k.slice(1) : agentLabel.get(k) ?? k);
 
   function ingest(e: TrainStep) {
-    const s = stats.get(e.team) ?? { team: e.team, points: [], checkpoints: [], best: -Infinity };
-    stats.set(e.team, s);
-    // A replay restart re-sends step 1..n; reset that team's curve when steps go backwards.
+    const k = keyOf(e);
+    const s = stats.get(k) ?? { team: k, points: [], checkpoints: [], best: -Infinity };
+    stats.set(k, s);
+    // A replay restart re-sends step 1..n; reset that curve when steps go backwards.
     if (s.points.length && e.step < s.points[s.points.length - 1].step) { s.points = []; s.best = -Infinity; }
     s.points.push({ step: e.step, reward: e.reward });
     s.best = Math.max(s.best, e.reward);
     s.last = e;
     s.run = e.run;
-    if (e.checkpoint && !s.checkpoints.includes(e.checkpoint)) { s.checkpoints.push(e.checkpoint); addPlate(e.team, s.checkpoints.length); }
-    activeTeam = e.team;
+    if (e.checkpoint && !s.checkpoints.includes(e.checkpoint)) { s.checkpoints.push(e.checkpoint); addPlate(k, s.checkpoints.length); }
+    activeKey = k;
     lastStepAt = performance.now();
-    spreadGhosts(e);
+    spreadGhosts(e.step, e.reward, colorOf(k));
     redraw();
   }
 
-  function addPlate(team: string, n: number) {
-    const rack = racks.get(team);
+  function rackFor(k: string): THREE.Group | undefined {
+    if (racks.has(k) || racks.size >= 4) return racks.get(k);
+    const rack = new THREE.Group();
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.6, 8), new THREE.MeshStandardMaterial({ color: "#8a90a6" }));
+    post.position.y = 1.3;
+    const label = textSprite(labelOf(k), colorOf(k), 40);
+    label.position.y = 3.1;
+    label.scale.multiplyScalar(0.6);
+    rack.add(post, label);
+    rack.position.set(-sx * (pl.size[0] / 2 - 1.1), 0, sz * (0.8 + racks.size * 1.5));
+    g.add(rack);
+    racks.set(k, rack);
+    return rack;
+  }
+
+  function addPlate(k: string, n: number) {
+    const rack = rackFor(k);
     if (!rack || n > MAX_PLATES) return;
-    const color = teamColor(rt.palace, team);
+    const color = colorOf(k);
     const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.42 - n * 0.02, 0.42 - n * 0.02, 0.1, 24), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.4, metalness: 0.5, roughness: 0.4 }));
     plate.position.y = 0.2 + n * 0.13;
     rack.add(plate);
   }
 
   /** 8 attempts per task: deterministic spread around the step's mean reward (display only). */
-  function spreadGhosts(e: TrainStep) {
-    const color = new THREE.Color(teamColor(rt.palace, e.team));
-    const rewards = ghosts.map((_, i) => e.reward + 0.35 * Math.sin(e.step * 12.9898 + i * 78.233));
+  function spreadGhosts(step: number, reward: number, hex: string) {
+    const color = new THREE.Color(hex);
+    const rewards = ghosts.map((_, i) => reward + 0.35 * Math.sin(step * 12.9898 + i * 78.233));
     const ranked = [...rewards].sort((a, b) => b - a);
     ghosts.forEach((gh, i) => {
       gh.reward = rewards[i];
       const top = rewards[i] >= ranked[2];
-      gh.mat.color.copy(top ? new THREE.Color("#9ece6a") : color);
-      gh.mat.emissive.copy(gh.mat.color);
-      gh.mat.emissiveIntensity = top ? 1.4 : 0.3;
-      gh.mat.opacity = top ? 0.85 : 0.45;
+      // Ghosts wear the trainee's colour; the best attempts of the step glow brighter.
+      gh.mat.color.copy(color);
+      gh.mat.emissive.copy(top ? new THREE.Color("#9ece6a") : color);
+      gh.mat.emissiveIntensity = top ? 0.9 : 0.25;
+      gh.mat.opacity = top ? 0.9 : 0.5;
     });
   }
 
@@ -118,7 +141,10 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
     if (live && acc > 0.5) { acc = 0; redraw(); }
   });
 
-  const offEvents = rt.events.subscribe((e) => { if (e.type === "train_step") ingest(e); });
+  const offEvents = rt.events.subscribe((e) => {
+    if (e.type === "spawn") { agentColor.set(e.agent, e.color); agentLabel.set(e.agent, e.label); }
+    if (e.type === "train_step") ingest(e);
+  });
 
   function redraw() {
     board.draw((ctx, W, H) => {
@@ -136,19 +162,24 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
       const run = [...stats.values()].find((s) => s.run)?.run;
       ctx.font = "400 32px ui-sans-serif, system-ui, sans-serif";
       ctx.fillStyle = "#9aa0b4";
-      ctx.fillText(any ? `${run?.includes("dryrun") ? "dry-run (local sim, same env + reward)" : "River RL"} · reward/mean per step${run ? ` · ${run}` : ""}` : "waiting for train_step events from server/train…", 56, 116);
+      const act = stats.get(activeKey);
+      const sim = !!run?.includes("dryrun") || !!act?.last?.checkpoint?.startsWith("sim-") || !!act?.last?.checkpoint?.startsWith("river-dryrun");
+      ctx.fillText(any ? `${sim ? "local RL sim (same palace env + reward)" : "River RL"} · reward/mean per step · ${act?.run ?? run ?? ""}` : "waiting for train_step events from server/train…", 56, 116);
 
-      const rowH = (H - 200) / TEAMS.length;
-      TEAMS.forEach((team, i) => {
-        const s = stats.get(team)!;
+      // Commissioned agents (most recent first) above the three team specialists; at most 4 rows.
+      const others = [...stats.keys()].filter((k) => !TEAMS.includes(k)).sort((a, b) => (b === activeKey ? 1 : 0) - (a === activeKey ? 1 : 0));
+      const keys = [...others.slice(0, 1), ...TEAMS];
+      const rowH = (H - 200) / keys.length;
+      keys.forEach((key, i) => {
+        const s = stats.get(key)!;
         const y = 180 + i * rowH;
-        const color = teamColor(rt.palace, team);
-        ctx.fillStyle = team === activeTeam && any ? "rgba(158,206,106,0.08)" : "rgba(255,255,255,0.03)";
+        const color = colorOf(key);
+        ctx.fillStyle = key === activeKey && any ? "rgba(158,206,106,0.08)" : "rgba(255,255,255,0.03)";
         roundRect(ctx, 40, y, W - 80, rowH - 20, 20);
         ctx.fill();
         ctx.fillStyle = color;
         ctx.font = "700 48px ui-sans-serif, system-ui, sans-serif";
-        ctx.fillText(team[0].toUpperCase() + team.slice(1), 72, y + 24);
+        ctx.fillText(labelOf(key), 72, y + 24);
         ctx.font = "500 30px ui-sans-serif, system-ui, sans-serif";
         ctx.fillStyle = "#9aa0b4";
         ctx.fillText(`${s.checkpoints.length} checkpoint${s.checkpoints.length === 1 ? "" : "s"}`, 72, y + 86);

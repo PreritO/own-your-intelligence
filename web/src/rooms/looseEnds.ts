@@ -24,10 +24,10 @@ const RESOLVED_MS = 6000;
 
 export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
   const g = buildShell(rt, pl, "Loose Ends", "#f7768e");
-  const board = makeBoard(10, 5.6, 2048);
-  mountOnFarWall(pl, board.mesh, 5.6);
+  const board = makeBoard(8, 4.5, 2048);
+  mountOnFarWall(pl, board.mesh, 4.5);
   g.add(board.mesh);
-  signAbove(g, board.mesh, 5.6);
+  signAbove(g, board.mesh, 4.5);
 
   const cards = new Map<string, LooseEnd>();
   const listeners = new Set<(n: number) => void>();
