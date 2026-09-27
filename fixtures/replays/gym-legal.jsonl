@@ -1,0 +1,16 @@
+{"t": 3.5, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 1, "reward": 0.5391}
+{"t": 5.0, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 2, "reward": 0.0781}
+{"t": 6.5, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 3, "reward": 0.8203}
+{"t": 8.0, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 4, "reward": 0.3594}
+{"t": 9.5, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 5, "reward": 0.0703, "checkpoint": "river://547cde84-7593-463b-bd54-94e0220fc2fb/sampler_weights/rl-legal-simple-step005"}
+{"t": 11.0, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 6, "reward": 0.4375}
+{"t": 12.5, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 7, "reward": 0.0547}
+{"t": 14.0, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 8, "reward": 0.5781}
+{"t": 15.5, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 9, "reward": 0.2734}
+{"t": 17.0, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 10, "reward": 0.5234, "checkpoint": "river://547cde84-7593-463b-bd54-94e0220fc2fb/sampler_weights/rl-legal-simple-step010"}
+{"t": 18.5, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 11, "reward": 0.4844}
+{"t": 20.0, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 12, "reward": 0.3594}
+{"t": 21.5, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 13, "reward": 0.1562}
+{"t": 23.0, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 14, "reward": 0.5469}
+{"t": 24.5, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 15, "reward": 0.6875, "checkpoint": "river://547cde84-7593-463b-bd54-94e0220fc2fb/sampler_weights/rl-legal-simple-step015"}
+{"t": 26.0, "agent": "legal", "run": "rl-legal-simple", "type": "train_step", "team": "legal", "step": 16, "reward": 0.1953}
