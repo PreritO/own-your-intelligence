@@ -28,7 +28,7 @@ export class Beams {
     const core = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 8, 1, true), additive("#ffffff", 0.9));
     const sheath = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1, 16, 1, true), additive(from.color, 0.35));
     const packets = [0, 1, 2].map(() => makeGlow(from.color, 0.9, 1));
-    const label = makeLabel(`“${question}”`, { color: "#0b0d12", bg: from.color, px: 36, screen: 19, onTop: true });
+    const label = makeLabel(`“${question}”`, { color: "#0b0d12", bg: from.color, px: 40, screen: 22, onTop: true });
     group.add(core, sheath, ...packets, label.sprite);
     this.scene.add(group);
     this.map.set(id, { from, to, group, core, sheath, packets, label, t: 0, fade: null });

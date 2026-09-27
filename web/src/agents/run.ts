@@ -25,6 +25,8 @@ export const PRESENCE_EVENTS = {
   mode: "presence:mode", // detail: { mode, label }  (presence → ui, for the HUD)
   dispatch: "presence:dispatch", // detail: {}  (ui button → presence)
   status: "presence:status", // detail: { text, tone }  (toast line)
+  commission: "presence:commission", // detail: { task }  (quest box → presence)
+  replay: "presence:replay", // detail: { name }  (ui → presence: play a canned replay at stage speed)
 } as const;
 
 export function names(palace: Palace) {
@@ -43,3 +45,31 @@ export function names(palace: Palace) {
   };
 }
 export type Names = ReturnType<typeof names>;
+
+/** Commissioned agents aren't in palace.json: add them from their `spawn` event so names/colours resolve. */
+export function registerSpawn(N: Names, e: Extract<PalaceEvent, { type: "spawn" }>) {
+  N.agents.set(e.agent, { id: e.agent, label: e.label, color: e.color, home: e.home, team: undefined } as unknown as Palace["agents"][number]);
+}
+
+/** Stage pacing: play a replay so it lasts ~TARGET s unless ?speed is given. Returns false if missing. */
+export async function playReplay(rt: PalaceRuntime, name: string, target = 20, fixedSpeed?: number): Promise<boolean> {
+  let text = "";
+  try {
+    const res = await fetch(`/replays/${name}.jsonl`, { cache: "no-store" });
+    if (!res.ok) return false;
+    text = await res.text();
+    if (text.trimStart().startsWith("<")) return false; // dev server's index.html fallback
+  } catch {
+    return false;
+  }
+  const lines = text.split("\n").filter(Boolean);
+  if (!lines.length) return false;
+  let last = 0;
+  try { last = JSON.parse(lines[lines.length - 1]).t ?? 0; } catch { /* keep 0 */ }
+  if (fixedSpeed && !new URLSearchParams(location.search).has("speed")) rt.events.speed = fixedSpeed;
+  else if (!new URLSearchParams(location.search).has("speed") && last > 0) {
+    rt.events.speed = Math.min(4, Math.max(0.5, Math.round((last / target) * 20) / 20));
+  }
+  await rt.events.restart(name);
+  return true;
+}
