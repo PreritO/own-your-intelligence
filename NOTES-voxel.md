@@ -53,11 +53,16 @@
 - Signs are billboards (Sprites) rather than fixed boards, so they read from any overview angle.
 - Commons colours (not in wings): Gym #e06c75, Workshop #d19a66, Loose Ends #56b6c2.
 
-## Perf (headless Chrome, software GL, 1440x900; fps there is meaningless)
-- Scene only: ~60 draw calls and 68k tris in the overview, measured with every plugin hidden.
-- Whole app with the presence and ui plugins: ~135 draw calls.
-- Instancing: 1 InstancedMesh per block type (~20 types, ~2.1k wall blocks). Trees use 2, plants 3, clouds 1, and lecterns/books/halos/cobwebs 4.
-- Auto-degrade is still in place: bloom off, then dpr 1, then a 1024 shadow map.
+## Perf (headless Chrome, software GL, 1440x900, default overview camera; the fps there is meaningless)
+- Scene only: **22 draw calls, 38k tris**, measured with every plugin hidden. The whole app with the ui/presence plugins: ~80-100 calls and ~55k tris.
+  Before the merge it was ~135 calls and 142k tris.
+- `scene/world.ts` merges every wall, cap, frame, floor tile, corridor path, door stripe, quest-ring tile and tree block into ONE mesh.
+  - It uses one 16x16-tile atlas and culls hidden faces between solid neighbours.
+  - Per-room focus and lit come from a per-vertex room index plus uniform arrays (`uF`, `uLit`, `uTint`), so focusRooms/setRoomLit never touch geometry.
+- Room signs are one instanced billboard over a sign atlas, not 12 sprites.
+- Shadows are static (`autoUpdate=false`), so the shadow pass costs nothing per frame.
+- Click picking reaches 220 m. A synthetic click on a lectern 60 m from the default overview camera fires `palace:select`.
+- The minimap and the "Click to walk" hint are only created in `?walk` mode. The debug overlay moved to the bottom right, out of the HUD's left panel.
 
 ## Proposals for the integrator
 - None blocking. If draw calls matter, presence's per-station meshes are now the biggest share (~75 calls).

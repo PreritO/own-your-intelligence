@@ -14,6 +14,8 @@ description: Lessons from the voxel workspace (Minecraft-style reskin of web/src
 - `ShaderMaterial` output needs `#include <colorspace_fragment>`, or sRGB textures look washed out.
 - Browse CLI: a long `js` string with brackets trips the worktree guard when chained with `;` or `&&`. Run each browse call on its own.
 - HMR reloads restart the replay. Wait ~4 s after an edit before taking a screenshot.
+- The biggest perf win was one merged "world" mesh (atlas + hidden-face culling + a per-vertex room index read from a
+  uniform array in `onBeforeCompile`). It took the scene from ~60 draw calls and 68k tris to 22 draw calls and 38k tris with the same look.
 - What I'd do differently:
   - Take the first headless screenshot within 20 min. It caught the floor z-fight immediately.
   - Budget draw calls against the whole app, not just the scene. Plugins added ~75.

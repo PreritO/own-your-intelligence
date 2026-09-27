@@ -14,9 +14,11 @@ import { createControls, EYE_HEIGHT } from "../controls";
 import { buildLayout, boxCells, doorSide, snapDoor, sideNormal, CORRIDOR_WALL_H } from "./layout";
 import * as TX from "./textures";
 import { createMinimap } from "./minimap";
+import { buildAtlas, buildWorld, MAX_ROOMS, type Solid, type Flat } from "./world";
 
 const params = new URLSearchParams(location.search);
 const DEBUG = params.has("debug");
+const WALK = params.has("walk"); // first-person mode (controls.ts); default is the UI overview map camera
 const FOYER_COLOR = "#e8c15a";
 
 // ---------------------------------------------------------------- block palettes (original pixel art)
@@ -101,24 +103,34 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const focus = new Map<string, { f: number; target: number }>(roomIds.map((id) => [id, { f: 1, target: 1 }]));
   let outF = 1, outTarget = 1;
   const roomF = (id?: string) => (id ? focus.get(id)?.f ?? outF : outF);
-  const recolorers: (() => void)[] = []; // run when focus/dim/lit factors change
+  const roomSlot = new Map(roomIds.map((id, i) => [id, i]));
+  const OUT = Math.min(roomIds.length, MAX_ROOMS - 1); // uniform slot for outdoors + corridors
+  const slotOf = (id?: string) => (id !== undefined && roomSlot.has(id) ? Math.min(roomSlot.get(id)!, OUT) : OUT);
 
-  // ---------- blocks: walls, caps, door frames (one InstancedMesh per block type) ----------
+  // ---------- the static world: collected here as solids/flats, merged into ONE mesh after the trees ----------
   const unitCube = new THREE.BoxGeometry(1, 1, 1);
-  interface Cell { x: number; y: number; z: number; type: string; room?: string }
-  const cells = new Map<string, Cell>();
-  const key = (x: number, y: number, z: number) => `${x},${y},${z}`;
-  const texCache = new Map<string, THREE.Texture>();
-  const texFor = (type: string): THREE.Texture => {
-    let t = texCache.get(type);
-    if (!t) {
-      const [style, part] = type.split(":") as [Style, "wall" | "cap" | "floor" | "notice"];
-      const cv = part === "notice" ? noticeBoard() : PALETTES[style][part]();
-      t = TX.pixelTex(cv, part === "floor");
-      texCache.set(type, t);
+  const tiles: HTMLCanvasElement[] = [];
+  const tileIdx = new Map<string, number>();
+  const tileOf = (type: string, make?: () => HTMLCanvasElement): number => {
+    let t = tileIdx.get(type);
+    if (t === undefined) {
+      let cv: HTMLCanvasElement;
+      if (make) cv = make();
+      else {
+        const [style, part] = type.split(":") as [Style, "wall" | "cap" | "floor" | "notice"];
+        cv = part === "notice" ? noticeBoard() : PALETTES[style][part]();
+      }
+      t = tiles.length;
+      tiles.push(cv);
+      tileIdx.set(type, t);
     }
     return t;
   };
+  const solids: Solid[] = [];
+  const flats: Flat[] = [];
+  interface Cell { x: number; y: number; z: number; type: string; room?: string }
+  const cells = new Map<string, Cell>();
+  const key = (x: number, y: number, z: number) => `${x},${y},${z}`;
   // jambs: wall cells flanking each door gap get the frame/cap block
   const jamb = new Set<string>();
   const thresholds: { x: number; z: number; room: string; to: string; nx: number; nz: number; along: "x" | "z" }[] = [];
@@ -145,73 +157,45 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       cells.set(k, { x, y, z, type: `${style}:${part}`, room: w.roomId });
     }
   }
-  const byType = new Map<string, Cell[]>();
-  for (const c of cells.values()) (byType.get(c.type) ?? byType.set(c.type, []).get(c.type)!).push(c);
-  const blockMeshes: THREE.InstancedMesh[] = [];
-  for (const [type, list] of byType) {
-    const mat = new THREE.MeshLambertMaterial({ map: texFor(type) });
-    const mesh = new THREE.InstancedMesh(unitCube, mat, list.length);
-    mesh.name = `blocks:${type}`;
-    mesh.castShadow = mesh.receiveShadow = true;
-    const jitter = list.map(() => 0.88 + rnd() * 0.12);
-    list.forEach((c, i) => {
-      mesh.setMatrixAt(i, m4.makeTranslation(c.x, c.y + 0.5, c.z));
-      mesh.setColorAt(i, tmpC.setScalar(jitter[i]));
-    });
-    recolorers.push(() => {
-      list.forEach((c, i) => mesh.setColorAt(i, tmpC.setScalar(jitter[i] * (0.25 + 0.75 * roomF(c.room)))));
-      mesh.instanceColor!.needsUpdate = true;
-    });
-    mesh.computeBoundingSphere();
-    blockMeshes.push(mesh);
-    root.add(mesh);
-  }
+  for (const c of cells.values()) solids.push({ x: c.x, y: c.y, z: c.z, tile: tileOf(c.type), room: slotOf(c.room) });
 
-  // ---------- floors (one plane per room for per-room lit/focus; corridors merged) ----------
-  const worldUV = (geo: THREE.BufferGeometry) => {
-    const pos = geo.getAttribute("position");
-    const uv = new Float32Array(pos.count * 2);
-    for (let i = 0; i < pos.count; i++) { uv[i * 2] = pos.getX(i) + 0.5; uv[i * 2 + 1] = pos.getZ(i) + 0.5; }
-    geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-  };
-  const floorPlane = (minX: number, maxX: number, minZ: number, maxZ: number, y = 0) => {
-    const g = new THREE.PlaneGeometry(maxX - minX, maxZ - minZ);
-    g.rotateX(-Math.PI / 2);
-    g.translate((minX + maxX) / 2, y, (minZ + maxZ) / 2);
-    worldUV(g);
-    return g;
-  };
-  interface RoomVis { floor: THREE.MeshLambertMaterial; sign?: THREE.SpriteMaterial; lit: number; litTarget: number }
+  // floors: one top-face quad per cell (room floors, gravel corridor paths, wool door stripes, foyer quest ring)
+  interface RoomVis { sign?: number; lit: number; litTarget: number }
   const roomVis = new Map<string, RoomVis>();
+  const foyer = roomById.get("foyer") ?? palace.rooms[0];
+  const doorColor = (room: string, to: string) => roomHex(roomById.get(room)?.wing === "foyer" ? to : room);
+  const rgb = (hex: string): [number, number, number] => { const c = new THREE.Color(hex); return [c.r, c.g, c.b]; };
+  const floorTaken = new Set<string>();
+  for (const t of thresholds) {
+    floorTaken.add(`${t.x},${t.z}`);
+    flats.push({ x: t.x, y: 0.004, z: t.z, tile: tileOf("wool", () => TX.wool()), room: slotOf(t.room), tint: rgb(doorColor(t.room, t.to)) });
+  }
+  const goldTile = tileOf("gold", () => TX.metalBlock([240, 196, 70], 7));
   for (const r of palace.rooms) {
     const hx = r.size[0] / 2, hz = r.size[2] / 2;
-    const geo = floorPlane(r.center[0] - hx + 0.5, r.center[0] + hx - 0.5, r.center[2] - hz + 0.5, r.center[2] + hz - 0.5, 0.002);
-    const mat = new THREE.MeshLambertMaterial({ map: texFor(`${styleOf(r.id)}:floor`), emissive: new THREE.Color(roomHex(r.id)), emissiveIntensity: 0 });
-    const floor = new THREE.Mesh(geo, mat);
-    floor.receiveShadow = true;
-    floor.name = `floor:${r.id}`;
-    root.add(floor);
-    roomVis.set(r.id, { floor: mat, lit: 0, litTarget: 0 });
+    const ft = tileOf(`${styleOf(r.id)}:floor`);
+    for (let x = r.center[0] - hx + 1; x <= r.center[0] + hx - 1; x++) for (let z = r.center[2] - hz + 1; z <= r.center[2] + hz - 1; z++) {
+      let tile = ft;
+      if (r === foyer) {
+        const d = Math.hypot(x - r.center[0], z - r.center[2]);
+        if ((d > 2.6 && d < 3.7) || d < 0.1) tile = goldTile; // Hall of Quests: open ring for new lecterns
+      }
+      floorTaken.add(`${x},${z}`);
+      flats.push({ x, y: 0.002, z, tile, room: slotOf(r.id) });
+    }
+    roomVis.set(r.id, { lit: 0, litTarget: 0 });
   }
-  const pathMat = new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.gravel([150, 138, 118], 99), true) });
-  if (layout.corridorFloors.length) {
-    const cf = new THREE.Mesh(mergeGeometries(layout.corridorFloors.map((f) => floorPlane(f.minX, f.maxX, f.minZ, f.maxZ, 0.001))), pathMat);
-    cf.receiveShadow = true;
-    cf.name = "corridor-floors";
-    root.add(cf);
+  const pathTile = tileOf("path", () => TX.gravel([150, 138, 118], 99));
+  for (const f of layout.corridorFloors) {
+    for (let x = Math.ceil(f.minX - 1e-6); x <= Math.floor(f.maxX + 1e-6); x++) for (let z = Math.ceil(f.minZ - 1e-6); z <= Math.floor(f.maxZ + 1e-6); z++) {
+      const k = `${x},${z}`;
+      if (floorTaken.has(k) || cells.has(key(x, 0, z))) continue;
+      floorTaken.add(k);
+      flats.push({ x, y: 0.002, z, tile: pathTile, room: OUT });
+    }
   }
 
-  // ---------- door thresholds: team-coloured wool stripe + banners on the jambs ----------
-  const doorColor = (room: string, to: string) => roomHex(roomById.get(room)?.wing === "foyer" ? to : room);
-  const woolTex = TX.pixelTex(TX.wool());
-  const carpet = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.07, 1), new THREE.MeshLambertMaterial({ map: woolTex }), Math.max(1, thresholds.length));
-  carpet.name = "door-stripes";
-  carpet.receiveShadow = true;
-  thresholds.forEach((t, i) => {
-    carpet.setMatrixAt(i, m4.makeTranslation(t.x, 0.035, t.z));
-    carpet.setColorAt(i, tmpC.set(doorColor(t.room, t.to)));
-  });
-  root.add(carpet);
+  // ---------- door banners on the jambs ----------
   interface BannerDef { room: string; color: THREE.Color }
   const bannerDefs: BannerDef[] = [];
   const bannerMats: THREE.Matrix4[] = [];
@@ -269,22 +253,6 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     heads.instanceColor!.needsUpdate = true;
   };
   root.add(sticks, heads);
-
-  // ---------- Hall of Quests: gold ring inlay in the foyer floor (open ring for new lecterns) ----------
-  const foyer = roomById.get("foyer") ?? palace.rooms[0];
-  if (foyer) {
-    const ring: [number, number][] = [];
-    for (let x = -5; x <= 5; x++) for (let z = -5; z <= 5; z++) {
-      const d = Math.hypot(x, z);
-      if (d > 2.6 && d < 3.7) ring.push([foyer.center[0] + x, foyer.center[2] + z]);
-    }
-    const inlay = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.03, 1), new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.metalBlock([240, 196, 70], 7)) }), ring.length + 1);
-    ring.forEach(([x, z], i) => inlay.setMatrixAt(i, m4.makeTranslation(x, 0.015, z)));
-    inlay.setMatrixAt(ring.length, m4.compose(V(foyer.center[0], 0.015, foyer.center[2]), Q0, V(1, 1, 1)));
-    inlay.receiveShadow = true;
-    inlay.name = "quest-ring";
-    root.add(inlay);
-  }
 
   // ---------- memories: lecterns + floating books + halos + cobwebs ----------
   const mems: Memory[] = [...palace.memories];
@@ -494,29 +462,70 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   linkDots.visible = false;
   root.add(linkDots);
 
-  // ---------- signs: pixel-font wooden boards over each room entrance ----------
-  const signs = new THREE.Group();
-  signs.name = "room-signs";
-  for (const r of palace.rooms) {
+  // ---------- signs: pixel-font wooden boards over each room entrance (one atlas, one instanced billboard) ----------
+  const signDefs = palace.rooms.map((r) => {
     const isFoyer = r.id === (foyer?.id ?? "");
     const wing = wingById.get(r.wing);
     const caption = isFoyer ? "Mind Palace" : wing ? wing.label + " wing" : COMMONS[r.id] ? "Commons" : r.wing;
     const title = isFoyer ? "Hall of Quests" : r.label;
     const { tex, aspect } = TX.signTexture(title, caption, roomHex(r.id));
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, alphaTest: 0.5, fog: true });
-    const sp = new THREE.Sprite(mat);
-    const h = isFoyer ? 3.2 : 2.8;
-    sp.scale.set(h * aspect, h, 1);
     const entry = r.doors.find((d) => roomById.has(d.to));
-    if (isFoyer || !entry) sp.position.set(r.center[0], r.size[1] + 3.2, r.center[2]);
-    else {
-      const [x, z] = snapDoor(r, entry.pos);
-      sp.position.set(x, r.size[1] + 1.6, z);
-    }
-    sp.name = `sign:${r.id}`;
-    signs.add(sp);
-    roomVis.get(r.id)!.sign = mat;
+    let p: [number, number, number];
+    if (isFoyer || !entry) p = [r.center[0], r.size[1] + 3.2, r.center[2]];
+    else { const [x, z] = snapDoor(r, entry.pos); p = [x, r.size[1] + 1.6, z]; }
+    return { canvas: tex.image as HTMLCanvasElement, aspect, h: isFoyer ? 3.2 : 2.8, p, room: r.id };
+  });
+  const SW = THREE.MathUtils.ceilPowerOfTwo(Math.max(...signDefs.map((d) => d.canvas.width)));
+  const SH = THREE.MathUtils.ceilPowerOfTwo(signDefs.reduce((n, d) => n + d.canvas.height, 0));
+  const signCanvas = document.createElement("canvas");
+  signCanvas.width = SW;
+  signCanvas.height = SH;
+  const signG = signCanvas.getContext("2d")!;
+  const signGeo = new THREE.InstancedBufferGeometry();
+  {
+    const pl = new THREE.PlaneGeometry(1, 1);
+    signGeo.index = pl.index;
+    signGeo.setAttribute("position", pl.getAttribute("position"));
+    signGeo.setAttribute("uv", pl.getAttribute("uv"));
   }
+  const sRect = new Float32Array(signDefs.length * 4), sAnchor = new Float32Array(signDefs.length * 3), sH = new Float32Array(signDefs.length);
+  let sy = 0;
+  signDefs.forEach((d, i) => {
+    signG.drawImage(d.canvas, 0, sy);
+    sRect.set([d.canvas.width / SW, 1 - (sy + d.canvas.height) / SH, 1 - sy / SH, d.aspect], i * 4);
+    sAnchor.set(d.p, i * 3);
+    sH[i] = d.h;
+    roomVis.get(d.room)!.sign = i;
+    sy += d.canvas.height;
+  });
+  const signDim = new THREE.InstancedBufferAttribute(new Float32Array(signDefs.length).fill(1), 1);
+  signGeo.setAttribute("aRect", new THREE.InstancedBufferAttribute(sRect, 4));
+  signGeo.setAttribute("aAnchor", new THREE.InstancedBufferAttribute(sAnchor, 3));
+  signGeo.setAttribute("aH", new THREE.InstancedBufferAttribute(sH, 1));
+  signGeo.setAttribute("aDim", signDim);
+  signGeo.instanceCount = signDefs.length;
+  const signTex = TX.pixelTex(signCanvas);
+  signTex.wrapS = signTex.wrapT = THREE.ClampToEdgeWrapping;
+  const signs = new THREE.Mesh(signGeo, new THREE.ShaderMaterial({
+    uniforms: { map: { value: signTex } },
+    vertexShader: /* glsl */ `
+      attribute vec4 aRect; attribute vec3 aAnchor; attribute float aH; attribute float aDim;
+      varying vec2 vUv; varying float vDim;
+      void main() {
+        vec4 c = viewMatrix * modelMatrix * vec4(aAnchor, 1.0);
+        c.xy += vec2(position.x * aRect.w, position.y) * aH;
+        vUv = vec2(uv.x * aRect.x, mix(aRect.y, aRect.z, uv.y));
+        vDim = aDim;
+        gl_Position = projectionMatrix * c;
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D map; varying vec2 vUv; varying float vDim;
+      void main() { vec4 t = texture2D(map, vUv); if (t.a < 0.5) discard; gl_FragColor = vec4(t.rgb * vDim, 1.0);
+        #include <colorspace_fragment>
+      }`,
+  }));
+  signs.name = "room-signs";
+  signs.frustumCulled = false;
   root.add(signs);
 
   // ---------- ceilings (layer "ceiling", off by default: overview looks in) ----------
@@ -572,18 +581,16 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       }
     }
   }
-  const trunkMat = new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.bark([104, 78, 48], 3)) });
-  const leafMat = new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.leaves()) });
-  outMats.push(trunkMat, leafMat);
-  const trunks = new THREE.InstancedMesh(unitCube, trunkMat, trunkCells.length);
-  const leavesMesh = new THREE.InstancedMesh(unitCube, leafMat, leafCells.length);
-  trunkCells.forEach(([x, y, z], i) => trunks.setMatrixAt(i, m4.makeTranslation(x, y + 0.5, z)));
-  leafCells.forEach(([x, y, z], i) => leavesMesh.setMatrixAt(i, m4.makeTranslation(x, y + 0.5, z)));
-  trunks.castShadow = leavesMesh.castShadow = true;
-  trunks.receiveShadow = leavesMesh.receiveShadow = true;
-  trunks.name = "tree-trunks";
-  leavesMesh.name = "tree-leaves";
-  outdoor.add(trunks, leavesMesh);
+  const barkTile = tileOf("bark", () => TX.bark([104, 78, 48], 3)), leafTile = tileOf("leaves", () => TX.leaves());
+  for (const [x, y, z] of trunkCells) solids.push({ x, y, z, tile: barkTile, room: OUT });
+  for (const [x, y, z] of leafCells) solids.push({ x, y, z, tile: leafTile, room: OUT });
+
+  // ---------- merge: every block + floor tile above -> one mesh, one atlas ----------
+  const worldAtlas = buildAtlas(tiles);
+  const world = buildWorld(worldAtlas, solids, flats);
+  root.add(world.mesh);
+  const worldU = world.uniforms;
+  palace.rooms.forEach((r, i) => { if (i < OUT) worldU.uTint.value[i].set(roomHex(r.id)); });
   const plantGeo = (() => {
     const a = new THREE.PlaneGeometry(0.8, 0.8); a.rotateY(Math.PI / 4); a.translate(0, 0.4, 0);
     const b = new THREE.PlaneGeometry(0.8, 0.8); b.rotateY(-Math.PI / 4); b.translate(0, 0.4, 0);
@@ -668,7 +675,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const sh = document.createElement("div");
   sh.className = "mp-scene-hud";
   sh.style.pointerEvents = "none";
-  sh.innerHTML = `<div class="mp-cross"></div><div class="mp-tip"></div><div class="mp-hint"><b>Click</b> to walk &nbsp;·&nbsp; <b>WASD</b> move &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Esc</b> release<br><span>click a glowing book to open it</span></div>`;
+  sh.innerHTML = `<div class="mp-cross"></div><div class="mp-tip"></div>${WALK ? `<div class="mp-hint"><b>Click</b> to walk &nbsp;·&nbsp; <b>WASD</b> move &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Esc</b> release<br><span>click a glowing book to open it</span></div>` : ""}`;
   hud.appendChild(sh);
   const tip = sh.querySelector<HTMLElement>(".mp-tip")!;
   const syncHud = () => {
@@ -676,7 +683,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     sh.classList.toggle("released", controls.released || flying !== null);
   };
   controls.onLockChange(syncHud);
-  const minimap = params.has("nominimap") ? null : createMinimap(palace, layout, sh, (r) => roomHex(r.id));
+  const minimap = !WALK || params.has("nominimap") ? null : createMinimap(palace, layout, sh, (r) => roomHex(r.id));
   let debugEl: HTMLElement | null = null;
   if (DEBUG) {
     debugEl = document.createElement("div");
@@ -717,15 +724,14 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     (scene.fog as THREE.Fog).color.copy(scene.background as THREE.Color);
     dustMat.uniforms.uDim.value = 0.5 + 0.5 * dim;
     for (const mt of outMats) mt.color.setScalar(0.3 + 0.7 * outF);
-    pathMat.color.setScalar(0.3 + 0.7 * outF);
+    worldU.uF.value[OUT] = 0.3 + 0.7 * outF;
     for (const [id, v] of roomVis) {
       const f = roomF(id);
-      v.floor.color.setScalar(0.25 + 0.75 * f);
-      if (v.sign) v.sign.opacity = 0.35 + 0.65 * f;
+      const sl = slotOf(id);
+      if (sl < OUT) worldU.uF.value[sl] = 0.25 + 0.75 * f;
+      if (v.sign !== undefined) signDim.setX(v.sign, 0.3 + 0.7 * f);
     }
-    recolorers.forEach((fn) => fn());
-    carpet.instanceColor && thresholds.forEach((t, i) => carpet.setColorAt(i, tmpC.set(doorColor(t.room, t.to)).multiplyScalar(0.3 + 0.7 * roomF(t.room))));
-    carpet.instanceColor!.needsUpdate = true;
+    signDim.needsUpdate = true;
     bannerDefs.forEach((b, i) => banners.setColorAt(i, tmpC.copy(b.color).multiplyScalar(0.3 + 0.7 * roomF(b.room))));
     banners.instanceColor!.needsUpdate = true;
   };
@@ -744,7 +750,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
 
   // ---------- picking ----------
   const ray = new THREE.Raycaster();
-  ray.far = 60;
+  ray.far = 220; // the default camera is a 50-100 m overview
   const ndc = new THREE.Vector2();
   const pointer = new THREE.Vector2(0, 0);
   let pointerInside = false;
@@ -861,7 +867,8 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
         if (Math.abs(v.lit - v.litTarget) < 0.01) v.lit = v.litTarget;
         torchDirty = true;
       }
-      v.floor.emissiveIntensity = 0.22 * v.lit * roomF(id);
+      const sl = slotOf(id);
+      if (sl < OUT) worldU.uLit.value[sl] = 0.16 * v.lit;
     }
     if (dirty) applyFactors();
     torchAcc += dt;
@@ -1128,7 +1135,7 @@ const SCENE_CSS = `
 .mp-minimap { position: absolute; left: 16px; bottom: 16px; padding: 4px; background: #8b8b8b;
   border: 3px solid; border-color: #fff #555 #555 #fff; box-shadow: 0 0 0 2px #000; }
 .mp-minimap canvas { display: block; image-rendering: pixelated; }
-.mp-debug { position: absolute; left: 16px; top: 16px; white-space: pre; font: 11px/1.45 ${PX_FONT};
+.mp-debug { position: absolute; right: 16px; bottom: 120px; white-space: pre; font: 11px/1.45 ${PX_FONT};
   color: #fff; background: rgba(0,0,0,.55); padding: 4px 8px; text-shadow: 1px 1px 0 #333; }
 @media (max-width: 640px) { .mp-minimap canvas { width: 120px !important; height: 120px !important; } }
 `;
