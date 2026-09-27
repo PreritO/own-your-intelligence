@@ -10,7 +10,7 @@ dependencies = []
 mindpalace = "ufo_ext_mindpalace.manifest:manifest"
 
 [project.entry-points."ufo.pack"]
-mindpalace = "ufo_ext_mindpalace.manifest:pack"
+mindpalace_pack = "ufo_ext_mindpalace.manifest:pack"
 
 [dependency-groups]
 dev = ["pytest>=8"]
