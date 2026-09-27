@@ -1,0 +1,36 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+River healthy=True base=Qwen/Qwen3.5-9B
+[legal] model_id=50692a37-0f22-4aa7-b1f6-903fbd180ffe:model:1 base=Qwen/Qwen3.5-9B examples=270
+{"team": "legal", "step": 1, "loss": 134.0936}
+{"team": "legal", "step": 2, "loss": 168.0737}
+{"team": "legal", "step": 3, "loss": 116.2832}
+{"team": "legal", "step": 4, "loss": 93.298}
+{"team": "legal", "step": 5, "loss": 97.0541}
+{"team": "legal", "step": 6, "loss": 80.4591}
+{"team": "legal", "step": 7, "loss": 75.9478}
+{"team": "legal", "step": 8, "loss": 57.3706}
+{"team": "legal", "step": 9, "loss": 60.4511}
+{"team": "legal", "step": 10, "loss": 39.5793}
+{"team": "legal", "step": 11, "loss": 47.9038}
+{"team": "legal", "step": 12, "loss": 27.6427}
+{"team": "legal", "step": 13, "loss": 33.815}
+{"team": "legal", "step": 14, "loss": 37.409}
+{"team": "legal", "step": 15, "loss": 27.2951}
+{"team": "legal", "step": 16, "loss": 35.2716}
+{"team": "legal", "step": 17, "loss": 18.6752}
+{"team": "legal", "step": 18, "loss": 17.3798}
+{"team": "legal", "step": 19, "loss": 16.7479}
+{"team": "legal", "step": 20, "loss": 12.1937}
+{"team": "legal", "step": 21, "loss": 10.9033}
+{"team": "legal", "step": 22, "loss": 11.5197}
+{"team": "legal", "step": 23, "loss": 10.4448}
+{"team": "legal", "step": 24, "loss": 12.8023}
+{"team": "legal", "step": 25, "loss": 13.699}
+{"team": "legal", "step": 26, "loss": 6.7714}
+{"team": "legal", "step": 27, "loss": 6.2767}
+{"team": "legal", "step": 28, "loss": 8.2211}
+{"team": "legal", "step": 29, "loss": 7.1318}
+{"team": "legal", "step": 30, "loss": 9.5201}
+{"team": "legal", "saved": "river://6932ec36-6bda-43e0-b9a9-4f576919f06a/sampler_weights/sft-legal"}
+{"team": "legal", "heldout10_reward": -0.075, "checkpoint": "river://6932ec36-6bda-43e0-b9a9-4f576919f06a/sampler_weights/sft-legal"}
+checkpoints: /Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/out/checkpoints.json

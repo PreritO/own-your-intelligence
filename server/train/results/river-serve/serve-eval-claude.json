@@ -1,0 +1,156 @@
+{
+  "summary": {
+    "team": "legal",
+    "model": "Claude (claude-sonnet-5)",
+    "key": "claude",
+    "n": 20,
+    "grounded": 1.0,
+    "correct": 1.0,
+    "both": 1.0,
+    "extractive": 1.0,
+    "latency_ms": 1332,
+    "latency_ms_mean": 1333
+  },
+  "rows": [
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1409.311056137085,
+      "reply": "\"Gripworks MSA v3 approved by Tomas Reyes on Sep 22, pending budget confirmation.\""
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1394.3049907684326,
+      "reply": "The Harbor Cloud DPA was approved on \"Jul 14\", with the note \"SCCs attached\"."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1149.5518684387207,
+      "reply": "The page states \"the 2026 rate card was never attached to the signed copy.\" This page is stale and needs a refresh before anyone relies on it."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1332.0190906524658,
+      "reply": "The Aug 14 consent \"reconfirmed signature authority: contracts over $30k need the CEO or COO.\""
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1402.8139114379883,
+      "reply": "The playbook sets \"Delaware law\" as the governing law for vendor contracts."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1306.6258430480957,
+      "reply": "The arm and controller ship under \"EAR99\" and \"no license needed for US and EU customers.\""
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1244.7388172149658,
+      "reply": "The arm ships under \"EAR99; no license needed for US and EU customers.\""
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1283.6861610412598,
+      "reply": "The payment terms are \"Net-30\", with \"Per-PO pricing\" and \"scrap over 4% is credited back\"."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1428.3487796783447,
+      "reply": "Scrap above the threshold is handled per the terms stating \"scrap over 4% is credited back.\""
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1280.5719375610352,
+      "reply": "The contract value of the Gripworks MSA is \"$40k\"."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1598.5300540924072,
+      "reply": "No deviations remain, as \"Deviations from the [[legal/contract-playbook|Contract Playbook]]: none remaining after v3.\""
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1245.2678680419922,
+      "reply": "The DPA covers \"fleet telemetry and customer dashboard data.\""
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1290.0218963623047,
+      "reply": "A new contractor must sign the invention assignment agreement \"on day one.\" This page is stale and should be refreshed before anyone relies on it."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1382.6003074645996,
+      "reply": "The NDA template has a \"two-year term\" and is used \"for every supplier and customer conversation before pricing is shared.\" This page is marked stale, so it needs a refresh before anyone relies on it."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1267.6992416381836,
+      "reply": "The non-provisional filing is \"due March 2027\"."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1336.7440700531006,
+      "reply": "Fleet telemetry is \"retained 13 months\" under the privacy policy, and \"customers can request deletion.\""
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1381.4351558685303,
+      "reply": "The Series A raised \"$12M led by Lumen Ventures in 2024.\" This page is stale and should be refreshed before anyone relies on it."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1276.7021656036377,
+      "reply": "The pending trademark is \"GRIPPER V2 (pending US)\"."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1322.6768970489502,
+      "reply": "The second step is \"Security questionnaire in [[eng/vendor-risk-reviews|Vendor Risk Reviews]]\"."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 1334.878921508789,
+      "reply": "The agreement costs \"$180k per year\" and undergoes \"price review each April\"."
+    }
+  ]
+}

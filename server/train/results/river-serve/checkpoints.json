@@ -1,0 +1,11 @@
+{
+  "sft-legal-reply": {
+    "team": "legal",
+    "kind": "sft-reply",
+    "base_model": "Qwen/Qwen3.5-9B",
+    "model_id": "e2d0d761-454e-4992-a46a-94fedefc2078:model:1",
+    "inference_path": "river://a0e51a8f-ba64-4146-ab4a-ccf949c84ed1/sampler_weights/sft-legal-reply",
+    "steps": 30,
+    "savedAt": "15:50:03"
+  }
+}

@@ -1,0 +1,10 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+RL(simple) legal on Qwen/Qwen3.5-9B from river://6932ec36-6bda-43e0-b9a9-4f576919f06a/weights/sft-legal-train; 189 tasks, 8x8/step
+{"run": "rl-legal-simple-lr1e-4", "model_id": "7e122e16-3542-4efd-bd79-d06b6a1eb2c5:model:1"}
+{"eval": 0, "heldout_reward": 0.5938, "correct": 0.75, "compliant": 0.5}
+{"batch": 1, "model_step": 1, "reward/mean": 0.2305, "reward/zero_variance_group_frac": 0.125, "train/updated": true, "train/tokens": 9963, "secs": 76.3}
+{"batch": 2, "model_step": 2, "reward/mean": 0.5469, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 9931, "secs": 80.4}
+{"batch": 3, "model_step": 3, "reward/mean": 0.2773, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 8300, "secs": 67.4}
+{"batch": 4, "model_step": 4, "reward/mean": 0.3438, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 9084, "secs": 97.1}
+{"batch": 5, "model_step": 5, "reward/mean": 0.3711, "reward/zero_variance_group_frac": 0.125, "train/updated": true, "train/tokens": 8639, "secs": 86.9, "checkpoint": "river://a3e45a80-9467-4c6f-8679-3df92f446e4f/sampler_weights/rl-legal-simple-lr1e-4-step005"}
+{"eval": 5, "heldout_reward": 0.6719, "correct": 0.812, "compliant": 0.438}

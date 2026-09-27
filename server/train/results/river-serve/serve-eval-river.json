@@ -1,0 +1,156 @@
+{
+  "summary": {
+    "team": "legal",
+    "model": "Legal specialist (River SFT, Qwen3.5-9B)",
+    "key": "river",
+    "n": 20,
+    "grounded": 0.2,
+    "correct": 0.95,
+    "both": 0.2,
+    "extractive": 0.9,
+    "latency_ms": 2230,
+    "latency_ms_mean": 2259
+  },
+  "rows": [
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 3581.4101696014404,
+      "reply": "Gripworks MSA v3 approved by Tomas Reyes on Sep 22, pending budget confirmation. Signature requires an authorized signatory for contracts over $30k."
+    },
+    {
+      "grounded": false,
+      "extractive": false,
+      "correct": true,
+      "ms": 2078.4950256347656,
+      "reply": "Harbor Cloud DPA approved Jul 14, SCCs attached. Signature requires an authorized signatory for contracts over $30k."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": false,
+      "ms": 2265.408992767334,
+      "reply": "The page doesn't say. The page is stale: needs a refresh before anyone relies on it."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2087.062120437622,
+      "reply": "The Aug 14 consent reconfirmed signature authority: contracts over $30k need the CEO or COO. Consents after the [[finance/board-2026-q3|Q3 board meeting]] set the current [[people/signatories|Authorized Signatories]] and approved the [[finance/venture-debt-facility|Venture Debt Facility]] drawdown."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2269.93727684021,
+      "reply": "Legal's standard positions for vendor contracts: Net-45 payment, liability cap at 1x fees, 12-month default term, Delaware law."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2306.879997253418,
+      "reply": "The arm and controller ship under EAR99; no license needed for US and EU customers. Shipments to embargoed destinations are blocked."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2227.004051208496,
+      "reply": "The arm and controller ship under EAR99; no license needed for US and EU customers. Shipments to embargoed destinations are blocked."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2229.7708988189697,
+      "reply": "Standard purchase order terms for Ferro Castings. Per-PO pricing, Net-30, scrap over 4% is credited back."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 2077.4078369140625,
+      "reply": "\"scrap over 4% is credited back.\" The page doesn't say."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 2311.2850189208984,
+      "reply": "The contract value is \"$40k\". The agreement is a \"Master services agreement draft v3\"."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2248.7270832061768,
+      "reply": "Deviations from the [[legal/contract-playbook|Contract Playbook]]: none remaining after v3. Contract value $40k."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2139.4548416137695,
+      "reply": "Data processing agreement with Harbor Cloud covering fleet telemetry and customer dashboard data. Standard contractual clauses attached for EU customers."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2243.7429428100586,
+      "reply": "Every employee and contractor signs the invention assignment agreement on day one. Contractor agreements without it are void for Eng work. The page is stale: needs a refresh before anyone relies on it."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2077.06880569458,
+      "reply": "Mutual NDA template, two-year term, used for every supplier and customer conversation before pricing is shared. The page is stale: needs a refresh before anyone relies on it."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2224.0278720855713,
+      "reply": "Non-provisional filing due March 2027. Covers the wrist in [[eng/gripper-v2|Gripper v2]]."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2324.0556716918945,
+      "reply": "Telemetry is retained 13 months; customers can request deletion. Processors are bound by DPAs such as the Harbor Cloud DPA."
+    },
+    {
+      "grounded": false,
+      "extractive": true,
+      "correct": true,
+      "ms": 2144.2489624023438,
+      "reply": "Series A financing documents: $12M led by Lumen Ventures in 2024. Investor rights include one board observer and monthly financials. The page is stale: needs a refresh before anyone relies on it."
+    },
+    {
+      "grounded": false,
+      "extractive": false,
+      "correct": true,
+      "ms": 2066.918134689331,
+      "reply": "GRIPPER V2 is pending in the US. \"GRIPPER V2 (pending US)\"."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 2049.868106842041,
+      "reply": "The second step is \"Security questionnaire in [[eng/vendor-risk-reviews|Vendor Risk Reviews]]\". The page doesn't say."
+    },
+    {
+      "grounded": true,
+      "extractive": true,
+      "correct": true,
+      "ms": 2230.541229248047,
+      "reply": "\"$180k per year, Net-30, price review each April.\" The page doesn't say."
+    }
+  ]
+}

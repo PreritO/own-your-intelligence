@@ -1,0 +1,30 @@
+{"t": 3.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 1, "reward": 0.2422}
+{"t": 5.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 2, "reward": 0.5547}
+{"t": 6.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 3, "reward": 0.5117}
+{"t": 8.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 4, "reward": 0.7812}
+{"t": 9.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 5, "reward": 0.6172}
+{"t": 11.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 6, "reward": 0.9062}
+{"t": 12.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 7, "reward": 0.7539}
+{"t": 14.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 8, "reward": 1.0469}
+{"t": 15.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 9, "reward": 1.0273}
+{"t": 17.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 10, "reward": 1.0234, "checkpoint": "river-dryrun://rl-legal-dryrun/step-010"}
+{"t": 18.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 11, "reward": 1.1406}
+{"t": 20.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 12, "reward": 1.1211}
+{"t": 21.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 13, "reward": 1.0664}
+{"t": 23.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 14, "reward": 1.2773}
+{"t": 24.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 15, "reward": 1.1992}
+{"t": 26.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 16, "reward": 1.1641}
+{"t": 27.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 17, "reward": 1.0234}
+{"t": 29.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 18, "reward": 1.1016}
+{"t": 30.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 19, "reward": 1.0977}
+{"t": 32.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 20, "reward": 1.2695, "checkpoint": "river-dryrun://rl-legal-dryrun/step-020"}
+{"t": 33.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 21, "reward": 1.1055}
+{"t": 35.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 22, "reward": 1.3008}
+{"t": 36.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 23, "reward": 1.0977}
+{"t": 38.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 24, "reward": 1.2109}
+{"t": 39.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 25, "reward": 1.3984}
+{"t": 41.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 26, "reward": 1.3359}
+{"t": 42.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 27, "reward": 1.3516}
+{"t": 44.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 28, "reward": 1.168}
+{"t": 45.5, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 29, "reward": 1.2812}
+{"t": 47.0, "agent": "legal", "run": "rl-legal-dryrun", "type": "train_step", "team": "legal", "step": 30, "reward": 1.1211, "checkpoint": "river-dryrun://rl-legal-dryrun/step-030"}

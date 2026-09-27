@@ -1,0 +1,13 @@
+{
+  "team": "legal",
+  "generation": 2,
+  "recipe": "sft-reply",
+  "jobId": "e2d0d761-454e-4992-a46a-94fedefc2078:model:1",
+  "base_model": "Qwen/Qwen3.5-9B",
+  "status": "done",
+  "steps": 30,
+  "trainedOn": "106 grounded Claude replies (11 from replays), 30 steps",
+  "inference_path": "river://a0e51a8f-ba64-4146-ab4a-ccf949c84ed1/sampler_weights/sft-legal-reply",
+  "training_path": "river://a0e51a8f-ba64-4146-ab4a-ccf949c84ed1/weights/sft-legal-reply-train",
+  "savedAt": "15:50:03"
+}

@@ -1,0 +1,68 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+RL legal on Qwen/Qwen3.5-9B from base weights; 270 tasks
+Traceback (most recent call last):
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 1646, in run
+    asyncio.get_running_loop()
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/rl.py", line 166, in <module>
+    if __name__ == "__main__":
+        ^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/rl.py", line 162, in main
+    else:
+        ^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/rl.py", line 132, in real
+    )
+    ^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 1648, in run
+    return asyncio.run(consume())
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 1640, in consume
+    async for last in trainer.run(dataset, steps=steps):
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 1460, in run
+    optim = await self._optimize(optimizer_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 774, in _optimize
+    optim = await self._call(
+            ^^^^^^^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 378, in _call
+    return await call(function, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/engine.py", line 32, in call
+    return await asyncio.to_thread(function, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/client.py", line 1427, in optim_step
+    ).result()
+      ^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/types.py", line 271, in result
+    raw = self._session._wait_for_future(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/client.py", line 3002, in _wait_for_future
+    done, value = _advance_future_poll(polls)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/client.py", line 2246, in _advance_future_poll
+    return False, next(polls)
+                  ^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/client.py", line 3118, in _future_polls
+    raise RiverError(f"{error.error_category}: {error.message}")
+river_client.types.RiverError: internal_error: Backend error: River team is investigating

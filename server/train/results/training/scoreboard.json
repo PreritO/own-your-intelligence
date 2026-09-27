@@ -1,0 +1,102 @@
+{
+  "mode": "dry-run",
+  "generatedAt": "2026-09-27T14:32:17",
+  "teams": {
+    "legal": {
+      "oracle-route": {
+        "n": 120,
+        "reward": 1.1666666666666667,
+        "max_reward": 1.1666666666666667,
+        "correct": 1.0,
+        "compliant": 1.0,
+        "tool_calls": 5.333333333333333,
+        "kind": "scripted"
+      },
+      "naive-rag": {
+        "n": 120,
+        "reward": -0.12708333333333333,
+        "max_reward": 1.1666666666666667,
+        "correct": 0.5,
+        "compliant": 0.05,
+        "tool_calls": 2.95,
+        "kind": "scripted"
+      },
+      "no-protocol": {
+        "n": 120,
+        "reward": 0.34375,
+        "max_reward": 1.1666666666666667,
+        "correct": 0.825,
+        "compliant": 0.14166666666666666,
+        "tool_calls": 5.583333333333333,
+        "kind": "scripted"
+      },
+      "rl-sim@30": {
+        "n": 120,
+        "reward": 1.1479166666666667,
+        "max_reward": 1.1666666666666667,
+        "correct": 1.0,
+        "compliant": 0.9583333333333334,
+        "tool_calls": 5.35,
+        "kind": "rl-sim"
+      }
+    },
+    "finance": {
+      "oracle-route": {
+        "n": 120,
+        "reward": 1.0833333333333333,
+        "max_reward": 1.0833333333333333,
+        "correct": 1.0,
+        "compliant": 1.0,
+        "tool_calls": 4.6,
+        "kind": "scripted"
+      },
+      "naive-rag": {
+        "n": 120,
+        "reward": 0.1375,
+        "max_reward": 1.0833333333333333,
+        "correct": 0.55,
+        "compliant": 0.05,
+        "tool_calls": 2.6,
+        "kind": "scripted"
+      },
+      "no-protocol": {
+        "n": 120,
+        "reward": 0.51875,
+        "max_reward": 1.0833333333333333,
+        "correct": 0.8166666666666667,
+        "compliant": 0.43333333333333335,
+        "tool_calls": 4.616666666666666,
+        "kind": "scripted"
+      }
+    },
+    "eng": {
+      "oracle-route": {
+        "n": 120,
+        "reward": 1.35,
+        "max_reward": 1.35,
+        "correct": 1.0,
+        "compliant": 1.0,
+        "tool_calls": 5.166666666666667,
+        "kind": "scripted"
+      },
+      "naive-rag": {
+        "n": 120,
+        "reward": -0.33541666666666664,
+        "max_reward": 1.35,
+        "correct": 0.325,
+        "compliant": 0.016666666666666666,
+        "tool_calls": 2.783333333333333,
+        "kind": "scripted"
+      },
+      "no-protocol": {
+        "n": 120,
+        "reward": 0.2833333333333333,
+        "max_reward": 1.35,
+        "correct": 0.6666666666666666,
+        "compliant": 0.225,
+        "tool_calls": 5.2,
+        "kind": "scripted"
+      }
+    }
+  }
+}

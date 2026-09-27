@@ -1,0 +1,1 @@
+{"t": 753.557, "agent": "legal", "run": "sft", "type": "train_step", "team": "legal", "step": 30, "reward": -0.075, "checkpoint": "river://6932ec36-6bda-43e0-b9a9-4f576919f06a/sampler_weights/sft-legal"}

@@ -1,0 +1,40 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+RL legal on Qwen/Qwen3.5-9B from river://6932ec36-6bda-43e0-b9a9-4f576919f06a/weights/sft-legal-train; 270 tasks
+{"run": "rl-legal", "model_id": "7c0916a3-f167-4ca4-93e5-15220567f72c:model:1"}
+{"attempt": 1, "river_error": "internal_error: Backend error: River team is investigating", "action": "resume from checkpoint dir"}
+{"run": "rl-legal", "model_id": "558dd019-1c46-4227-bb65-ed75d29a88f3:model:1"}
+Traceback (most recent call last):
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 1646, in run
+    asyncio.get_running_loop()
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/rl.py", line 182, in <module>
+    main()
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/rl.py", line 178, in main
+    real(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 1e-5, a.protocol, a.from_base, a.thinking)
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/rl.py", line 111, in real
+    _real_once(river, rl, client, base, renderer, PalaceEnv, rows, run, init, team, steps, groups_per_step, group_size, lr, use_protocol, log, on_step)
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/rl.py", line 147, in _real_once
+    rl.run(trainer, rows, steps=steps, on_step=on_step)
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 1648, in run
+    return asyncio.run(consume())
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 1640, in consume
+    async for last in trainer.run(dataset, steps=steps):
+  File "/Users/preritoberai/Desktop/projects/own-your-intelligence/own-your-intelligence/.claude/worktrees/agent-a5d5288645adf3cca/server/train/.venv/lib/python3.12/site-packages/river_client/rl/trainer.py", line 1166, in run
+    raise ValueError(
+ValueError: init_checkpoint is mutually exclusive with automatic resume

@@ -1,0 +1,36 @@
+{
+  "rl-legal-dryrun": {
+    "team": "legal",
+    "kind": "rl-dryrun",
+    "step": 30,
+    "probs": {
+      "visit": 0.9898379548037923,
+      "handoff": 0.9657907199617946,
+      "report": 0.9703109614920805,
+      "invent": 0.006201963949556837
+    }
+  },
+  "sft-legal": {
+    "team": "legal",
+    "kind": "sft",
+    "base_model": "Qwen/Qwen3.5-9B",
+    "inference_path": "river://6932ec36-6bda-43e0-b9a9-4f576919f06a/sampler_weights/sft-legal",
+    "training_path": "river://6932ec36-6bda-43e0-b9a9-4f576919f06a/weights/sft-legal-train",
+    "steps": 30,
+    "savedAt": "14:26:54"
+  },
+  "rl-legal-simple": {
+    "team": "legal",
+    "kind": "rl",
+    "base_model": "Qwen/Qwen3.5-9B",
+    "inference_path": "river://547cde84-7593-463b-bd54-94e0220fc2fb/sampler_weights/rl-legal-simple-step015",
+    "step": 15
+  },
+  "rl-legal-simple-lr1e-4": {
+    "team": "legal",
+    "kind": "rl",
+    "base_model": "Qwen/Qwen3.5-9B",
+    "inference_path": "river://a3e45a80-9467-4c6f-8679-3df92f446e4f/sampler_weights/rl-legal-simple-lr1e-4-step005",
+    "step": 5
+  }
+}

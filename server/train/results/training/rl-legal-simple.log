@@ -1,0 +1,19 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+RL(simple) legal on Qwen/Qwen3.5-9B from river://6932ec36-6bda-43e0-b9a9-4f576919f06a/weights/sft-legal-train; 189 tasks, 4x8/step
+{"run": "rl-legal-simple", "model_id": "9a6b6518-633f-4ed9-8128-030a23407690:model:1"}
+{"batch": 1, "model_step": 1, "reward/mean": 0.5391, "reward/zero_variance_group_frac": 0.25, "train/updated": true, "train/tokens": 2604, "secs": 28.3}
+{"batch": 2, "model_step": 2, "reward/mean": 0.0781, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 7352, "secs": 33.0}
+{"batch": 3, "model_step": 3, "reward/mean": 0.8203, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 6142, "secs": 53.4}
+{"batch": 4, "model_step": 4, "reward/mean": 0.3594, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 4005, "secs": 31.1}
+{"batch": 5, "model_step": 5, "reward/mean": 0.0703, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 5198, "secs": 38.3, "checkpoint": "river://547cde84-7593-463b-bd54-94e0220fc2fb/sampler_weights/rl-legal-simple-step005"}
+{"batch": 6, "model_step": 6, "reward/mean": 0.4375, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 3665, "secs": 82.0}
+{"batch": 7, "model_step": 7, "reward/mean": 0.0547, "reward/zero_variance_group_frac": 0.25, "train/updated": true, "train/tokens": 4767, "secs": 26.5}
+{"batch": 8, "model_step": 8, "reward/mean": 0.5781, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 4537, "secs": 31.2}
+{"batch": 9, "model_step": 9, "reward/mean": 0.2734, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 5790, "secs": 49.6}
+{"batch": 10, "model_step": 10, "reward/mean": 0.5234, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 4663, "secs": 45.1, "checkpoint": "river://547cde84-7593-463b-bd54-94e0220fc2fb/sampler_weights/rl-legal-simple-step010"}
+{"batch": 11, "model_step": 11, "reward/mean": 0.4844, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 3424, "secs": 30.2}
+{"batch": 12, "model_step": 12, "reward/mean": 0.3594, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 4024, "secs": 40.5}
+{"batch": 13, "model_step": 13, "reward/mean": 0.1562, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 4115, "secs": 57.9}
+{"batch": 14, "model_step": 14, "reward/mean": 0.5469, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 5977, "secs": 153.6}
+{"batch": 15, "model_step": 15, "reward/mean": 0.6875, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 3872, "secs": 171.2, "checkpoint": "river://547cde84-7593-463b-bd54-94e0220fc2fb/sampler_weights/rl-legal-simple-step015"}
+{"batch": 16, "model_step": 16, "reward/mean": 0.1953, "reward/zero_variance_group_frac": 0.0, "train/updated": true, "train/tokens": 3704, "secs": 74.5}

@@ -1,0 +1,5 @@
+{"t": 118.653, "agent": "legal", "run": "rl-legal-simple-lr1e-4", "type": "train_step", "team": "legal", "step": 1, "reward": 0.2305}
+{"t": 199.03, "agent": "legal", "run": "rl-legal-simple-lr1e-4", "type": "train_step", "team": "legal", "step": 2, "reward": 0.5469}
+{"t": 266.478, "agent": "legal", "run": "rl-legal-simple-lr1e-4", "type": "train_step", "team": "legal", "step": 3, "reward": 0.2773}
+{"t": 363.608, "agent": "legal", "run": "rl-legal-simple-lr1e-4", "type": "train_step", "team": "legal", "step": 4, "reward": 0.3438}
+{"t": 450.56, "agent": "legal", "run": "rl-legal-simple-lr1e-4", "type": "train_step", "team": "legal", "step": 5, "reward": 0.3711, "checkpoint": "river://a3e45a80-9467-4c6f-8679-3df92f446e4f/sampler_weights/rl-legal-simple-lr1e-4-step005"}

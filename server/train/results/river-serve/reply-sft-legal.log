@@ -1,0 +1,34 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+reply-SFT rows: 106 (replays: 11)
+{"job": "e2d0d761-454e-4992-a46a-94fedefc2078:model:1", "base": "Qwen/Qwen3.5-9B", "examples": 117}
+{"step": 1, "loss": 44.3106}
+{"step": 2, "loss": 24.0711}
+{"step": 3, "loss": 19.7543}
+{"step": 4, "loss": 20.5215}
+{"step": 5, "loss": 15.7174}
+{"step": 6, "loss": 16.445}
+{"step": 7, "loss": 12.2672}
+{"step": 8, "loss": 12.3167}
+{"step": 9, "loss": 13.667}
+{"step": 10, "loss": 15.7813}
+{"step": 11, "loss": 10.2979}
+{"step": 12, "loss": 11.9498}
+{"step": 13, "loss": 7.2051}
+{"step": 14, "loss": 8.4957}
+{"step": 15, "loss": 5.7066}
+{"step": 16, "loss": 5.8477}
+{"step": 17, "loss": 9.2912}
+{"step": 18, "loss": 10.8994}
+{"step": 19, "loss": 7.8049}
+{"step": 20, "loss": 11.1848}
+{"step": 21, "loss": 5.4402}
+{"step": 22, "loss": 4.0695}
+{"step": 23, "loss": 3.3836}
+{"step": 24, "loss": 4.1723}
+{"step": 25, "loss": 2.9563}
+{"step": 26, "loss": 2.4613}
+{"step": 27, "loss": 3.8916}
+{"step": 28, "loss": 5.5335}
+{"step": 29, "loss": 4.3676}
+{"step": 30, "loss": 7.6658}
+{"saved": "river://a0e51a8f-ba64-4146-ab4a-ccf949c84ed1/sampler_weights/sft-legal-reply"}
