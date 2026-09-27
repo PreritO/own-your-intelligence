@@ -90,6 +90,22 @@ def test_gap_verdict_on_silent_seed_page(proto, tmp_path):
     assert v["verdict"] == "gap" and "silent" in v["note"]
 
 
+def test_gap_verdict_on_long_role_page_with_blank_owner(proto, tmp_path):
+    page = tmp_path / "seed-brain" / "eng" / "soc2-owner.md"
+    page.parent.mkdir(parents=True)
+    page.write_text(
+        "---\ntitle: SOC 2 Owner\nupdated: 2026-04-18\n---\nRole page for the SOC 2 program owner. Owner: not recorded.\n\n"
+        + "This page was created when the renewal project was opened and never filled in. " * 5
+        + "\n\n| Field | Value |\n| --- | --- |\n| Owner | (none recorded) |\n"
+    )
+    assert proto.visit("eng", "eng/soc2-owner")["note"] == "no owner recorded"
+    # A page that merely mentions someone else's missing owner is not itself a gap.
+    other = tmp_path / "seed-brain" / "people" / "org-chart.md"
+    other.parent.mkdir(parents=True)
+    other.write_text("Acme Robotics, 48 people. " * 12 + '\n\nCompliance ownership listed as "TBD" on the roadmap.\n')
+    assert proto.visit("eng", "people/org-chart")["verdict"] == "verified"
+
+
 def test_stale_verdict_and_unknown_page(proto):
     assert proto.visit("eng", "eng/security-policy")["verdict"] == "stale"
     with pytest.raises(ProtocolError) as e:

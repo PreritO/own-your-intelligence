@@ -41,6 +41,10 @@ SILENT_PATTERNS = [
     r"\b(?:tbd|tbc|todo|unknown|unassigned|not\s+yet\s+(?:assigned|recorded|decided))\b",
     r"\bnobody\b",
 ]
+# Checked on any page length. Deliberately narrow: pages that merely *mention* someone else's gap
+# (a roadmap saying ownership is "TBD") must not become gaps themselves.
+FIELD_BLANK = r"^\W*(owner|assignee|approver|signatory|dri)\s*(?::|\|)\s*\(?\s*(?:not recorded|none recorded|none|unknown|tbd|unassigned|n/a)\s*\)?\W*$|\b(owner|assignee|approver|signatory)\s*:\s*(?:not recorded|none recorded|unassigned)\b"
+LEAD_SILENT = r"\b(?:not|none|never)\s+(?:yet\s+)?recorded\b|\bno\s+(?:\w+\s+){0,2}(?:is\s+)?(?:recorded|on\s+record)\b"
 
 
 class ProtocolError(Exception):
@@ -129,6 +133,15 @@ def judge(page: dict) -> tuple[str, str | None]:
     text = "\n".join(l for l in body.splitlines() if not l.lstrip().startswith("#")).strip()
     if not text:
         return "gap", "page is empty"
+    # A role/record page whose key field is blank: "Owner: not recorded", "| Owner | (none recorded) |".
+    m = re.search(FIELD_BLANK, text, re.I | re.M)
+    if m:
+        return "gap", f"no {(m.group(1) or m.group(2)).lower()} recorded"
+    # The page's lead paragraph says the thing is not on record.
+    lead = next((p for p in re.split(r"\n\s*\n", text) if p.strip()), "")
+    m = re.search(LEAD_SILENT, lead, re.I)
+    if m:
+        return "gap", f"page is silent: \"{m.group(0)}\""
     if len(text) < 240:
         for pat in SILENT_PATTERNS:
             m = re.search(pat, text, re.I)
