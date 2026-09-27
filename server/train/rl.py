@@ -81,7 +81,7 @@ def dry_run(team: str, steps: int, groups_per_step: int, group_size: int, lr: fl
 
 
 # ------------------------------------------------------------------ real River job
-def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float) -> None:
+def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float, use_protocol: bool = False, from_base: bool = False) -> None:
     import river_client as river  # type: ignore
     from river_client import rl  # type: ignore
     from river_client.renderers import get_renderer  # type: ignore
@@ -92,7 +92,7 @@ def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float
     rows = rows_for(team, "train")
     client = river_client()
     base = pick_base_model(client)
-    init = load_checkpoints().get(f"sft-{team}", {}).get("training_path")
+    init = None if from_base else load_checkpoints().get(f"sft-{team}", {}).get("training_path")
     run = f"rl-{team}"
     log = StepLogger(run)
     print(f"RL {team} on {base} from {init or 'base weights'}; {len(rows)} tasks")
@@ -107,7 +107,8 @@ def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float
         model = session.create_model(base_model=base, tokenizer=renderer.tokenizer, lora=river.LoraConfig(rank=16, seed=0))
         engine = rl.RolloutEngine(
             model,
-            env=lambda: PalaceEnv(use_protocol=True),
+            # Local PalaceWorld by default: 64 concurrent rollouts through :8790 would flood the palace's /events.
+            env=lambda: PalaceEnv(use_protocol=use_protocol),
             renderer=renderer,
             budget=rl.Budget(max_turns=14, max_generated_tokens=6144, max_context_tokens=16_384, max_turn_tokens=1024, tool_output_tokens=512),
             schedule=rl.Schedule(concurrency=64),
@@ -150,13 +151,15 @@ def main() -> None:
     ap.add_argument("--lr", type=float, default=None)
     ap.add_argument("--pace", type=float, default=0.0, help="dry-run: seconds between steps (live Gym demo)")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--protocol", action="store_true", help="real mode: route tool calls through the protocol service (:8790)")
+    ap.add_argument("--from-base", action="store_true", help="real mode: ignore the SFT checkpoint and start from base weights")
     a = ap.parse_args()
     if a.dry_run or not river_key():
         if not a.dry_run:
             print("RIVER_API_KEY not set: running --dry-run.")
         dry_run(a.team, a.steps or 30, a.groups_per_step, a.group_size, a.lr or 0.6, a.pace, a.seed)
     else:
-        real(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 1e-5)
+        real(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 1e-5, a.protocol, a.from_base)
 
 
 if __name__ == "__main__":
