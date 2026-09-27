@@ -2,6 +2,8 @@
 
 **One line:** harnesses like QM and UFO run your agents. Agent Palace makes multiplayer agents auditable. Every claim traces to a page an agent actually walked to, gaps go to the team that owns them, and each department agent trains on its own verified runs.
 
+**Demo video:** [Loom walkthrough](https://www.loom.com/share/8c560fabd0304f63aacf4543a9856b54)
+
 **Main demo:** `http://localhost:5173/?demo&hold`. Commission "Answer Northwind Logistics' security questionnaire", press `G` for Task flow, then press 🏋 Gym.
 
 | Sponsor | What we use (real) | Evidence to show | Honest limits |

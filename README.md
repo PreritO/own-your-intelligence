@@ -6,7 +6,7 @@ Agent Palace turns a company's shared brain into a walkable, block-built buildin
 
 Built in one afternoon at the YC "Own Your Intelligence" hackathon (September 27, 2026).
 
-**▶ Demo video:** _Loom link coming_ · **Judges:** [`docs/SUBMISSION.md`](docs/SUBMISSION.md) has the per-sponsor evidence.
+**▶ Demo video:** [Watch the walkthrough on Loom](https://www.loom.com/share/8c560fabd0304f63aacf4543a9856b54) · **Judges:** [`docs/SUBMISSION.md`](docs/SUBMISSION.md) has the per-sponsor evidence.
 
 ## Why it's useful
 
