@@ -28,6 +28,8 @@ GET:
   /handoff?id=            handoff status (answered, answer, verdict)
   /loose-ends?status=     gaps waiting on a human
   /state  /health  /palace
+Loose Ends inbox (loose_ends.py, attached in main()): GET /loose-ends[/<id>|/config],
+  POST /loose-ends/<memoryId>/resolve {text, by} (writes the seed-brain page + gbrain put), POST /loose-ends/reset
 """
 
 from __future__ import annotations
@@ -44,6 +46,7 @@ from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from loci import Protocol, ProtocolError  # noqa: E402
+import loose_ends  # noqa: E402
 
 PORT = int(os.environ.get("PROTOCOL_PORT") or 8790)  # alternate instances: PROTOCOL_PORT=8890
 
@@ -79,6 +82,8 @@ def make_handler(proto: Protocol):
             url = urlparse(self.path)
             q = {k: v[0] for k, v in parse_qs(url.query).items()}
             run = q.get("run")
+            if (le := loose_ends.route(proto, "GET", url.path, q, None)) is not None:
+                return self._json(*le)
             try:
                 if url.path == "/health":
                     return self._json(200, {"ok": True, "run": proto.current, "palace": str(proto.palace_path)})
@@ -155,6 +160,8 @@ def make_handler(proto: Protocol):
             except json.JSONDecodeError:
                 return self._json(400, {"ok": False, "error": "body must be JSON"})
             run = b.get("run")
+            if (le := loose_ends.route(proto, "POST", url.path, {}, b)) is not None:
+                return self._json(*le)
             try:
                 p = url.path
                 if p in ("/dispatch", "/run", "/runs"):
@@ -243,6 +250,7 @@ def main() -> None:
     ap.add_argument("--palace", default=None)
     args = ap.parse_args()
     proto = Protocol(palace_path=args.palace)
+    loose_ends.attach(proto)
     httpd = serve(proto, args.port, args.host)
     print(f"loci protocol service on http://{args.host}:{args.port} (palace {proto.palace_path})", flush=True)
     try:
