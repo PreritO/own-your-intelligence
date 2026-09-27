@@ -82,8 +82,8 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     geo.translate(r.center[0], r.center[1], r.center[2]);
     worldUV(geo);
     const mat = new THREE.MeshStandardMaterial({
-      map: marble, color: "#9aa0ad", roughness: 0.32, metalness: 0.2,
-      emissive: roomColor(r.id), emissiveMap: radial, emissiveIntensity: 0.1,
+      map: marble, color: "#8e94a2", roughness: 0.3, metalness: 0.25,
+      emissive: roomColor(r.id), emissiveMap: radial, emissiveIntensity: 0.03,
     });
     const floor = new THREE.Mesh(geo, mat);
     floor.name = `floor:${r.id}`;
@@ -134,15 +134,19 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       addTrim(grow({ ...w, min: [w.min[0], w.min[1], w.min[2]], max: [w.max[0], w.min[1] + 0.09, w.max[2]] }), w.roomId, c, 0.8);
       addTrim(grow({ ...w, min: [w.min[0], w.max[1] - 0.06, w.min[2]], max: [w.max[0], w.max[1] + 0.02, w.max[2]] }), w.roomId, c, 1);
     } else if (w.kind === "lintel") {
-      // glowing door frame: header strip + two jambs
-      addTrim(grow({ ...w, min: [w.min[0], w.min[1] - 0.05, w.min[2]], max: [w.max[0], w.min[1] + 0.02, w.max[2]] }), w.roomId, c, 1.3);
-      const alongX = !thinX;
-      const s = 0.06;
-      for (const edge of alongX ? [w.min[0], w.max[0] - s] : [w.min[2], w.max[2] - s]) {
-        const jamb: Box = alongX
-          ? { ...w, min: [edge, 0, w.min[2]], max: [edge + s, w.min[1], w.max[2]] }
-          : { ...w, min: [w.min[0], 0, edge], max: [w.max[0], w.min[1], edge + s] };
-        addTrim(grow(jamb), w.roomId, c, 1.3);
+      // glowing door frame on both wall faces: header + two jambs (thin, not the whole reveal)
+      const alongX = !thinX; // the gap runs along x
+      const s = 0.06, d = 0.05, o = 0.02;
+      const faces = alongX
+        ? [[w.min[2] - o, w.min[2] + d - o], [w.max[2] - d + o, w.max[2] + o]]
+        : [[w.min[0] - o, w.min[0] + d - o], [w.max[0] - d + o, w.max[0] + o]];
+      const g0 = alongX ? w.min[0] : w.min[2], g1 = alongX ? w.max[0] : w.max[2];
+      for (const [f0, f1] of faces) {
+        const mk = (a0: number, a1: number, y0: number, y1: number): Box =>
+          alongX ? { ...w, min: [a0, y0, f0], max: [a1, y1, f1] } : { ...w, min: [f0, y0, a0], max: [f1, y1, a1] };
+        addTrim(mk(g0, g1, w.min[1] - s, w.min[1]), w.roomId, c, 1.1);
+        addTrim(mk(g0, g0 + s, 0, w.min[1]), w.roomId, c, 1.1);
+        addTrim(mk(g1 - s, g1, 0, w.min[1]), w.roomId, c, 1.1);
       }
     } else {
       addTrim(grow({ ...w, min: [w.min[0], w.max[1] - 0.05, w.min[2]], max: [w.max[0], w.max[1] + 0.02, w.max[2]] }), undefined, c, 0.7);
@@ -166,7 +170,27 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const pedestals = new THREE.InstancedMesh(pedGeo, new THREE.MeshStandardMaterial({ color: "#c9c2b3", roughness: 0.45, metalness: 0.05 }), Math.max(N, 1));
   pedestals.name = "pedestals";
   pedestals.count = N;
-  const orbs = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(ORB_R, 2), new THREE.MeshBasicMaterial({ toneMapped: false }), Math.max(N, 1));
+  // Orb: glowing core shader (bright centre, softer rim) so it reads as light even with bloom off.
+  const orbMat = new THREE.ShaderMaterial({
+    vertexShader: /* glsl */ `
+      varying vec3 vC; varying float vF;
+      void main() {
+        vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.0);
+        vec3 n = normalize(mat3(modelMatrix * instanceMatrix) * normal);
+        vec3 v = normalize(cameraPosition - wp.xyz);
+        vF = clamp(dot(n, v), 0.0, 1.0);
+        vC = instanceColor;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }`,
+    fragmentShader: /* glsl */ `
+      varying vec3 vC; varying float vF;
+      void main() {
+        float core = pow(vF, 2.5);
+        vec3 c = vC * (0.55 + 0.9 * core) + vec3(1.0, 0.95, 0.85) * core * 0.35 * min(1.0, dot(vC, vec3(0.33)));
+        gl_FragColor = vec4(c, 1.0);
+      }`,
+  });
+  const orbs = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(ORB_R, 2), orbMat, Math.max(N, 1));
   orbs.name = "orbs";
   orbs.count = N;
   const poolGeo = new THREE.PlaneGeometry(2.6, 2.6);
@@ -178,6 +202,30 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   );
   pools.name = "orb-pools";
   pools.count = N;
+  // Halo: camera-facing soft disc per orb (instanced billboard), additive.
+  const haloMat = new THREE.ShaderMaterial({
+    vertexShader: /* glsl */ `
+      varying vec3 vC; varying vec2 vUv;
+      void main() {
+        vec4 c = viewMatrix * modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+        float s = length(instanceMatrix[0].xyz);
+        c.xy += position.xy * s;
+        vC = instanceColor; vUv = uv;
+        gl_Position = projectionMatrix * c;
+      }`,
+    fragmentShader: /* glsl */ `
+      varying vec3 vC; varying vec2 vUv;
+      void main() {
+        float d = length(vUv - 0.5) * 2.0;
+        float a = pow(max(0.0, 1.0 - d), 2.2);
+        gl_FragColor = vec4(vC * a, 1.0);
+      }`,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  });
+  const halos = new THREE.InstancedMesh(new THREE.PlaneGeometry(1.5, 1.5), haloMat, Math.max(N, 1));
+  halos.name = "orb-halos";
+  halos.count = N;
+  halos.frustumCulled = false;
   const FRESH = new THREE.Color("#ffcf86"), STALE = new THREE.Color("#8f8272");
   const orbBase: THREE.Color[] = [];
   const glowOverride = new Map<number, number>();
@@ -190,7 +238,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   });
   pedestals.computeBoundingSphere();
   orbs.computeBoundingSphere();
-  sceneRoot.add(pedestals, orbs, pools);
+  sceneRoot.add(pedestals, orbs, pools, halos);
 
   // ---------- dust on stale memories (one Points, shader-animated) ----------
   const stale = palace.memories.filter((m) => m.freshness < 0.3);
@@ -277,7 +325,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     const wing = wingById.get(r.wing);
     const caption = wing ? wing.label : r.wing === "foyer" ? "Mind Palace" : r.wing;
     const { tex, aspect } = labelTexture(r.label, caption, wingHex(r.wing));
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, fog: true, opacity: 0.95 });
+    const mat = new THREE.SpriteMaterial({ map: tex, color: "#c8c4bc", transparent: true, depthWrite: false, fog: true, opacity: 0.95 });
     const sp = new THREE.Sprite(mat);
     const h = 0.95;
     sp.scale.set(h * aspect, h, 1);
@@ -367,15 +415,17 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     for (let i = 0; i < N; i++) {
       const g = orbGlow(i);
       orbs.setColorAt(i, tmpC.copy(orbBase[i]).multiplyScalar(0.55 * g));
-      pools.setColorAt(i, tmpC.copy(orbBase[i]).multiplyScalar(0.22 * Math.min(g, 3)));
+      pools.setColorAt(i, tmpC.copy(orbBase[i]).multiplyScalar(0.2 * Math.min(g, 3)));
+      halos.setColorAt(i, tmpC.copy(orbBase[i]).multiplyScalar(0.16 * Math.min(g, 4)));
     }
+    if (halos.instanceColor) halos.instanceColor.needsUpdate = true;
     if (orbs.instanceColor) orbs.instanceColor.needsUpdate = true;
     if (pools.instanceColor) pools.instanceColor.needsUpdate = true;
   };
   const refreshTrim = () => {
     trims.forEach((t, i) => {
       const lit = t.room ? (roomVis.get(t.room)?.lit ?? 0) : 0;
-      const k = t.strength * (0.5 + 0.9 * lit) * (0.3 + 0.7 * dim);
+      const k = t.strength * (0.45 + 0.6 * lit) * (0.3 + 0.7 * dim);
       trimMesh.setColorAt(i, tmpC.copy(t.base).multiplyScalar(k));
     });
     if (trimMesh.instanceColor) trimMesh.instanceColor.needsUpdate = true;
@@ -435,7 +485,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     );
     if (dir.length() < 0.5) dir.set(camera.position.x - m.pos[0], camera.position.z - m.pos[2]);
     if (dir.length() < 0.01) dir.set(0, 1);
-    dir.normalize().multiplyScalar(2.3);
+    dir.normalize().multiplyScalar(2.7);
     let x = m.pos[0] + dir.x, z = m.pos[2] + dir.y;
     if (room) {
       x = THREE.MathUtils.clamp(x, room.center[0] - room.size[0] / 2 + 0.7, room.center[0] + room.size[0] / 2 - 0.7);
@@ -510,7 +560,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
         if (Math.abs(v.lit - v.litTarget) < 0.01) v.lit = v.litTarget;
         trimDirty = true;
       }
-      v.floor.emissiveIntensity = (0.08 + 0.5 * v.lit) * (0.4 + 0.6 * dim);
+      v.floor.emissiveIntensity = (0.012 + 0.28 * v.lit) * (0.4 + 0.6 * dim);
       void id;
     }
     if (trimDirty) refreshTrim();
@@ -540,8 +590,10 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       const sc = i === hovered ? 1.18 : 1;
       bob.compose(tmpV.set(p[0], p[1] + Math.sin(time * 1.3 + i * 1.7) * 0.035, p[2]), q, s1.setScalar(sc));
       orbs.setMatrixAt(i, bob);
+      halos.setMatrixAt(i, bob);
     }
     orbs.instanceMatrix.needsUpdate = true;
+    halos.instanceMatrix.needsUpdate = true;
     refreshOrbs();
 
     // dust
@@ -707,7 +759,7 @@ const SCENE_CSS = `
   background: rgba(12,13,18,.78); border: 1px solid rgba(255,214,160,.35); color: #fbe9cc; letter-spacing: .01em;
   font: 500 12.5px/1.3 ui-serif, Georgia, serif; opacity: 0; transition: opacity .15s; }
 .mp-tip.on { opacity: 1; }
-.mp-hint { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); text-align: center; padding: 10px 18px;
+.mp-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); text-align: center; padding: 10px 18px;
   border-radius: 12px; background: rgba(10,11,16,.55); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px);
   color: #d8d2c4; font-size: 12.5px; letter-spacing: .02em; transition: opacity .35s; }
 .mp-hint b { color: #ffe2b0; font-weight: 600; }
