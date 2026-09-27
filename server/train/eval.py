@@ -72,8 +72,9 @@ def main() -> None:
     ap.add_argument("--skip-base", action="store_true", help="River models: checkpoints only")
     a = ap.parse_args()
 
-    board: dict[str, dict[str, dict]] = {t: {} for t in TEAMS}
-    for team in TEAMS:
+    teams = [t for t in TEAMS if (DATA / f"{t}.heldout.jsonl").exists()] or list(TEAMS)  # datasets may predate new teams
+    board: dict[str, dict[str, dict]] = {t: {} for t in teams}
+    for team in teams:
         rows = heldout(team)
         for name, probs in BASELINES.items():
             board[team][name] = {**evaluate(rows, probs, seed=1, samples=a.samples), "kind": "scripted"}
@@ -92,7 +93,7 @@ def main() -> None:
             base = pick_base_model(client)
             ckpts = load_checkpoints()
             print(f"River base model: {base}; checkpoints: {sorted(ckpts)}")
-            for team in [a.team] if a.team else TEAMS:
+            for team in [a.team] if a.team else teams:
                 rows = heldout(team)[: a.limit]
                 if not a.skip_base:
                     board[team][f"base:{base.split('/')[-1]}"] = {**eval_river(rows, lambda m: _content(client.chat_complete(m, base_model=base, **GEN)), a.show, "base"), "kind": "base"}
@@ -107,7 +108,7 @@ def main() -> None:
     hdr = f"{'team':8} {'policy':28} {'n':>4} {'reward':>7} {'/max':>6} {'correct':>8} {'compliant':>10} {'tools':>6} {'latency':>8}"
     print(hdr)
     print("-" * len(hdr))
-    for team in TEAMS:
+    for team in board:
         rows = board[team]
         pr_name = max((k for k in rows if k != "oracle-route"), key=lambda k: rows[k]["reward"], default=None)
         for name, r in rows.items():

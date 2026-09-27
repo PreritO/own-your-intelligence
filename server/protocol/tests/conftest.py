@@ -21,6 +21,7 @@ PALACE = {
         {"id": "room-legal-0", "wing": "legal", "owner": "legal", "label": "Legal", "center": [0, 0, 0], "size": [1, 1, 1], "doors": []},
         {"id": "room-finance-1", "wing": "finance", "owner": "finance", "label": "Budget", "center": [0, 0, 0], "size": [1, 1, 1], "doors": []},
         {"id": "room-eng-0", "wing": "eng", "owner": "eng", "label": "Eng", "center": [0, 0, 0], "size": [1, 1, 1], "doors": []},
+        {"id": "room-sales-0", "wing": "sales", "owner": "sales", "label": "Sales", "center": [0, 0, 0], "size": [1, 1, 1], "doors": []},
     ],
     "memories": [
         mem("companies/gripworks", "room-people-0"),
@@ -29,12 +30,14 @@ PALACE = {
         mem("finance/budget-2026-q4", "room-finance-1", excerpt="Supplier line: $55k allocated, $15k committed."),
         mem("legal/gripworks-msa", "room-legal-0"),
         mem("people/org-chart", "room-people-0"),
+        mem("sales/pipeline", "room-sales-0", excerpt="Gripworks renewal is in the Q4 pipeline at $120k."),
     ],
     "links": [],
     "agents": [
         {"id": "legal", "label": "Legal agent", "team": "legal", "color": "#bb9af7", "home": "room-legal-0"},
         {"id": "finance", "label": "Finance agent", "team": "finance", "color": "#e0af68", "home": "room-finance-1"},
         {"id": "eng", "label": "Eng agent", "team": "eng", "color": "#9ece6a", "home": "room-eng-0"},
+        {"id": "sales", "label": "Sales agent", "team": "sales", "color": "#2ac3de", "home": "room-sales-0"},
     ],
     "routes": [
         {"id": "contract-signoff", "label": "Contract", "stations": ["companies/gripworks", "legal/gripworks-msa", "finance/budget-2026-q4"]},

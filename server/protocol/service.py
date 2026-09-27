@@ -1,6 +1,6 @@
 """Loci protocol service: HTTP on :8790 over `loci.Protocol`. Stdlib only.
 
-    uv run --project server/protocol python server/protocol/service.py [--port 8790]
+    uv run --project server/protocol python server/protocol/service.py [--port 8790]   (or PROTOCOL_PORT=8890)
 
 POST (JSON body; every body may carry "run", default = current run):
   /run        {run?}                                  start a fresh run -> {run} (with "tasks": same as /dispatch)
@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import queue
 import sys
 import threading
@@ -44,7 +45,7 @@ from urllib.parse import parse_qs, urlparse
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from loci import Protocol, ProtocolError  # noqa: E402
 
-PORT = 8790
+PORT = int(os.environ.get("PROTOCOL_PORT") or 8790)  # alternate instances: PROTOCOL_PORT=8890
 
 
 def make_handler(proto: Protocol):
@@ -215,7 +216,7 @@ def dispatch(proto: Protocol, server, body: dict) -> dict:
 
     def go():
         try:
-            demo_run.drive(c, lambda dt: time.sleep(dt * scale), proto.palace, ["eng", "finance", "legal"], tasks)
+            demo_run.drive(c, lambda dt: time.sleep(dt * scale), proto.palace, ["eng", "finance", "legal"] + sorted(proto.teams()), tasks)
         except BaseException as e:  # noqa: BLE001
             print(f"dispatch {run.id} stopped: {e!r}", flush=True)
 

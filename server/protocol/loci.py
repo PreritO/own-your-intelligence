@@ -249,6 +249,12 @@ class Protocol:
     def owner_of(self, memory_id: str) -> str:
         return self.rooms[self.memories[memory_id]["room"]]["owner"]
 
+    def teams(self) -> set[str]:
+        """Every department with an owner: room owners plus palace team agents (8 departments since 15:15)."""
+        return {r["owner"] for r in self.rooms.values() if r.get("owner") != "shared"} | {
+            a["team"] for a in self.palace.get("agents", []) if a.get("team")
+        }
+
     def agent_for_team(self, team: str) -> str | None:
         for a in self.agents.values():
             if a.get("team") == team:
@@ -629,7 +635,7 @@ class Protocol:
             ev: dict[str, Any] = {"agent": agent, "type": "train_step", "step": step, "reward": reward}
             if checkpoint:
                 ev["checkpoint"] = checkpoint
-            if team in ("finance", "legal", "eng", "people"):
+            if team and team in self.teams() | {"people"}:
                 ev["team"] = team
             return {"ok": True, "event": self.emit(run, ev)}
 

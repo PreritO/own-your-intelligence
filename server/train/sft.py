@@ -115,14 +115,14 @@ def train_team(client, base: str, team: str, steps: int, batch: int, lr: float, 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--team", choices=TEAMS, help="default: all three")
+    ap.add_argument("--team", choices=TEAMS, help="default: every team with a dataset")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--steps", type=int, default=30)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--lr", type=float, default=2e-4)
     ap.add_argument("--rank", type=int, default=16)
     a = ap.parse_args()
-    teams = [a.team] if a.team else list(TEAMS)
+    teams = [a.team] if a.team else [t for t in TEAMS if (DATA / f"{t}.train.jsonl").exists()] or list(TEAMS)
     if a.dry_run or not river_key():
         if not a.dry_run:
             print("RIVER_API_KEY not set: running --dry-run.")
