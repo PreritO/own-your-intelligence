@@ -100,6 +100,7 @@ export class Atlas {
     paint(
       (x, y, c) => {
         if (x < 0 || y < 0 || x >= W || y >= H) return;
+        (x = Math.floor(x)), (y = Math.floor(y));
         tmp.copy(jitter(c, x0 + x, y0 + y, this.seed));
         const i = ((y0 + y) * this.size + x0 + x) * 4;
         // canvas pixels are sRGB bytes
@@ -271,8 +272,8 @@ export function paintFigure(L: Look) {
     back: (set, w, h) => {
       fill(white)(set, w, h);
       const line = new THREE.Color("#9a968c");
-      for (let y = 1; y < h - 1; y += 1) for (let x = 1; x < w - 1; x++) if (x !== w / 2 && (x + y) % 5 !== 0 && y % 2 === 1) set(x, y, line);
-      for (let y = 0; y < h; y++) set(w / 2, y, L.shirtDark);
+      for (let y = 1; y < h - 1; y += 1) for (let x = 1; x < w - 1; x++) if (x !== Math.floor(w / 2) && (x + y) % 5 !== 0 && y % 2 === 1) set(x, y, line);
+      for (let y = 0; y < h; y++) set(Math.floor(w / 2), y, L.shirtDark);
     },
     left: fill(white),
     right: fill(white),

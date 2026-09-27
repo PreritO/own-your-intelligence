@@ -75,7 +75,7 @@ export function buildHuman(id: string, color: string): Human {
     case "glasses":
       break; // painted on the face
   }
-  const bookGeo = atlas.box(8, 6, 2, P.book);
+  const bookGeo = atlas.box(9, 7, 2, P.book);
   atlas.commit();
 
   // ---- merge into one skinned geometry
@@ -102,7 +102,7 @@ export function buildHuman(id: string, color: string): Human {
       .replace(
         "#include <emissivemap_fragment>",
         // a self-lit share of the texel colour keeps the figure readable in the moonlit palace
-        "#include <emissivemap_fragment>\n totalEmissiveRadiance += diffuseColor.rgb * (0.34 + 0.7 * uGlow);",
+        "#include <emissivemap_fragment>\n totalEmissiveRadiance += diffuseColor.rgb * (0.24 + 0.7 * uGlow);",
       );
   };
   material.customProgramCacheKey = () => "mp-voxel-human";
@@ -121,7 +121,7 @@ export function buildHuman(id: string, color: string): Human {
 
   // the book-block, held in front of the chest while reading (hidden otherwise)
   const book = new THREE.Mesh(bookGeo, material);
-  book.position.set(0, 7 * PX, 8.4 * PX);
+  book.position.set(0, 8.5 * PX, 9.6 * PX);
   book.rotation.x = 0.5;
   book.visible = false;
   bones[BONE.spine].add(book);
