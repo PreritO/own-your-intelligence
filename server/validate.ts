@@ -35,6 +35,8 @@ for (const f of dir("fixtures/replays").filter((f) => f.endsWith(".jsonl"))) {
     const ev = e.data;
     if (ev.t < lastT) errors.push(`${f}:${i + 1}: t goes backwards`);
     lastT = ev.t;
+    if (ev.type === "spawn") { agentIds.add(ev.agent); if (!roomIds.has(ev.home)) errors.push(`${f}:${i + 1}: unknown home ${ev.home}`); }
+    if (ev.type === "artifact") memIds.add(ev.memory.id);
     if (!agentIds.has(ev.agent)) errors.push(`${f}:${i + 1}: unknown agent ${ev.agent}`);
     if ("memoryId" in ev && !memIds.has(ev.memoryId)) errors.push(`${f}:${i + 1}: unknown memory ${ev.memoryId}`);
     if (ev.type === "move" && !roomIds.has(ev.to)) errors.push(`${f}:${i + 1}: unknown room ${ev.to}`);
