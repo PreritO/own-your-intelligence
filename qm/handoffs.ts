@@ -144,6 +144,8 @@ export class HandoffRelay {
   async deliver(h: HandoffEvent): Promise<Outcome> {
     const t0 = Date.now();
     const timeout = this.o.timeoutMs ?? HANDOFF_TIMEOUT_MS;
+    const already = await this.status(h);
+    if (already?.answered) return { ...h, source: QM_LABEL.test(already.answer ?? "") ? "qm" : "other", answer: already.answer, ms: 0 };
     const scopeId = (await this.o.scopes().catch(() => ({}) as Record<string, string>))[h.toAgent];
     let qmRunId: string | undefined;
     if (scopeId) {

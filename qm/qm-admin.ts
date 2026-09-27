@@ -154,6 +154,14 @@ export async function waitQmRun(runId: string, timeoutMs: number): Promise<any> 
   }
 }
 
+// Legacy quest harness (server/commission/qm.ts run 2): one QM project named "quest".
+export async function questScope(): Promise<string | undefined> {
+  return (await projects())["quest"];
+}
+export async function questTurn(scopeId: string, agent: string, text: string) {
+  return portal("POST", "/api/turn", { text, threadRef: `web:${ADMIN}:${agent}-${Date.now()}`, scopeId, channelName: "quest" });
+}
+
 // Messages QM delivered into a web session (recorded deliveries: what the user sees after the fork's check).
 export async function deliveredTexts(sessionId: string): Promise<string[]> {
   const r = await portal("GET", `/api/sessions/${encodeURIComponent(sessionId)}`);
