@@ -1,0 +1,25 @@
+{
+  "name": "mind-palace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "validate": "bun server/validate.ts",
+    "export": "bun server/export.ts",
+    "ask": "bun server/ask.ts",
+    "bridge": "bun server/bridge.ts",
+    "fixtures": "bun scripts/make-fixtures.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "three": "^0.186.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "bun-types": "^1.4.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1"
+  }
+}

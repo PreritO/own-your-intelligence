@@ -1,0 +1,46 @@
+{"t":0,"agent":"legal","type":"task","text":"Can we sign the Gripworks contract this week?"}
+{"t":0,"agent":"finance","type":"task","text":"What did we promise Ada in the last board meeting?"}
+{"t":0,"agent":"eng","type":"task","text":"Who owns the SOC 2 renewal?"}
+{"t":0.3,"agent":"legal","type":"route","routeId":"contract-signoff","stations":["companies/gripworks","legal/gripworks-msa","finance/budget-2026-q4","legal/approvals","people/signatories"],"source":"fallback"}
+{"t":0.3,"agent":"finance","type":"route","routeId":"board-promises","stations":["finance/board-2026-q3","people/ada-chen","people/org-chart"],"source":"fallback"}
+{"t":0.3,"agent":"eng","type":"route","routeId":"soc2-owner","stations":["eng/soc2-renewal","eng/security-policy","people/org-chart","eng/soc2-owner"],"source":"fallback"}
+{"t":0.5,"agent":"legal","type":"move","to":"room-people-0"}
+{"t":0.5,"agent":"finance","type":"move","to":"room-finance-0"}
+{"t":0.5,"agent":"eng","type":"move","to":"room-eng-0"}
+{"t":1.2,"agent":"finance","type":"claim","memoryId":"finance/board-2026-q3"}
+{"t":1.4,"agent":"eng","type":"claim","memoryId":"eng/soc2-renewal"}
+{"t":2,"agent":"finance","type":"visit","memoryId":"finance/board-2026-q3","verdict":"verified"}
+{"t":2.2,"agent":"eng","type":"visit","memoryId":"eng/soc2-renewal","verdict":"verified"}
+{"t":2.5,"agent":"legal","type":"claim","memoryId":"companies/gripworks"}
+{"t":2.9,"agent":"eng","type":"claim","memoryId":"eng/security-policy"}
+{"t":3.1,"agent":"legal","type":"visit","memoryId":"companies/gripworks","verdict":"verified"}
+{"t":3.2,"agent":"finance","type":"move","to":"room-people-0"}
+{"t":3.5,"agent":"eng","type":"visit","memoryId":"eng/security-policy","verdict":"stale","note":"last reviewed March"}
+{"t":3.6,"agent":"legal","type":"move","to":"room-legal-0"}
+{"t":3.9,"agent":"finance","type":"claim","memoryId":"people/ada-chen"}
+{"t":4,"agent":"eng","type":"move","to":"room-people-0"}
+{"t":4.3,"agent":"legal","type":"claim","memoryId":"legal/gripworks-msa"}
+{"t":4.6,"agent":"finance","type":"visit","memoryId":"people/ada-chen","verdict":"verified"}
+{"t":4.8,"agent":"legal","type":"visit","memoryId":"legal/gripworks-msa","verdict":"verified"}
+{"t":5.3,"agent":"eng","type":"claim","memoryId":"people/org-chart"}
+{"t":5.4,"agent":"legal","type":"move","to":"room-finance-1"}
+{"t":5.6,"agent":"finance","type":"wait","memoryId":"people/org-chart","heldBy":"eng"}
+{"t":6.2,"agent":"eng","type":"visit","memoryId":"people/org-chart","verdict":"verified"}
+{"t":6.3,"agent":"finance","type":"visit","memoryId":"people/org-chart","verdict":"verified","note":"reused eng's verdict"}
+{"t":6.4,"agent":"legal","type":"handoff","id":"h1","toAgent":"finance","memoryId":"finance/budget-2026-q4","question":"Is Gripworks within Q4 budget?"}
+{"t":6.6,"agent":"finance","type":"move","to":"room-finance-1"}
+{"t":6.8,"agent":"eng","type":"move","to":"room-eng-0"}
+{"t":7.6,"agent":"finance","type":"claim","memoryId":"finance/budget-2026-q4"}
+{"t":8,"agent":"eng","type":"claim","memoryId":"eng/soc2-owner"}
+{"t":8.4,"agent":"finance","type":"visit","memoryId":"finance/budget-2026-q4","verdict":"verified"}
+{"t":8.6,"agent":"eng","type":"visit","memoryId":"eng/soc2-owner","verdict":"gap","note":"no owner recorded"}
+{"t":8.9,"agent":"finance","type":"reply","id":"h1","answer":"Yes, $40k of $55k supplier line; $15k already committed."}
+{"t":9.2,"agent":"finance","type":"answer","text":"At the Q3 board meeting we committed to Ada Chen: a hardware gross-margin plan by Dec 15 and monthly burn updates.","citations":["finance/board-2026-q3","people/ada-chen"]}
+{"t":9.4,"agent":"legal","type":"move","to":"room-legal-0"}
+{"t":9.8,"agent":"eng","type":"answer","text":"Gap: no SOC 2 owner is recorded. The renewal window opens Nov 1 (auditor Brightline); the security policy is stale and names no compliance owner.","citations":["eng/soc2-renewal"],"gaps":["eng/soc2-owner"],"stale":["eng/security-policy"]}
+{"t":10.1,"agent":"legal","type":"claim","memoryId":"legal/approvals"}
+{"t":10.7,"agent":"legal","type":"visit","memoryId":"legal/approvals","verdict":"verified"}
+{"t":11.1,"agent":"legal","type":"move","to":"room-people-0"}
+{"t":12,"agent":"legal","type":"claim","memoryId":"people/signatories"}
+{"t":12.6,"agent":"legal","type":"visit","memoryId":"people/signatories","verdict":"verified"}
+{"t":13.2,"agent":"legal","type":"answer","text":"Yes, this week, if Mara Okafor or Dev Lindqvist signs. Legal approved MSA v3 on Sep 22 and Finance confirmed the $40k fits the Q4 supplier line.","citations":["legal/gripworks-msa","finance/budget-2026-q4","legal/approvals","people/signatories"]}
