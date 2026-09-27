@@ -24,6 +24,7 @@ export function makeLabel(text: string, opts: LabelOpts = {}) {
     depthTest: !opts.onTop,
     depthWrite: false,
     sizeAttenuation: !opts.screen,
+    toneMapped: false, // text keeps its exact colours under the scene's tone mapping / dim
   });
   const sprite = new THREE.Sprite(mat);
   sprite.renderOrder = opts.onTop ? 20 : 5;

@@ -172,6 +172,7 @@ export const mountUI: Plugin = (rt) => {
         const hnd = handoffs.get(e.id);
         line(e, `${A(e.agent)} answered ${hnd ? A(hnd.from) : "the handoff"}: “${esc(e.answer)}”`, "reply");
         if (hnd) {
+          setStatus(e.agent, `replied to ${N.agent(hnd.from)}`);
           setStatus(hnd.from, `got ${N.agent(e.agent)}'s reply`);
           // the owner's verified answer covers the asker's station
           if (routes.get(hnd.from)?.includes(hnd.memoryId)) done.get(hnd.from)?.add(hnd.memoryId);

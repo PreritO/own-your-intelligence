@@ -164,11 +164,12 @@ export const mountPresence: Plugin = (rt) => {
   // ---- camera modes: free walk (default), follow agent (1-3), overhead (0 / O)
   const cam = director(rt);
   let mode: CamMode = "free";
-  const overhead = overheadPose(rt);
+  let overhead = overheadPose(rt);
   function setMode(next: CamMode) {
     if (next !== "free" && next !== "overhead" && !avatars.has(next)) return;
     if (next === mode && next !== "free") next = "free"; // pressing the same key again toggles back
     mode = next;
+    if (mode === "overhead") overhead = overheadPose(rt);
     if (mode === "free") cam.drop("presence");
     else
       cam.hold("presence", 1, () => {
@@ -258,9 +259,12 @@ function overheadPose(rt: PalaceRuntime) {
   const size = box.getSize(new THREE.Vector3());
   const vfov = (rt.camera.fov * Math.PI) / 180;
   const aspect = Math.max(0.5, rt.camera.aspect);
-  const needZ = size.z / 2 / Math.tan(vfov / 2);
-  const needX = size.x / 2 / (Math.tan(vfov / 2) * aspect);
-  const h = Math.max(needZ, needX) * 1.08 + 4;
-  // a slight tilt reads better than straight down and keeps the up vector well-defined
+  const tan = Math.tan(vfov / 2);
+  // the ui's right column (~372 px) covers part of the screen: frame the palace in the visible part
+  const f = innerWidth > 900 ? Math.max(0.5, (innerWidth - 390) / innerWidth) : 1;
+  const needZ = size.z / 2 / tan;
+  const needX = size.x / 2 / (tan * aspect * f);
+  const h = Math.max(needZ, needX) * 1.06 + 4;
+  c.x += (1 - f) * h * tan * aspect;
   return { pos: new THREE.Vector3(c.x, h, c.z + h * 0.18), look: c.clone(), rate: 2.5 };
 }

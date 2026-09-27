@@ -169,7 +169,8 @@ function play(rt: PalaceRuntime, trace: TraceT, source: string, onEnd: () => voi
     const u = uAt(t);
     curve.getPointAt(u, orbPos);
     guide.position.copy(orbPos);
-    halo.scale.setScalar(2.2 + 0.3 * Math.sin(t * 6));
+    halo.scale.setScalar(answered ? 1.2 : 2.2 + 0.3 * Math.sin(t * 6));
+    light.intensity = answered ? 4 : 14;
 
     for (let i = reached + 1; i < hops.length; i++) {
       if (t >= (i + 1) * seg - 0.05) (reached = i), arrive(i);
@@ -213,6 +214,7 @@ function play(rt: PalaceRuntime, trace: TraceT, source: string, onEnd: () => voi
     curve.getPointAt(back, behind);
     const pos = behind.clone().add(new THREE.Vector3(0, 1.9, 0));
     if (pos.distanceTo(orbPos) < 1.5) pos.add(new THREE.Vector3(0, 0.8, 1.2)); // at the very start
+    if (answered) pos.add(new THREE.Vector3(0, 1.4, 0)).lerp(orbPos, -0.35); // pull back to frame the answer
     return { pos, look: orbPos.clone(), rate: t < 0 ? 2.5 : 5 };
   });
 
