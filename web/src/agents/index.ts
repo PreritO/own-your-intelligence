@@ -3,7 +3,7 @@
 // speed ends in the same state (markers are set by events; avatars always drain their walk queue).
 import * as THREE from "three";
 import { PORTS, type PalaceEvent } from "../../../server/schema";
-import type { Plugin } from "../api";
+import { emitUI, UI_EVENTS, type Plugin } from "../api";
 import { pathBetween, roomAt, roomById } from "../nav";
 import { Avatar, AVATAR_Y } from "./avatar";
 import { Beams } from "./beams";
@@ -45,7 +45,7 @@ export const mountPresence: Plugin = (rt) => {
     // Everyone starts in the foyer so dispatch reads as three agents fanning out to their wings.
     const room = roomById(rt.palace, "foyer") ?? roomById(rt.palace, N.agents.get(agentId)?.home ?? "") ?? rt.palace.rooms[0];
     const c = room ? new THREE.Vector3(room.center[0], AVATAR_Y, room.center[2]) : new THREE.Vector3(0, AVATAR_Y, 0);
-    return c.add(slotOffset(agentId));
+    return c.add(slotOffset(agentId, 2.6)); // spread out so the idle name tags don't overlap
   }
 
   // spawn flourish: an expanding ring + column of light in the agent's colour
@@ -320,7 +320,19 @@ export const mountPresence: Plugin = (rt) => {
       const d = ray.ray.distanceToPoint(a.group.position);
       if (d < 1.2 && (!best || d < best.d)) best = { id: a.id, d };
     }
-    if (best) setMode(best.id);
+    if (best) return setMode(best.id);
+    // Memory picking for the overview: the scene's own picker has a short ray (built for first person),
+    // so from the map camera we pick the orb nearest the click ray ourselves. Rooms are roofless, so no
+    // occlusion test is needed; a duplicate select from the scene is harmless (same id).
+    let hit: { id: string; along: number } | null = null;
+    for (const m of N.mems.values()) {
+      const p = rt.memoryPosition(m.id);
+      if (!p) continue;
+      const along = ray.ray.origin.distanceTo(p);
+      const tol = Math.max(0.45, along * 0.011);
+      if (ray.ray.distanceToPoint(p) < tol && (!hit || along < hit.along)) hit = { id: m.id, along };
+    }
+    if (hit) emitUI(UI_EVENTS.select, { memoryId: hit.id });
   };
   rt.renderer.domElement.addEventListener("pointerdown", onDown);
   rt.renderer.domElement.addEventListener("click", onClick);

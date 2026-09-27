@@ -617,7 +617,13 @@ export const mountUI: Plugin = (rt) => {
       p.appendChild(box);
     }
     p.appendChild(h("div", `ex${m.excerpt ? "" : " empty"}`, m.excerpt || "This page is empty. Nothing is recorded here yet."));
-    const links = rt.palace.links.filter((l) => l.from === id || l.to === id);
+    const seen = new Set<string>();
+    const links = rt.palace.links.filter((l) => {
+      const other = l.from === id ? l.to : l.to === id ? l.from : null;
+      if (!other || other === id || seen.has(other)) return false;
+      seen.add(other);
+      return true;
+    });
     if (links.length) {
       p.appendChild(h("h3", "", "Linked pages"));
       for (const l of links) {

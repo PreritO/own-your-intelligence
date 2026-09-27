@@ -289,7 +289,7 @@ export function createMapView(
     const dist = camera.position.distanceTo(mc.target);
     camera.getWorldDirection(kFwd).setY(0).normalize();
     kRight.crossVectors(kFwd, camera.up).normalize();
-    const speed = Math.max(8, dist * 0.9) * dt;
+    const speed = Math.max(8, dist * 0.5) * dt;
     const move = kFwd.multiplyScalar(fz * speed).add(kRight.multiplyScalar(fx * speed));
     camera.position.add(move);
     mc.target.add(move);
