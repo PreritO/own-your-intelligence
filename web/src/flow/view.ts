@@ -238,7 +238,7 @@ export function drawEdges(graph: HTMLElement) {
     const hy = box(heads[0]).t;
     const mid = R((rb.b + hy) / 2);
     const xs = heads.map((h) => R(box(h).cx));
-    path(`M${R(rb.cx)} ${rb.b} V${mid} M${Math.min(...xs)} ${mid} H${Math.max(...xs)} ` + xs.map((x) => `M${x} ${mid} V${hy}`).join(" "), "#3a4259", 2);
+    path(`M${R(rb.cx)} ${rb.b} V${mid} M${Math.min(...xs)} ${mid} H${Math.max(...xs)} ` + xs.map((x) => `M${x} ${mid} V${hy}`).join(" "), "#5a5570", 2);
   }
 
   // execution path, in order, then dashed into the not-yet-walked stations
@@ -257,7 +257,7 @@ export function drawEdges(graph: HTMLElement) {
     if (lh) path(`M${R(first.cx)} ${lh.b} V${first.t}`, color, 2, "", 0.5);
   }
   chain(seq, color, "", 0.85);
-  chain([...seq.slice(-1), ...ghosts], "#5b6070", "3 4", 0.9);
+  chain([...seq.slice(-1), ...ghosts], "#6f6a60", "3 4", 0.9);
 
   // citation rail into the answer
   const rail = graph.querySelector("[data-rail]");
@@ -270,13 +270,13 @@ export function drawEdges(graph: HTMLElement) {
     for (const c of cited) {
       const b = box(c);
       const bad = c.classList.contains("bad") || c.classList.contains("ghost");
-      path(`M${b.r} ${R(b.cy)} H${x}`, bad ? "#ff5d6c" : "#5ef2a0", 2, bad ? "3 3" : "", bad ? 0.9 : 0.7);
+      path(`M${b.r} ${R(b.cy)} H${x}`, bad ? "#ff5d6c" : "#6ee07a", 2, bad ? "3 3" : "", bad ? 0.9 : 0.7);
       top = Math.min(top, R(b.cy));
     }
-    path(`M${x} ${top} V${at - 6}`, "#5ef2a0", 2, "", 0.7);
+    path(`M${x} ${top} V${at - 6}`, "#6ee07a", 2, "", 0.7);
     const tri = document.createElementNS(NS, "path");
     tri.setAttribute("d", `M${x - 5} ${at - 7} H${x + 5} L${x} ${at - 1} Z`);
-    tri.setAttribute("fill", "#5ef2a0");
+    tri.setAttribute("fill", "#6ee07a");
     svg.appendChild(tri);
   }
 }

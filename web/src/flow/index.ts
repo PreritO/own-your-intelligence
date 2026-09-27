@@ -34,10 +34,10 @@ export const mountFlow: Plugin = (rt) => {
   root.className = "fl-root";
   root.style.pointerEvents = "none"; // beats `#hud > *` so the canvas stays clickable
   root.innerHTML = `
-<button class="fl-launch fl-px" data-act="toggle" title="Task flow (G)">▤ TASK FLOW <span class="n"></span><kbd>G</kbd></button>
+<button class="fl-launch fl-px" data-act="toggle" title="Task flow: was the path right? (G)">▤ Task flow <span class="n"></span><kbd>G</kbd></button>
 <section class="fl-panel" hidden>
   <header class="fl-head">
-    <div class="fl-title">TASK FLOW<small>was the path right?</small></div>
+    <div class="fl-title">Task flow<small>was the path right?</small></div>
     <nav class="fl-tabs"></nav>
     <span class="fl-sp"></span>
     <button class="fl-btn" data-act="size" title="Half / full screen"></button>
@@ -45,7 +45,7 @@ export const mountFlow: Plugin = (rt) => {
   </header>
   <div class="fl-body"></div>
   <footer class="fl-legend">
-    <span><i style="border-color:#5ef2a0;background:rgba(94,242,160,.15)"></i>cited · useful path</span>
+    <span><i style="border-color:#6ee07a;background:rgba(94,242,160,.15)"></i>cited · useful path</span>
     <span><i style="border-color:#555;background:#333;opacity:.6"></i>visited, never cited</span>
     <span><i style="border-color:#ffb020;border-style:dashed"></i>gap</span>
     <span><i style="border-color:#d9a441;background:#d9a441"></i>stale</span>
