@@ -88,7 +88,7 @@ export const PalaceEvent = z.discriminatedUnion("type", [
   z.object({ ...base, type: z.literal("move"), to: z.string() }), // a room id
   z.object({ ...base, type: z.literal("claim"), memoryId: z.string() }),
   z.object({ ...base, type: z.literal("wait"), memoryId: z.string(), heldBy: z.string() }),
-  z.object({ ...base, type: z.literal("visit"), memoryId: z.string(), verdict: Verdict, note: z.string().optional() }),
+  z.object({ ...base, type: z.literal("visit"), memoryId: z.string(), verdict: Verdict, note: z.string().optional(), evidence: z.string().optional(), subtask: z.string().optional() }),
   z.object({ ...base, type: z.literal("handoff"), id: z.string(), toAgent: z.string(), memoryId: z.string(), question: z.string() }),
   z.object({ ...base, type: z.literal("reply"), id: z.string(), answer: z.string() }),
   z.object({ ...base, type: z.literal("answer"), text: z.string(), citations: z.array(z.string()), gaps: z.array(z.string()).optional(), stale: z.array(z.string()).optional(), blocked: z.boolean().optional() }),
@@ -96,7 +96,9 @@ export const PalaceEvent = z.discriminatedUnion("type", [
   // Commissioned agents: a user-specified task spawns a new agent that tours departments,
   // trains in the Gym, returns to execute, and reports completion.
   z.object({ ...base, type: z.literal("spawn"), label: z.string(), color: z.string(), home: z.string(), task: z.string().optional(), harness: z.enum(["qm", "ufo", "protocol"]).optional() }),
-  z.object({ ...base, type: z.literal("phase"), phase: z.enum(["plan", "explore", "gym", "execute", "done"]), note: z.string().optional() }),
+  z.object({ ...base, type: z.literal("phase"), phase: z.enum(["plan", "explore", "gym", "execute", "done"]), note: z.string().optional(),
+    // plan phase: the task breakdown (Memorable-style task flow). visit.subtask refers to Subtask.id.
+    subtasks: z.array(z.object({ id: z.string(), title: z.string(), department: z.string().optional(), stations: z.array(z.string()).optional() })).optional() }),
   z.object({ ...base, type: z.literal("artifact"), memory: Memory }), // a page the agent wrote; renderer adds a lectern
 ]);
 

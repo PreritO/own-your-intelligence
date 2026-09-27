@@ -1,8 +1,10 @@
-// OWNED BY: presence. Memory side panel, ask bar, answer panel, event feed.
-// The feed/roster/answers are a pure function of rt.events (same rules as the presence layer).
-import type { PalaceEvent, Trace } from "../../../server/schema";
+// OWNED BY: ui (polish). Game HUD: "New quest" box (the centrepiece), quest log (left), party bar
+// (bottom), route checklist + memory page (right), activity drawer (bottom left, closed), toasts.
+// Everything except the memory panel is a pure function of rt.events (same run rules as presence).
+import type { Memory, PalaceEvent, Trace } from "../../../server/schema";
 import { emitUI, UI_EVENTS, type Plugin } from "../api";
-import { names, PRESENCE_EVENTS, subscribeRuns } from "../agents/run";
+import { names, PRESENCE_EVENTS, registerSpawn, subscribeRuns } from "../agents/run";
+import { CAMERA_EVENTS } from "../controls";
 import { CSS } from "./style";
 
 function h<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text?: string): HTMLElementTagNameMap[K] {
@@ -11,6 +13,7 @@ function h<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text?: strin
   if (text !== undefined) el.textContent = text;
   return el;
 }
+const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
 /** Walk (web/src/walk.ts) talks to the UI through these; no-ops until mountUI runs. */
 export const walkUI = {
@@ -19,256 +22,622 @@ export const walkUI = {
   hide() {},
 };
 
-type Verdicts = Map<string, { agent: string; verdict: string; note?: string }[]>;
+type Phase = "plan" | "explore" | "gym" | "execute" | "done";
+const PHASES: Phase[] = ["plan", "explore", "gym", "execute", "done"];
+const PHASE_LABEL: Record<Phase, string> = { plan: "Plan", explore: "Explore", gym: "Gym", execute: "Execute", done: "Done" };
+type Tone = "" | "warn" | "ok" | "bad";
+type AnswerEv = Extract<PalaceEvent, { type: "answer" }>;
+
+interface Quest {
+  agent: string;
+  task: string;
+  commissioned: boolean;
+  route: string[];
+  routeLabel: string;
+  verdicts: Map<string, { verdict: string; note?: string }>; // this agent's verdict per station
+  covered: Set<string>; // stations answered for this agent by a handoff reply
+  claimed: string | null;
+  status: string;
+  tone: Tone;
+  phase: Phase | null;
+  hops: { explore: number; execute: number; total: number };
+  rewards: number[];
+  artifact: Memory | null;
+  answer: AnswerEv | null;
+  el: HTMLElement;
+}
 
 export const mountUI: Plugin = (rt) => {
   const N = names(rt.palace);
   const style = h("style");
   style.textContent = CSS;
   document.head.appendChild(style);
+  const params = new URLSearchParams(location.search);
 
   const root = h("div", "mp-ui");
   root.style.pointerEvents = "none"; // beats `#hud > *` so the canvas stays clickable
   rt.hud.appendChild(root);
+  rt.setLayerVisible?.("links", params.has("links"));
 
-  const verdicts: Verdicts = new Map();
-  const chip = (memId: string, kind: "" | "gap" | "stale" = "") => {
+  // =====================================================================================================
+  // Quest log (left): New quest box, department demo, quest cards
+  const logPanel = h("div", "mp-panel mp-log-panel");
+  const title = h("h2", "", "Quest log");
+  const sub = h("div", "sub", "A new agent tours the departments, trains in the Gym, then does the job.");
+  const form = h("form", "mp-newquest");
+  const input = h("input");
+  input.placeholder = "New quest, e.g. Create an onboarding page for new engineers";
+  input.autocomplete = "off";
+  input.setAttribute("aria-label", "New quest");
+  const go = h("button", "mp-btn go", "▶ Commission");
+  go.type = "submit";
+  form.append(input, go);
+  form.onsubmit = (ev) => {
+    ev.preventDefault();
+    const task = input.value.trim() || input.placeholder.replace(/^.*e\.g\. /, "");
+    window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.commission, { detail: { task } }));
+    input.blur();
+  };
+  input.addEventListener("keydown", (ev) => ev.stopPropagation()); // typing must not steer the camera
+  input.addEventListener("keyup", (ev) => ev.stopPropagation());
+  const actions = h("div", "mp-actions");
+  const demoBtn = h("button", "mp-btn small", "▶ Demo: 3 department tasks");
+  demoBtn.onclick = () => window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.dispatch));
+  demoBtn.title = "Legal, Finance and Eng each get a task (T)";
+  const replayBtn = h("button", "mp-btn small", "↻ Replay");
+  replayBtn.title = "Play the last run again from the start";
+  replayBtn.onclick = () => window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.replay, { detail: {} }));
+  actions.append(demoBtn, replayBtn);
+  const quests = h("div", "mp-quests");
+  const empty = h("div", "mp-empty", "No quests yet. Type one above and press Commission, or run the department demo.");
+  quests.appendChild(empty);
+  logPanel.append(title, quests);
+  root.appendChild(logPanel);
+  // the New quest box is the centrepiece: top centre
+  const top = h("div", "mp-panel mp-top");
+  const lbl = h("label", "lbl", "New quest");
+  lbl.htmlFor = "mp-quest-input";
+  input.id = "mp-quest-input";
+  top.append(lbl, form, sub, actions);
+  root.appendChild(top);
+
+  // =====================================================================================================
+  // Party bar (bottom): commissioned agents first, then the department staff
+  const partyEl = h("div", "mp-panel mp-party");
+  root.appendChild(partyEl);
+  const mapSlot = h("button", "mp-slot map on", "⌂ Map");
+  mapSlot.title = "Back to the overview (Esc)";
+  mapSlot.onclick = () => follow("overview");
+  const keysEl = h("div", "mp-keys");
+  keysEl.innerHTML = `<b>1-4</b> follow · <b>T</b> demo<br><b>Esc</b> map · <b>WASD</b> pan`;
+  const slotStatus = new Map<string, { text: string; tone: Tone }>();
+  const spawned: string[] = [];
+  let following = "overview";
+  const partyOrder = () => [...spawned, ...rt.palace.agents.map((a) => a.id)];
+  function face(agent: string) {
+    const f = h("span", "mp-face", N.agent(agent).charAt(0).toUpperCase());
+    f.style.setProperty("--c", N.color(agent));
+    return f;
+  }
+  function renderParty() {
+    partyEl.replaceChildren(mapSlot);
+    mapSlot.classList.toggle("on", following === "overview");
+    partyOrder().forEach((id, i) => {
+      const slot = h("button", "mp-slot");
+      slot.style.setProperty("--c", N.color(id));
+      slot.classList.toggle("on", following === id);
+      slot.title = `Follow ${N.agent(id)} (${i + 1})`;
+      const key = h("span", "key", String(i + 1));
+      const mid = h("div");
+      const st = slotStatus.get(id) ?? { text: spawned.includes(id) ? "on a quest" : "at their desk", tone: "" as Tone };
+      mid.append(h("div", "nm", N.agent(id)), h("div", `doing ${st.tone}`, st.text));
+      slot.append(key, face(id), mid);
+      slot.onclick = () => follow(id);
+      partyEl.appendChild(slot);
+    });
+    partyEl.appendChild(keysEl);
+  }
+  const follow = (mode: string) => window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.camera, { detail: { mode } }));
+
+  // =====================================================================================================
+  // Right column: memory page + route checklist (follow mode)
+  const right = h("div", "mp-right");
+  root.appendChild(right);
+  let memPanel: HTMLElement | null = null;
+  let routePanel: HTMLElement | null = null;
+  let currentMem: string | null = null;
+
+  // =====================================================================================================
+  // Dock (bottom left): activity drawer + links toggle
+  const dock = h("div", "mp-dock");
+  const activity = h("div", "mp-panel mp-activity");
+  activity.hidden = true;
+  const row = h("div", "row");
+  const actBtn = h("button", "mp-btn small", "Activity ▸");
+  let actCount = 0;
+  actBtn.onclick = () => {
+    activity.hidden = !activity.hidden;
+    actBtn.classList.toggle("on", !activity.hidden);
+    syncActBtn();
+  };
+  const syncActBtn = () => (actBtn.textContent = `${activity.hidden ? "Activity ▸" : "Activity ▾"}${actCount ? ` ${actCount}` : ""}`);
+  let linksOn = params.has("links");
+  const linksBtn = h("button", `mp-btn small${linksOn ? " on" : ""}`, "Links");
+  linksBtn.title = "Show the links between memories";
+  linksBtn.onclick = () => {
+    linksOn = !linksOn;
+    linksBtn.classList.toggle("on", linksOn);
+    rt.setLayerVisible?.("links", linksOn);
+  };
+  row.append(actBtn, linksBtn);
+  dock.append(activity, row);
+  root.appendChild(dock);
+
+  // =====================================================================================================
+  // Quest state from the stream
+  const questMap = new Map<string, Quest>();
+  const handoffs = new Map<string, { from: string; to: string; memoryId: string; question: string }>();
+  const verdictsByMem = new Map<string, { agent: string; verdict: string; note?: string }[]>();
+
+  function quest(agent: string, task?: string, commissioned = false): Quest {
+    let q = questMap.get(agent);
+    if (!q) {
+      const el = h("div", "mp-quest");
+      el.tabIndex = 0;
+      el.onclick = (ev) => {
+        if ((ev.target as HTMLElement).closest(".mp-chip, .mp-btn")) return;
+        follow(agent);
+      };
+      q = {
+        agent, task: task ?? "", commissioned, route: [], routeLabel: "", verdicts: new Map(), covered: new Set(), claimed: null,
+        status: "Queued", tone: "", phase: null, hops: { explore: 0, execute: 0, total: 0 }, rewards: [], artifact: null, answer: null, el,
+      };
+      questMap.set(agent, q);
+      empty.remove();
+      if (commissioned) quests.prepend(el);
+      else quests.appendChild(el);
+    }
+    if (task) q.task = task;
+    if (commissioned) q.commissioned = true;
+    return q;
+  }
+
+  const doneCount = (q: Quest) => q.route.filter((m) => q.verdicts.has(m) || q.covered.has(m)).length;
+
+  function renderQuest(q: Quest) {
+    const el = q.el;
+    el.style.setProperty("--c", N.color(q.agent));
+    el.classList.toggle("on", following === q.agent);
+    el.classList.toggle("hero", q.commissioned);
+    el.replaceChildren();
+    const top = h("div", "top");
+    top.append(face(q.agent), h("span", "who", N.agent(q.agent)));
+    if (q.route.length) top.appendChild(h("span", "step", `${doneCount(q)}/${q.route.length}`));
+    el.append(top, h("div", "q", q.task || "…"));
+
+    if (q.commissioned) {
+      const steps = h("div", "mp-phases");
+      const cur = q.phase ? PHASES.indexOf(q.phase) : -1;
+      PHASES.forEach((p, i) => {
+        const s = h("span", i < cur || q.phase === "done" ? "past" : i === cur ? "now" : "", PHASE_LABEL[p]);
+        steps.appendChild(s);
+      });
+      el.appendChild(steps);
+    }
+    if (q.route.length) {
+      const bar = h("div", "mp-bar");
+      const firstOpen = q.route.findIndex((m) => !q.verdicts.has(m) && !q.covered.has(m));
+      q.route.forEach((m, i) => {
+        const v = q.verdicts.get(m)?.verdict;
+        const cls = v === "gap" ? "gap" : v === "stale" ? "stale" : v || q.covered.has(m) ? "done" : i === firstOpen && !q.answer ? "cur" : "";
+        const seg = h("i", cls);
+        seg.title = N.memory(m);
+        bar.appendChild(seg);
+      });
+      el.appendChild(bar);
+    }
+    el.appendChild(h("div", `st ${q.tone}`, q.status));
+    if (q.commissioned && (q.hops.explore || q.hops.execute)) {
+      const hops = h("div", "mp-hops");
+      hops.innerHTML = q.hops.execute
+        ? `Explore <b>${q.hops.explore}</b> hops → learned route <b>${q.hops.execute}</b> hops`
+        : `Explore <b>${q.hops.explore}</b> hops`;
+      el.appendChild(hops);
+    }
+    if (q.rewards.length > 1) el.appendChild(sparkline(q.rewards, N.color(q.agent)));
+    if (q.artifact) {
+      const art = h("div", "mp-artifact");
+      art.append(h("span", "", `📜 New page: ${q.artifact.title}`));
+      const view = h("button", "mp-btn small", "View page");
+      const mem = q.artifact;
+      view.onclick = () => viewMemory(mem);
+      art.appendChild(view);
+      el.appendChild(art);
+    }
+    if (q.answer) {
+      const a = q.answer;
+      const ans = h("div", "ans");
+      if (a.blocked) ans.appendChild(h("div", "ban", "Blocked: it cited a station nobody verified"));
+      ans.appendChild(h("div", "", a.text));
+      const chips = h("div", "mp-chips");
+      a.citations.forEach((c) => chips.appendChild(chip(c)));
+      a.gaps?.forEach((c) => chips.appendChild(chip(c, "gap")));
+      a.stale?.forEach((c) => chips.appendChild(chip(c, "stale")));
+      ans.appendChild(chips);
+      el.appendChild(ans);
+    }
+    if (following === q.agent) renderRoute();
+  }
+
+  function chip(memId: string, kind: "" | "gap" | "stale" = "") {
     const c = h("span", `mp-chip ${kind}`, (kind === "gap" ? "gap: " : kind === "stale" ? "stale: " : "") + N.memory(memId));
     c.title = memId;
     c.onclick = () => openMemory(memId, true);
     return c;
-  };
-
-  // ---------- right column
-  const right = h("div", "mp-right");
-  const roster = h("div", "mp-panel mp-roster");
-  const answers = h("div", "mp-answers");
-  const feed = h("div", "mp-panel mp-feed");
-  const feedHead = h("div", "mp-h");
-  feedHead.append(h("span", "", "Agent feed"), h("span", "", rt.events.mode === "demo" ? `replay · ${rt.events.speed}×` : "live"));
-  const log = h("div", "mp-log");
-  feed.append(feedHead, log);
-  right.append(roster, answers, feed);
-  root.appendChild(right);
-
-  roster.appendChild(h("div", "mp-h", "Agents"));
-  const rows = new Map<string, { el: HTMLElement; st: HTMLElement; pg: HTMLElement }>();
-  rt.palace.agents.forEach((a, i) => {
-    const el = h("div", "mp-agent");
-    const dot = h("span", "mp-dot");
-    dot.style.color = a.color;
-    const mid = h("div");
-    const nm = h("div", "nm");
-    nm.append(Object.assign(h("span", "key", String(i + 1)), { title: `Press ${i + 1} to follow` }), N.agent(a.id));
-    const st = h("div", "st", "idle");
-    mid.append(nm, st);
-    const pg = h("span", "pg", "");
-    el.append(dot, mid, pg);
-    el.onclick = () => window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.camera, { detail: { mode: a.id } }));
-    roster.appendChild(el);
-    rows.set(a.id, { el, st, pg });
-  });
-
-  const routes = new Map<string, string[]>();
-  const done = new Map<string, Set<string>>();
-  const handoffs = new Map<string, { from: string; to: string; memoryId: string }>();
-  const setStatus = (agent: string, text: string) => {
-    const r = rows.get(agent);
-    if (r) r.st.textContent = text;
-  };
-  const setProgress = (agent: string) => {
-    const r = rows.get(agent);
-    const route = routes.get(agent);
-    if (r && route) r.pg.textContent = `${done.get(agent)?.size ?? 0}/${route.length}`;
-  };
-
-  function line(e: PalaceEvent, html: string, cls = "") {
-    const row = h("div", `mp-row ${cls}`);
-    row.style.setProperty("--c", N.color(e.agent));
-    const t = h("span", "t", `${e.t.toFixed(1)}s`);
-    const x = h("span", "x");
-    x.innerHTML = html;
-    row.append(t, x);
-    log.prepend(row);
-    while (log.children.length > 80) log.lastChild?.remove();
   }
-  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+
+  function sparkline(values: number[], color: string) {
+    const w = 300, hgt = 34;
+    const lo = Math.min(...values), hi = Math.max(...values);
+    const pts = values.map((v, i) => `${((i / (values.length - 1)) * w).toFixed(1)},${(hgt - 3 - ((v - lo) / (hi - lo || 1)) * (hgt - 6)).toFixed(1)}`).join(" ");
+    const wrap = h("div", "mp-spark");
+    wrap.innerHTML = `<span>Gym reward ${values[values.length - 1].toFixed(2)}</span><svg viewBox="0 0 ${w} ${hgt}" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="${color}" stroke-width="3" points="${pts}"/></svg>`;
+    return wrap;
+  }
+
+  // ---- activity lines (plain words)
   const A = (id: string) => `<b style="--c:${N.color(id)}">${esc(N.agent(id))}</b>`;
   const M = (id: string) => `<span class="m">${esc(N.memory(id))}</span>`;
+  function line(e: PalaceEvent, html: string, cls = "") {
+    const r = h("div", `mp-row ${cls}`);
+    r.style.setProperty("--c", N.color(e.agent));
+    const x = h("span", "x");
+    x.innerHTML = html;
+    r.append(h("span", "t", `${e.t.toFixed(1)}s`), x);
+    activity.prepend(r);
+    while (activity.children.length > 120) activity.lastChild?.remove();
+    actCount++;
+    syncActBtn();
+  }
+  const slot = (agent: string, text: string, tone: Tone = "") => slotStatus.set(agent, { text, tone });
 
   function reset() {
-    log.replaceChildren();
-    answers.replaceChildren();
-    routes.clear();
-    done.clear();
+    questMap.clear();
+    quests.replaceChildren(empty);
     handoffs.clear();
-    verdicts.clear();
-    for (const r of rows.values()) {
-      r.st.textContent = "idle";
-      r.pg.textContent = "";
-      r.st.style.color = "";
-    }
+    verdictsByMem.clear();
+    slotStatus.clear();
+    spawned.length = 0;
+    activity.replaceChildren();
+    actCount = 0;
+    syncActBtn();
+    hideBanner();
+    renderParty();
+    renderRoute();
   }
 
   function handle(e: PalaceEvent) {
+    if (e.type === "train_step") {
+      const q = questMap.get(e.agent);
+      if (q && (q.phase === "gym" || q.commissioned)) {
+        q.rewards.push(e.reward);
+        q.status = `Training in the Gym · step ${e.step}`;
+        renderQuest(q);
+      }
+      return;
+    }
+    const q = questMap.get(e.agent);
     switch (e.type) {
-      case "task":
-        setStatus(e.agent, `task: ${e.text}`);
-        line(e, `${A(e.agent)} got a task: “${esc(e.text)}”`);
+      case "spawn": {
+        registerSpawn(N, e);
+        if (!spawned.includes(e.agent)) spawned.unshift(e.agent);
+        const nq = quest(e.agent, e.task, true);
+        nq.status = "Arrived in the foyer";
+        nq.phase = "plan";
+        slot(e.agent, "just arrived");
+        line(e, `${A(e.agent)} arrived for a new quest${e.task ? `: “${esc(e.task)}”` : ""}`);
+        renderQuest(nq);
         break;
+      }
+      case "phase": {
+        const pq = quest(e.agent);
+        pq.phase = e.phase;
+        const words: Record<Phase, string> = {
+          plan: "Planning the route",
+          explore: "Touring the departments",
+          gym: "Training in the Gym",
+          execute: "Running the learned route",
+          done: "Quest complete",
+        };
+        pq.status = e.note ? `${words[e.phase]}: ${e.note}` : words[e.phase];
+        pq.tone = e.phase === "done" ? "ok" : "";
+        slot(e.agent, words[e.phase].toLowerCase(), e.phase === "done" ? "ok" : "");
+        line(e, `${A(e.agent)} ${esc(words[e.phase].toLowerCase())}${e.note ? ` (${esc(e.note)})` : ""}`);
+        renderQuest(pq);
+        if (e.phase === "done") maybeBanner(pq);
+        break;
+      }
+      case "artifact": {
+        N.mems.set(e.memory.id, e.memory);
+        const aq = quest(e.agent);
+        aq.artifact = e.memory;
+        aq.status = `Wrote a new page: ${e.memory.title}`;
+        slot(e.agent, "wrote a page", "ok");
+        line(e, `${A(e.agent)} wrote a new page ${M(e.memory.id)}`);
+        toast(`📜 New page: ${e.memory.title}`);
+        renderQuest(aq);
+        break;
+      }
+      case "task": {
+        const tq = quest(e.agent, e.text, !!q?.commissioned);
+        tq.status = "Picking a route";
+        slot(e.agent, "picking a route");
+        line(e, `${A(e.agent)} got a task: “${esc(e.text)}”`);
+        renderQuest(tq);
+        break;
+      }
       case "route": {
-        routes.set(e.agent, e.stations);
-        done.set(e.agent, new Set());
-        setProgress(e.agent);
-        const label = rt.palace.routes.find((r) => r.id === e.routeId)?.label ?? e.routeId;
-        const how = e.source === "learned" ? "learned route" : e.source === "explore" ? "exploring for" : "route";
-        line(e, `${A(e.agent)} picked ${how} <span class="m">${esc(label)}</span> · ${e.stations.length} stations`);
+        const rq = quest(e.agent);
+        rq.route = e.stations;
+        rq.verdicts = new Map();
+        rq.covered = new Set();
+        rq.routeLabel = rt.palace.routes.find((r) => r.id === e.routeId)?.label ?? e.routeId;
+        const how = e.source === "learned" ? "Learned route" : e.source === "explore" ? "Exploring" : "Route";
+        rq.status = `${how}: ${rq.routeLabel}, ${e.stations.length} stops`;
+        line(e, `${A(e.agent)} picked ${esc(how.toLowerCase())} <span class="m">${esc(rq.routeLabel)}</span> · ${e.stations.length} stops`);
+        renderQuest(rq);
         break;
       }
       case "move": {
         const room = N.rooms.get(e.to);
         const team = N.agents.get(e.agent)?.team;
-        const foreign = room && team && room.owner !== "shared" && room.owner !== team;
-        setStatus(e.agent, foreign ? `at the door of ${N.room(e.to)}` : `walking to ${N.room(e.to)}`);
-        line(
-          e,
-          foreign
-            ? `${A(e.agent)} stopped at the door of <span class="m">${esc(N.room(e.to))}</span> (${esc(room!.owner)} owns it)`
-            : `${A(e.agent)} walked to <span class="m">${esc(N.room(e.to))}</span>`,
-        );
+        const foreign = !!room && !!team && room.owner !== "shared" && room.owner !== team;
+        const text = foreign ? `At the door of ${N.room(e.to)} (${room!.owner}'s room)` : `Walking to ${N.room(e.to)}`;
+        slot(e.agent, foreign ? `at ${N.room(e.to)} door` : `walking to ${N.room(e.to)}`);
+        line(e, foreign ? `${A(e.agent)} stopped at the door of ${esc(N.room(e.to))} (${esc(room!.owner)} owns it)` : `${A(e.agent)} walked to ${esc(N.room(e.to))}`);
+        if (q && !q.answer) {
+          q.status = text;
+          q.tone = "";
+          renderQuest(q);
+        }
         break;
       }
-      case "claim":
-        setStatus(e.agent, `reading ${N.memory(e.memoryId)}`);
+      case "claim": {
+        const i = q ? q.route.indexOf(e.memoryId) : -1;
+        const text = i >= 0 ? `Step ${i + 1} of ${q!.route.length}: reading ${N.memory(e.memoryId)}` : `Reading ${N.memory(e.memoryId)}`;
+        slot(e.agent, `reading ${N.memory(e.memoryId)}`);
         line(e, `${A(e.agent)} claimed ${M(e.memoryId)}`);
+        if (q) {
+          q.claimed = e.memoryId;
+          q.status = text;
+          q.tone = "";
+          renderQuest(q);
+        }
         break;
+      }
       case "wait":
-        setStatus(e.agent, `waiting on ${N.agent(e.heldBy)} at ${N.memory(e.memoryId)}`);
-        line(e, `${A(e.agent)} waits: ${A(e.heldBy)} holds the claim on ${M(e.memoryId)}`, "wait");
+        slot(e.agent, `waiting on ${N.agent(e.heldBy)}`, "warn");
+        line(e, `${A(e.agent)} waits: ${A(e.heldBy)} holds ${M(e.memoryId)}`, "wait");
+        if (q) {
+          q.status = `Waiting on ${N.agent(e.heldBy)} (${N.memory(e.memoryId)})`;
+          q.tone = "warn";
+          renderQuest(q);
+        }
         break;
       case "visit": {
-        if (routes.get(e.agent)?.includes(e.memoryId)) done.get(e.agent)?.add(e.memoryId);
-        setProgress(e.agent);
-        const list = verdicts.get(e.memoryId) ?? [];
+        const list = verdictsByMem.get(e.memoryId) ?? [];
         list.push({ agent: e.agent, verdict: e.verdict, note: e.note });
-        verdicts.set(e.memoryId, list);
+        verdictsByMem.set(e.memoryId, list);
+        if (q) {
+          q.verdicts.set(e.memoryId, { verdict: e.verdict, note: e.note });
+          q.hops.total++;
+          if (q.phase === "execute") q.hops.execute++;
+          else if (q.commissioned) q.hops.explore++;
+        }
         if (e.verdict === "gap") {
-          setStatus(e.agent, `gap at ${N.memory(e.memoryId)}`);
+          slot(e.agent, `gap: ${N.memory(e.memoryId)}`, "warn");
           line(e, `${A(e.agent)} found a gap at ${M(e.memoryId)}: ${esc(e.note ?? "nothing recorded")}`, "gap");
+          if (q) (q.status = `Gap found: ${N.memory(e.memoryId)}, ${e.note ?? "nothing recorded"}`), (q.tone = "warn");
         } else if (e.verdict === "stale") {
           line(e, `${A(e.agent)}: ${M(e.memoryId)} is stale${e.note ? ` (${esc(e.note)})` : ""}`, "stale");
+          if (q) (q.status = `${N.memory(e.memoryId)} is stale${e.note ? `: ${e.note}` : ""}`), (q.tone = "warn");
         } else {
-          line(e, `${A(e.agent)} verified ${M(e.memoryId)}${e.note ? ` <span style="opacity:.7">(${esc(e.note)})</span>` : ""}`);
+          line(e, `${A(e.agent)} verified ${M(e.memoryId)}${e.note ? ` (${esc(e.note)})` : ""}`);
+          if (q) (q.status = `Verified ${N.memory(e.memoryId)}`), (q.tone = "");
         }
+        if (q) renderQuest(q);
         if (currentMem === e.memoryId) openMemory(e.memoryId, false);
         break;
       }
-      case "handoff":
-        handoffs.set(e.id, { from: e.agent, to: e.toAgent, memoryId: e.memoryId });
-        setStatus(e.agent, `asked ${N.agent(e.toAgent)}, waiting for reply`);
+      case "handoff": {
+        handoffs.set(e.id, { from: e.agent, to: e.toAgent, memoryId: e.memoryId, question: e.question });
+        slot(e.agent, `asking ${N.agent(e.toAgent)}`);
+        slot(e.toAgent, `answering ${N.agent(e.agent)}`);
         line(e, `${A(e.agent)} asked ${A(e.toAgent)}: “${esc(e.question)}”`, "handoff");
+        if (q) {
+          q.status = `Asking ${N.agent(e.toAgent)}: ${e.question}`;
+          q.tone = "";
+          renderQuest(q);
+        }
         break;
+      }
       case "reply": {
         const hnd = handoffs.get(e.id);
         line(e, `${A(e.agent)} answered ${hnd ? A(hnd.from) : "the handoff"}: “${esc(e.answer)}”`, "reply");
         if (hnd) {
-          setStatus(e.agent, `replied to ${N.agent(hnd.from)}`);
-          setStatus(hnd.from, `got ${N.agent(e.agent)}'s reply`);
-          // the owner's verified answer covers the asker's station
-          if (routes.get(hnd.from)?.includes(hnd.memoryId)) done.get(hnd.from)?.add(hnd.memoryId);
-          setProgress(hnd.from);
+          slot(e.agent, `answered ${N.agent(hnd.from)}`, "ok");
+          const fq = questMap.get(hnd.from);
+          if (fq) {
+            if (fq.route.includes(hnd.memoryId)) fq.covered.add(hnd.memoryId);
+            fq.status = `${N.agent(e.agent)} answered: ${e.answer}`;
+            fq.tone = "";
+            renderQuest(fq);
+          }
         }
         break;
       }
-      case "answer":
-        answerCard(e);
-        setStatus(e.agent, e.blocked ? "answer blocked" : e.gaps?.length ? "answered, with a gap" : "answered");
-        rows.get(e.agent)!.st.style.color = e.blocked ? "var(--red)" : e.gaps?.length ? "var(--amber)" : "var(--ok)";
+      case "answer": {
+        const aq = quest(e.agent);
+        aq.answer = e;
+        aq.status = e.blocked ? "Answer blocked" : e.gaps?.length ? "Done, with a gap reported" : "Done";
+        aq.tone = e.blocked ? "bad" : e.gaps?.length ? "warn" : "ok";
+        slot(e.agent, e.blocked ? "blocked" : e.gaps?.length ? "done, gap" : "done", e.blocked ? "bad" : e.gaps?.length ? "warn" : "ok");
         line(e, `${A(e.agent)} posted an answer${e.gaps?.length ? " and reported a gap" : ""}`, e.blocked ? "blocked" : e.gaps?.length ? "gap" : "");
+        renderQuest(aq);
+        maybeBanner(aq);
         break;
-      case "train_step":
-        break;
+      }
     }
+    renderParty();
   }
 
-  const tasks = new Map<string, string>();
-  function answerCard(e: Extract<PalaceEvent, { type: "answer" }>) {
-    const card = h("div", `mp-panel mp-card${e.blocked ? " blocked" : ""}`);
-    card.style.setProperty("--c", N.color(e.agent));
-    const who = h("div", "who");
-    who.append(h("span", "", `${N.agent(e.agent)} answered`), h("span", "", `${e.t.toFixed(1)}s`));
-    card.appendChild(who);
-    const q = tasks.get(e.agent);
-    if (q) card.appendChild(h("div", "q", q));
-    if (e.blocked) card.appendChild(h("div", "ban", "Blocked: cites a station that was not verified"));
-    card.appendChild(h("div", "txt", e.text));
+  const unsub = subscribeRuns(rt, reset, handle);
+
+  // =====================================================================================================
+  // Completion banner (commissioned quests): answer + phase done
+  const banner = h("div", "mp-panel mp-banner");
+  banner.hidden = true;
+  root.appendChild(banner);
+  function hideBanner() {
+    banner.hidden = true;
+  }
+  function maybeBanner(q: Quest) {
+    if (!q.commissioned || !q.answer || q.phase !== "done") return;
+    banner.replaceChildren();
+    banner.style.setProperty("--c", N.color(q.agent));
+    const close = h("button", "mp-btn small x", "✕");
+    close.onclick = hideBanner;
+    close.title = "Close";
+    banner.append(close, h("div", "big", "Quest complete"), h("div", "task", q.task));
+    banner.appendChild(h("div", "txt", q.answer.text));
     const chips = h("div", "mp-chips");
-    e.citations.forEach((c) => chips.appendChild(chip(c)));
-    e.gaps?.forEach((c) => chips.appendChild(chip(c, "gap")));
-    e.stale?.forEach((c) => chips.appendChild(chip(c, "stale")));
-    card.appendChild(chips);
-    answers.appendChild(card);
+    q.answer.citations.forEach((c) => chips.appendChild(chip(c)));
+    q.answer.gaps?.forEach((c) => chips.appendChild(chip(c, "gap")));
+    q.answer.stale?.forEach((c) => chips.appendChild(chip(c, "stale")));
+    banner.appendChild(chips);
+    if (q.artifact) {
+      const mem = q.artifact;
+      const view = h("button", "mp-btn go", `📜 View page: ${mem.title}`);
+      view.onclick = () => {
+        hideBanner();
+        viewMemory(mem);
+      };
+      banner.appendChild(view);
+    }
+    banner.hidden = false;
   }
 
-  const unsub = subscribeRuns(rt, () => (reset(), tasks.clear()), (e) => {
-    if (e.type === "task") tasks.set(e.agent, e.text);
-    handle(e);
-  });
+  // =====================================================================================================
+  // Follow mode: route checklist on the right
+  function renderRoute() {
+    routePanel?.remove();
+    routePanel = null;
+    if (following === "overview") return;
+    const q = questMap.get(following);
+    const p = h("div", "mp-panel mp-route");
+    p.style.setProperty("--c", N.color(following));
+    const hd = h("div", "hd");
+    const names2 = h("div");
+    names2.append(h("div", "nm", N.agent(following)), h("div", "rt", q?.routeLabel ? `Route: ${q.routeLabel}` : "No route yet"));
+    hd.append(face(following), names2);
+    p.appendChild(hd);
+    if (q?.task) p.appendChild(h("div", "q", q.task));
+    if (q?.route.length) {
+      const ol = h("ol", "mp-stops");
+      const firstOpen = q.route.findIndex((m) => !q.verdicts.has(m) && !q.covered.has(m));
+      q.route.forEach((m, i) => {
+        const v = q.verdicts.get(m);
+        const cls = v?.verdict === "gap" ? "gap" : v?.verdict === "stale" ? "stale" : v || q.covered.has(m) ? "done" : i === firstOpen && !q.answer ? "cur" : "";
+        const li = h("li", `mp-stop ${cls}`);
+        const mid = h("div");
+        const vtext = v
+          ? v.verdict === "verified" ? `✓ verified${v.note ? `, ${v.note}` : ""}` : `${v.verdict}${v.note ? `: ${v.note}` : ""}`
+          : q.covered.has(m) ? "✓ answered by the owner (handoff)" : cls === "cur" ? (q.claimed === m ? "reading now" : "next") : "not yet";
+        mid.append(h("div", "t", N.memory(m)), h("div", "r", N.room(N.mems.get(m)?.room ?? "")), h("div", "v", vtext));
+        li.append(h("span", "n", v?.verdict === "gap" ? "!" : cls === "done" ? "✓" : String(i + 1)), mid);
+        li.onclick = () => openMemory(m, true);
+        ol.appendChild(li);
+      });
+      p.appendChild(ol);
+    } else p.appendChild(h("div", "rt", "Waiting for this agent to pick a route."));
+    const back = h("button", "mp-btn back", "◀ Back to map (Esc)");
+    back.onclick = () => follow("overview");
+    p.appendChild(back);
+    right.appendChild(p);
+    routePanel = p;
+  }
 
-  // ---------- left: memory side panel
-  let memPanel: HTMLElement | null = null;
-  let currentMem: string | null = null;
+  const onMode = (ev: Event) => {
+    const d = (ev as CustomEvent).detail ?? {};
+    following = d.mode === "free" || d.mode === "overhead" || !d.mode ? "overview" : d.mode;
+    for (const q of questMap.values()) q.el.classList.toggle("on", q.agent === following);
+    renderParty();
+    renderRoute();
+  };
+  addEventListener(PRESENCE_EVENTS.mode, onMode);
+
+  // =====================================================================================================
+  // Memory page (right, above the route)
   function closeMemory() {
     memPanel?.remove();
     memPanel = null;
     currentMem = null;
   }
+  function viewMemory(m: Memory) {
+    window.dispatchEvent(new CustomEvent(CAMERA_EVENTS.focus, { detail: { pos: m.pos, distance: 12 } }));
+    openMemory(m.id, false);
+  }
   function openMemory(id: string, fly: boolean) {
     const m = N.mems.get(id);
     if (!m) return;
-    if (fly) emitUI(UI_EVENTS.flyTo, { memoryId: id });
+    if (fly) window.dispatchEvent(new CustomEvent(CAMERA_EVENTS.focus, { detail: { pos: m.pos, distance: 12 } }));
     closeMemory();
     currentMem = id;
     const p = h("div", "mp-panel mp-mem");
-    const x = h("span", "x", "✕");
+    const x = h("button", "mp-btn small x", "✕");
+    x.title = "Close (Esc)";
     x.onclick = closeMemory;
     const room = N.rooms.get(m.room);
     const wing = rt.palace.wings.find((w) => w.id === room?.wing);
     const ttl = h("div", "ttl", m.title);
     if (wing) ttl.style.color = wing.color;
-    const meta = h("div", "meta", `${m.type} · ${room?.label ?? m.room}${wing ? ` · ${wing.label} wing` : ""} · ${m.id}`);
+    const meta = h("div", "meta", `${room?.label ?? m.room}${wing ? `, ${wing.label} wing` : ""}`);
     const fresh = h("div", "mp-fresh");
     const bar = h("i");
     bar.style.width = `${Math.round(m.freshness * 100)}%`;
     fresh.appendChild(bar);
-    const fl = h("div", "meta", `freshness ${Math.round(m.freshness * 100)}%${m.freshness < 0.3 ? " · stale" : ""}`);
+    const fl = h("div", "meta", `Freshness ${Math.round(m.freshness * 100)}%${m.freshness < 0.3 ? ", stale" : ""}`);
     p.append(x, ttl, meta, fresh, fl);
-
-    const vs = verdicts.get(id);
+    const vs = verdictsByMem.get(id);
     if (vs?.length) {
+      p.appendChild(h("h3", "", "What the agents found"));
       const box = h("div", "mp-verdicts");
-      box.appendChild(h("div", "mp-h", "Agent verdicts"));
       for (const v of vs) {
-        const row = h("div");
-        row.innerHTML = `${A(v.agent)} · <span style="color:${v.verdict === "verified" ? "var(--ok)" : v.verdict === "gap" ? "var(--amber)" : "var(--stale)"}">${v.verdict}</span>${v.note ? ` · ${esc(v.note)}` : ""}`;
-        box.appendChild(row);
+        const r = h("div");
+        r.innerHTML = `${A(v.agent)}: <span style="color:${v.verdict === "verified" ? "var(--ok)" : v.verdict === "gap" ? "var(--amber)" : "var(--stale)"}">${v.verdict}</span>${v.note ? `, ${esc(v.note)}` : ""}`;
+        box.appendChild(r);
       }
       p.appendChild(box);
     }
-
     p.appendChild(h("div", `ex${m.excerpt ? "" : " empty"}`, m.excerpt || "This page is empty. Nothing is recorded here yet."));
-    const links = rt.palace.links.filter((l) => l.from === id || l.to === id);
+    const seen = new Set<string>();
+    const links = rt.palace.links.filter((l) => {
+      const other = l.from === id ? l.to : l.to === id ? l.from : null;
+      if (!other || other === id || seen.has(other)) return false;
+      seen.add(other);
+      return true;
+    });
     if (links.length) {
-      p.appendChild(h("div", "mp-h", "Linked memories"));
+      p.appendChild(h("h3", "", "Linked pages"));
       for (const l of links) {
         const other = l.from === id ? l.to : l.from;
-        const row = h("div", "mp-link");
-        row.append(h("span", "", N.memory(other)), h("span", "k", l.from === id ? `${l.kind} →` : `← ${l.kind}`));
-        row.onclick = () => openMemory(other, true);
-        p.appendChild(row);
+        const r = h("div", "mp-link");
+        r.append(h("span", "", N.memory(other)), h("span", "k", l.kind));
+        r.onclick = () => openMemory(other, true);
+        p.appendChild(r);
       }
     }
-    root.appendChild(p);
+    right.prepend(p);
     memPanel = p;
   }
   const onSelect = (ev: Event) => {
@@ -277,68 +646,55 @@ export const mountUI: Plugin = (rt) => {
   };
   addEventListener(UI_EVENTS.select, onSelect);
 
-  // ---------- bottom: hints, camera mode, dispatch, toast
-  const bottom = h("div", "mp-bottom");
-  const mode = h("div", "mp-panel mp-mode", "Free walk");
-  const hints = h("div", "mp-panel mp-hints");
-  hints.innerHTML = `<kbd>T</kbd>dispatch <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd>follow <kbd>0</kbd>overhead <kbd>F</kbd>free <kbd>/</kbd>ask`;
-  const btn = h("button", "mp-btn", "▶ Dispatch");
-  btn.onclick = () => window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.dispatch));
-  bottom.append(mode, btn, hints);
-  root.appendChild(bottom);
-  const toast = h("div", "mp-panel mp-toast");
-  toast.style.opacity = "0";
-  root.appendChild(toast);
+  // =====================================================================================================
+  // Toast
+  const toastEl = h("div", "mp-panel mp-toast");
+  toastEl.style.opacity = "0";
+  root.appendChild(toastEl);
   let toastTimer = 0;
+  function toast(text: string, tone = "") {
+    toastEl.textContent = text;
+    toastEl.className = `mp-panel mp-toast ${tone}`;
+    toastEl.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => (toastEl.style.opacity = "0"), 3200);
+  }
   const onStatus = (ev: Event) => {
     const d = (ev as CustomEvent).detail ?? {};
-    toast.textContent = d.text ?? "";
-    toast.className = `mp-panel mp-toast ${d.tone ?? ""}`;
-    toast.style.opacity = "1";
-    clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => (toast.style.opacity = "0"), 2600);
-  };
-  const onMode = (ev: Event) => {
-    const d = (ev as CustomEvent).detail ?? {};
-    mode.textContent = d.label ?? "Free walk";
-    for (const [id, r] of rows) r.el.classList.toggle("on", id === d.mode);
+    toast(d.text ?? "", d.tone === "warn" ? "warn" : "");
   };
   addEventListener(PRESENCE_EVENTS.status, onStatus);
-  addEventListener(PRESENCE_EVENTS.mode, onMode);
 
-  // ---------- top: ask bar (opens on "/")
+  // =====================================================================================================
+  // Ask bar ("/"), walk answer panel
   let ask: HTMLElement | null = null;
   function openAsk() {
     if (ask) return ask.querySelector("input")!.focus();
-    if (document.pointerLockElement) document.exitPointerLock();
     ask = h("form", "mp-panel mp-ask");
-    const input = h("input");
-    input.placeholder = "Ask the palace… e.g. Can we sign the Gripworks contract this week?";
-    input.autocomplete = "off";
-    const go = h("button", "mp-btn", "Walk it");
-    go.type = "submit";
-    ask.append(input, go);
+    const inp = h("input");
+    inp.placeholder = "Ask the palace, e.g. Can we sign the Gripworks contract this week?";
+    inp.autocomplete = "off";
+    const b = h("button", "mp-btn", "Walk it");
+    b.type = "submit";
+    ask.append(inp, b);
     (ask as HTMLFormElement).onsubmit = (ev) => {
       ev.preventDefault();
-      const question = input.value.trim() || input.placeholder.replace(/^.*e\.g\. /, "");
+      const question = inp.value.trim() || inp.placeholder.replace(/^.*e\.g\. /, "");
       closeAsk();
       emitUI(UI_EVENTS.ask, { question });
     };
-    // keep typing from reaching the player controls / hotkeys on window
-    input.addEventListener("keydown", (ev) => {
+    inp.addEventListener("keydown", (ev) => {
       ev.stopPropagation();
       if (ev.key === "Escape") closeAsk();
     });
-    input.addEventListener("keyup", (ev) => ev.stopPropagation());
+    inp.addEventListener("keyup", (ev) => ev.stopPropagation());
     root.appendChild(ask);
-    input.focus();
+    inp.focus();
   }
   function closeAsk() {
     ask?.remove();
     ask = null;
   }
-
-  // ---------- walk answer panel
   let walkPanel: HTMLElement | null = null;
   walkUI.hide = () => {
     walkPanel?.remove();
@@ -368,12 +724,18 @@ export const mountUI: Plugin = (rt) => {
     if (ev.key === "/") {
       ev.preventDefault();
       openAsk();
+    } else if (ev.key === "n" || ev.key === "N") {
+      ev.preventDefault();
+      input.focus();
     } else if (ev.key === "Escape") {
       if (ask) closeAsk();
+      else if (!banner.hidden) hideBanner();
       else if (memPanel) closeMemory();
     }
   };
   addEventListener("keydown", onKey);
+
+  renderParty();
 
   return () => {
     unsub();
@@ -385,4 +747,3 @@ export const mountUI: Plugin = (rt) => {
     style.remove();
   };
 };
-
