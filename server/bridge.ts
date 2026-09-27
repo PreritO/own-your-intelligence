@@ -138,6 +138,9 @@ const known = (() => {
 })();
 function unknownRef(ev: PalaceEvent): string | null {
   if (!known) return null;
+  // Commissioned agents and the pages they write are introduced by the stream itself (as validate.ts does).
+  if (ev.type === "spawn") known.agent.add(ev.agent);
+  if (ev.type === "artifact") known.mem.add(ev.memory.id);
   if (known.agent.size && !known.agent.has(ev.agent)) return `unknown agent ${ev.agent}`;
   if ("memoryId" in ev && !known.mem.has(ev.memoryId)) return `unknown memory ${ev.memoryId}`;
   if (ev.type === "move" && !known.room.has(ev.to)) return `unknown room ${ev.to}`;
@@ -179,6 +182,8 @@ function emit(r: Run, raw: unknown): boolean {
 // walks the clean path.
 async function learnFromRun(r: Run) {
   const agents = new Set(r.events.map((e) => e.agent));
+  // Commissioned agents learn in the Gym (server/commission records their route), not here.
+  for (const e of r.events) if (e.type === "spawn") agents.delete(e.agent);
   for (const agent of agents) {
     const mine = r.events.filter((e) => e.agent === agent);
     const task = mine.find((e) => e.type === "task");
@@ -335,6 +340,14 @@ function onUpstreamEvent(obj: Record<string, unknown>, upstreamRun: string | und
   const r = run!;
   emit(r, obj);
   clearTimeout(r.idle);
+  // A commissioned quest has long quiet stretches (Claude planning/writing): it ends on `phase: done`.
+  const quests = new Set(r.events.flatMap((e) => (e.type === "spawn" ? [e.agent] : [])));
+  if (quests.size) {
+    const finished = new Set(r.events.flatMap((e) => (e.type === "phase" && e.phase === "done" ? [e.agent] : [])));
+    const allDone = [...quests].every((a) => finished.has(a));
+    r.idle = setTimeout(() => endRun(allDone ? "complete" : "idle"), allDone ? 2500 : LIVE_IDLE_MS * 6);
+    return;
+  }
   r.idle = setTimeout(() => endRun("idle"), LIVE_IDLE_MS);
   // All tasked agents answered -> run complete (short grace for trailing events).
   const tasked = new Set(r.events.filter((e) => e.type === "task").map((e) => e.agent));
@@ -384,6 +397,57 @@ async function dispatch(req: Request, url: URL): Promise<Response> {
   return json({ ...runInfo(r), events: events.length, speed, seconds: Math.round(duration * 10) / 10, fallback: fellBack || undefined });
 }
 
+// POST /commission {task} -> a live quest (server/commission/quest.ts) driven through the protocol service;
+// the bridge's upstream follower streams its events. ?replay=<name> streams a canned quest instead.
+const DEFAULT_QUEST_REPLAY = process.env.DEFAULT_QUEST_REPLAY ?? "quest-onboarding";
+async function commission(req: Request, url: URL): Promise<Response> {
+  let task = url.searchParams.get("task") ?? "";
+  if (req.method === "POST") {
+    const body = (await req.json().catch(() => ({}))) as { task?: string };
+    if (typeof body?.task === "string") task = body.task;
+  }
+  task = task.trim().slice(0, 300);
+  const replay = url.searchParams.get("replay");
+  const live = !replay && task && (await protocolUp());
+  if (!live) {
+    if (!replay && url.searchParams.get("fallback") === "0") return json({ error: task ? `protocol service down at ${PROTOCOL_URL}` : "task required" }, task ? 503 : 400);
+    url.searchParams.set("replay", replay || DEFAULT_QUEST_REPLAY);
+    const res = await dispatch(new Request(req.url, { method: "GET" }), url);
+    const body = (await res.json()) as Record<string, unknown>;
+    if (res.status !== 200) return json(body, res.status);
+    const r = run!;
+    const spawn = r.events.find((e) => e.type === "spawn") ?? readReplay(String(url.searchParams.get("replay"))).find((e) => e.type === "spawn");
+    return json({ agent: spawn?.agent ?? null, run: r.id, mode: "replay", replay: url.searchParams.get("replay"), fallback: !replay || undefined, ...body });
+  }
+  const { startQuest, activeQuest } = await import("./commission/quest");
+  const busy = activeQuest();
+  if (busy) return json({ error: `quest ${busy.agent} is still running`, agent: busy.agent, run: busy.run }, 409);
+  const harness = url.searchParams.get("harness") === "qm" ? "qm" : "protocol";
+  try {
+    const hooks = harness === "qm" ? await import("./commission/qm").then((m) => m.qmHooks()).catch(() => ({})) : {};
+    const { info } = await startQuest(task, hooks);
+    return json({ agent: info.agent, run: info.run, label: info.label, task: info.task, harness: info.harness, mode: "live" });
+  } catch (e) {
+    return json({ error: (e as Error).message }, 500);
+  }
+}
+
+// POST /events: ingest one PalaceEvent from another process (e.g. server/train StepLogger's train_step)
+// and fan it out on the active run (a new live run if none is open).
+async function ingest(req: Request): Promise<Response> {
+  const raw = await req.json().catch(() => null);
+  const e = PalaceEvent.safeParse(raw);
+  if (!e.success) return json({ error: `bad event: ${e.error.issues[0]?.message}` }, 400);
+  if (!run || run.done) startRun("live", "POST /events", false);
+  const ok = emit(run!, e.data);
+  if (run!.mode === "live") {
+    clearTimeout(run!.idle);
+    const r = run!;
+    r.idle = setTimeout(() => endRun("idle"), LIVE_IDLE_MS);
+  }
+  return ok ? json({ ok: true, run: run!.id }) : json({ error: "event rejected (unknown agent/memory/room)" }, 422);
+}
+
 const server = Bun.serve({
   port: PORT,
   idleTimeout: 0, // SSE streams stay open
@@ -392,7 +456,9 @@ const server = Bun.serve({
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
     switch (url.pathname) {
       case "/events":
-        return eventsResponse(url);
+        return req.method === "POST" ? ingest(req) : eventsResponse(url);
+      case "/commission":
+        return commission(req, url);
       case "/dispatch":
         return dispatch(req, url);
       case "/stop":
