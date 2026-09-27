@@ -11,13 +11,19 @@ import { UI_EVENTS, emitUI, type PalaceRuntime } from "../api";
 import type { EventStream } from "../events";
 import { createControls, EYE_HEIGHT } from "../controls";
 import { buildLayout, type Box } from "./layout";
-import { marbleTexture, radialTexture, labelTexture } from "./textures";
+import { marbleTexture, radialTexture, labelTexture, wingNameTexture } from "./textures";
 import { createMinimap } from "./minimap";
+import { createMapView, type MapView } from "./mapview";
 
 const FOYER_COLOR = "#d9c38f";
 const ORB_R = 0.22;
 const params = new URLSearchParams(location.search);
 const DEBUG = params.has("debug");
+// Polish: the default camera is the dollhouse overview with map controls; ?walk restores first person.
+const WALK = params.has("walk");
+const WALL_VIS = 1.7; // overview: room walls cut down to a dollhouse height (colliders keep full height)
+/** Screen area the HUD covers in the overview (left Tasks panel), used to frame the palace. */
+export const HUD_INSETS = { left: 400, right: 24, top: 24, bottom: 56 };
 
 export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement, events: EventStream): PalaceRuntime {
   // ---------- renderer / scene ----------
@@ -115,9 +121,14 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       new THREE.Vector3(b.max[0] - b.min[0] + grow * 2, b.max[1] - b.min[1], b.max[2] - b.min[2] + grow * 2),
     );
   const wallMat = new THREE.MeshStandardMaterial({ color: "#3a4052", emissive: "#0c0e15", roughness: 0.82, metalness: 0.05 });
-  const walls = new THREE.InstancedMesh(unitBox, wallMat, layout.walls.length);
+  const shownWalls: Box[] = WALK
+    ? layout.walls
+    : layout.walls
+        .filter((w) => w.kind !== "lintel")
+        .map((w) => ({ ...w, max: [w.max[0], Math.min(w.max[1], w.kind === "corridor-wall" ? 1.1 : WALL_VIS), w.max[2]] as [number, number, number] }));
+  const walls = new THREE.InstancedMesh(unitBox, wallMat, shownWalls.length);
   walls.name = "walls";
-  layout.walls.forEach((b, i) => walls.setMatrixAt(i, boxMatrix(b)));
+  shownWalls.forEach((b, i) => walls.setMatrixAt(i, boxMatrix(b)));
   walls.computeBoundingSphere();
   sceneRoot.add(walls);
 
@@ -125,7 +136,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   interface TrimDef { box: Box; room?: string; base: THREE.Color; strength: number }
   const trims: TrimDef[] = [];
   const addTrim = (box: Box, room: string | undefined, base: THREE.Color, strength = 1) => trims.push({ box, room, base, strength });
-  for (const w of layout.walls) {
+  for (const w of shownWalls) {
     const c = w.kind === "corridor-wall" ? new THREE.Color(FOYER_COLOR) : roomColor(w.roomId);
     const thinX = w.max[0] - w.min[0] < w.max[2] - w.min[2];
     const gx = thinX ? 0.025 : 0, gz = thinX ? 0 : 0.025;
@@ -319,20 +330,55 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   beams.name = "link-beams";
   beams.frustumCulled = false;
   if (links.length) sceneRoot.add(beams);
+  beams.visible = WALK || params.has("links");
+  // HUD toggles and follow mode talk to the scene through window events (scene-internal, not api.ts)
+  window.addEventListener("mp:links", (e) => { beams.visible = !!(e as CustomEvent).detail?.on; });
+  window.addEventListener("mp:focus", (e) => {
+    const following = !!(e as CustomEvent).detail?.agent;
+    for (const l of roomLabels) l.visible = !following; // room names only in the overview
+  });
+  window.addEventListener("mp:home", () => mapView?.home());
 
   // ---------- room labels ----------
+  const roomLabels: THREE.Sprite[] = [];
   for (const r of palace.rooms) {
     const wing = wingById.get(r.wing);
     const caption = wing ? wing.label : r.wing === "foyer" ? "Mind Palace" : r.wing;
     const { tex, aspect } = labelTexture(r.label, caption, wingHex(r.wing));
     const mat = new THREE.SpriteMaterial({ map: tex, color: "#c8c4bc", transparent: true, depthWrite: false, fog: true, opacity: 0.95 });
     const sp = new THREE.Sprite(mat);
-    const h = 0.95;
+    const h = WALK ? 0.95 : 1.9;
     sp.scale.set(h * aspect, h, 1);
-    sp.position.set(r.center[0], r.center[1] + Math.min(r.size[1] - 0.55, 3.35), r.center[2]);
+    sp.position.set(r.center[0], r.center[1] + (WALK ? Math.min(r.size[1] - 0.55, 3.35) : 3.2), r.center[2]);
+    roomLabels.push(sp);
     sp.name = `label:${r.id}`;
     sceneRoot.add(sp);
     roomVis.get(r.id)!.label = mat;
+  }
+
+  // ---------- wing names on the ground outside each wing (read from overhead; fade in with height) ----------
+  const wingLabels: THREE.MeshBasicMaterial[] = [];
+  for (const w of palace.wings) {
+    const rooms = palace.rooms.filter((r) => r.wing === w.id);
+    if (!rooms.length) continue;
+    let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+    for (const r of rooms) {
+      x0 = Math.min(x0, r.center[0] - r.size[0] / 2); x1 = Math.max(x1, r.center[0] + r.size[0] / 2);
+      z0 = Math.min(z0, r.center[2] - r.size[2] / 2); z1 = Math.max(z1, r.center[2] + r.size[2] / 2);
+    }
+    const { tex, aspect } = wingNameTexture(w.label, w.color);
+    const H = 2.6, W = H * aspect;
+    const geo = new THREE.PlaneGeometry(W, H);
+    geo.rotateX(-Math.PI / 2); // flat, text reads with -z up (overhead "north")
+    const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, toneMapped: false, opacity: 0, fog: false });
+    const mesh = new THREE.Mesh(geo, mat);
+    const horizontal = x1 - x0 >= z1 - z0;
+    if (horizontal) mesh.position.set((x0 + x1) / 2, 0.03, z0 - H / 2 - 0.9); // north of an east/west wing
+    else mesh.position.set(x0 - W / 2 - 1.2, 0.03, (z0 + z1) / 2); // west of a north/south wing
+    mesh.name = `wing-name:${w.id}`;
+    mesh.renderOrder = 2;
+    sceneRoot.add(mesh);
+    wingLabels.push(mat);
   }
 
   // ---------- night sky ----------
@@ -354,7 +400,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   composer.setPixelRatio(pixelRatio);
   composer.setSize(innerWidth, innerHeight);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.85, 0.55, 0.78);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), WALK ? 0.85 : 0.42, 0.45, 0.82);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
   let useBloom = !params.has("nobloom");
@@ -363,11 +409,18 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const walkable = (x: number, z: number) =>
     palace.rooms.some((r) => Math.abs(x - r.center[0]) < r.size[0] / 2 - 0.1 && Math.abs(z - r.center[2]) < r.size[2] / 2 - 0.1) ||
     layout.corridorFloors.some((f) => x > f.minX && x < f.maxX && z > f.minZ && z < f.maxZ);
-  const controls = createControls(camera, renderer.domElement, layout.colliders, walkable);
+  const mapView: MapView | null = WALK ? null : createMapView(camera, renderer.domElement, layout.bounds, HUD_INSETS);
+  const controls = mapView ?? createControls(camera, renderer.domElement, layout.colliders, walkable);
   const foyer = roomById.get("foyer") ?? palace.rooms[0];
-  if (foyer) {
-    camera.position.set(foyer.center[0], EYE_HEIGHT, foyer.center[2] + foyer.size[2] * 0.32);
-    camera.lookAt(foyer.center[0], EYE_HEIGHT, foyer.center[2] - 10);
+  if (!WALK) {
+    // map view already framed the palace
+  } else if (foyer) {
+    // Stage start pose (polish): west side of the foyer, facing the Legal wing (+x), so the tour beat
+    // walks straight ahead; People and Finance doors sit on the side walls.
+    const legal = palace.rooms.find((r) => r.wing === "legal");
+    const dir = legal ? Math.sign(legal.center[0] - foyer.center[0]) || 1 : 1;
+    camera.position.set(foyer.center[0] - dir * foyer.size[0] * 0.3, EYE_HEIGHT, foyer.center[2]);
+    camera.lookAt(foyer.center[0] + dir * 10, EYE_HEIGHT, foyer.center[2]);
   } else {
     camera.position.set(0, EYE_HEIGHT, 4);
   }
@@ -379,7 +432,9 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const sh = document.createElement("div");
   sh.className = "mp-scene-hud";
   sh.style.pointerEvents = "none";
-  sh.innerHTML = `<div class="mp-cross"></div><div class="mp-tip"></div><div class="mp-hint"><b>Click</b> to walk &nbsp;·&nbsp; <b>WASD</b> move &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Esc</b> release<br><span>click a glowing memory to open it</span></div>`;
+  sh.innerHTML = `<div class="mp-cross"></div><div class="mp-tip"></div><div class="mp-hint">${WALK
+    ? `<b>Click</b> to walk &nbsp;·&nbsp; <b>WASD</b> move &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Esc</b> release<br><span>click a glowing memory to open it</span>`
+    : `<b>Drag</b> to move &nbsp; <b>Right-drag</b> to turn &nbsp; <b>Scroll</b> to zoom<br><span>Click a glowing memory to read it</span>`}</div>`;
   hud.appendChild(sh);
   const cross = sh.querySelector<HTMLElement>(".mp-cross")!;
   const tip = sh.querySelector<HTMLElement>(".mp-tip")!;
@@ -389,7 +444,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     sh.classList.toggle("released", controls.released || flying !== null);
   };
   controls.onLockChange(syncHud);
-  const minimap = params.has("nominimap") ? null : createMinimap(palace, layout, sh, wingHex);
+  const minimap = params.has("nominimap") || !WALK ? null : createMinimap(palace, layout, sh, wingHex);
   let debugEl: HTMLElement | null = null;
   if (DEBUG) {
     debugEl = document.createElement("div");
@@ -442,7 +497,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
 
   // ---------- picking ----------
   const ray = new THREE.Raycaster();
-  ray.far = 30;
+  ray.far = WALK ? 30 : 500;
   const ndc = new THREE.Vector2();
   const pointer = new THREE.Vector2(0, 0);
   let pointerInside = false;
@@ -458,7 +513,11 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     pointerInside = true;
   });
   renderer.domElement.addEventListener("pointerleave", () => { pointerInside = false; });
+  let downAt = { x: 0, y: 0 };
+  renderer.domElement.addEventListener("pointerdown", (e) => { downAt = { x: e.clientX, y: e.clientY }; });
   renderer.domElement.addEventListener("click", (e) => {
+    if (Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 6) return; // that was a drag (pan/rotate)
+    if (mapView) sh.classList.add("touched");
     const at = controls.locked ? ndc.set(0, 0) : ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
     const i = pick(at);
     if (i >= 0) {
@@ -476,6 +535,11 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const flyTo = (memoryId: string) => {
     const i = memIndex.get(memoryId);
     if (i === undefined) return;
+    if (mapView) {
+      mapView.focus(new THREE.Vector3(...palace.memories[i].pos));
+      flare.set(i, 1.2);
+      return;
+    }
     const m = palace.memories[i];
     const room = roomById.get(m.room);
     const orb = new THREE.Vector3(...m.pos);
@@ -600,7 +664,10 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     dustMat.uniforms.uTime.value = time;
 
     // beams: brighten within 6 m of either end, soft travelling shimmer
-    if (links.length) {
+    // overhead / establishing shots: fade link-beam clutter, fade in the wing names
+    const high = smooth(9, 24, camera.position.y);
+    for (const m of wingLabels) m.opacity = 0.9 * high;
+    if (links.length && beams.visible) {
       const cp = camera.position;
       for (let li = 0; li < links.length; li++) {
         const A = palace.memories[links[li].a].pos, B = palace.memories[links[li].b].pos;
@@ -608,7 +675,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
         const dB = Math.hypot(cp.x - B[0], cp.y - B[1], cp.z - B[2]);
         const near = Math.max(smooth(6, 1.5, dA), smooth(6, 1.5, dB));
         const hot = hovered === links[li].a || hovered === links[li].b ? 1 : 0;
-        const base = (0.09 + 0.75 * Math.max(near, hot)) * (0.4 + 0.6 * dim);
+        const base = (0.09 + 0.75 * Math.max(near, hot)) * (0.4 + 0.6 * dim) * (1 - 0.8 * high);
         const ca = beamBaseA[li], cb = beamBaseB[li];
         for (let s = 0; s <= SEG * 2 - 1; s++) {
           const u = (Math.floor(s / 2) + (s % 2)) / SEG;
@@ -764,10 +831,12 @@ const SCENE_CSS = `
   color: #d8d2c4; font-size: 12.5px; letter-spacing: .02em; transition: opacity .35s; }
 .mp-hint b { color: #ffe2b0; font-weight: 600; }
 .mp-hint span { color: #9a9486; font-size: 11.5px; }
-.mp-scene-hud.locked .mp-hint, .mp-scene-hud.released .mp-hint { opacity: 0; }
+.mp-scene-hud.locked .mp-hint, .mp-scene-hud.released .mp-hint, .mp-scene-hud.touched .mp-hint { opacity: 0; }
 .mp-minimap { position: absolute; left: 16px; bottom: 16px; padding: 6px; border-radius: 14px;
   background: rgba(8,9,13,.72); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 8px 30px rgba(0,0,0,.45); backdrop-filter: blur(6px); }
 .mp-minimap canvas { display: block; }
+.mp-minimap { transition: opacity .4s; }
+body.mp-overhead .mp-minimap { opacity: 0; }
 .mp-debug { position: absolute; left: 16px; top: 16px; white-space: pre; font: 11px/1.45 ui-monospace, Menlo, monospace;
   color: #b8f7c8; background: rgba(0,0,0,.6); padding: 6px 9px; border-radius: 8px; }
 @media (max-width: 640px) { .mp-minimap canvas { width: 120px !important; height: 120px !important; } }

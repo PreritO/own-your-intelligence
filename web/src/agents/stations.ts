@@ -56,7 +56,7 @@ export class Stations {
     const glow = makeGlow(COLORS.gap, 2.2, 0);
     const flare = makeGlow(COLORS.verified, 0.1, 0);
 
-    const label = makeLabel("", { screen: 15, px: 36 });
+    const label = makeLabel("", { screen: 19, px: 40 });
     label.sprite.position.y = 0.45;
     label.sprite.center.set(0.5, -0.4);
     label.sprite.visible = false;
@@ -96,7 +96,7 @@ export class Stations {
     if (verdict === "gap") {
       // the loudest thing on screen: bigger, constant-size note
       s.label.dispose();
-      s.label = makeLabel(text, { screen: 21, px: 40, color: "#1a1204", bg: "rgba(255,176,32,0.95)", border: "#ffd27a", onTop: true });
+      s.label = makeLabel(text, { screen: 25, px: 44, color: "#1a1204", bg: "rgba(255,176,32,0.95)", border: "#ffd27a", onTop: true });
       s.label.sprite.position.y = 0.45;
       s.label.sprite.position.y = -0.3;
       s.label.sprite.center.set(0.5, 1.25); // below the orb, clear of the reporting agent's tag
