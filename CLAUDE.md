@@ -43,6 +43,7 @@ Ports: web 5173 · ask 8787 · bridge `/events` 8788 · protocol service 8790 (`
 | `ui` (was presence/polish) | `web/src/main.ts`, `web/src/controls.ts`, `web/src/agents/` (not avatar.ts), `web/src/walk.ts`, `web/src/ui/`, `web/src/nav.ts`, `web/index.html` |
 | `humans` | `web/src/agents/avatar.ts`, `web/src/agents/human/` |
 | `voxel` | `web/src/scene/` |
+| `flow` | `web/src/flow/` |
 | `training` | `server/train/`, `web/src/rooms/` |
 | integrator | `server/layout.ts`, `server/export.ts`, `CLAUDE.md`, `docs/`, `server/schema.ts`, `server/validate.ts`, `web/src/api.ts`, `web/src/events.ts`, `web/src/plugins.ts`, `package.json`, `.claude/` |
 
