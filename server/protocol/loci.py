@@ -162,6 +162,9 @@ def _toks(text: str) -> set[str]:
 def best_snippet(body: str, question: str, limit: int = 180) -> str:
     """The sentence of a page that best answers `question` (token overlap; ties -> earliest).
     Used as a visit's `evidence` when the harness doesn't say which snippet it used."""
+    body = body.split("\n## Links")[0]
+    body = re.sub(r"\[\[[^\]|]+\|([^\]]+)\]\]", r"\1", body)  # [[slug|Title]] -> Title
+    body = re.sub(r"\[\[([^\]]+)\]\]", r"\1", body)
     text = "\n".join(l for l in body.splitlines() if not l.lstrip().startswith(("#", "---", "|--")))
     parts = [p.strip(" -*|\t") for p in re.split(r"(?<=[.!?])\s+|\n+", text)]
     parts = [p for p in parts if len(p) > 12]

@@ -110,7 +110,13 @@ async function plan(task: string, p: Palace): Promise<Plan> {
     `"department": "people|legal|finance|eng", "stations": ["<station id>", ...]}], "maybe": [{"id": "<station id>", "subtask": "s1"}]}\n` +
     `Rules: 3-5 subtasks, 1-2 stations each, only ids from the list, cover at least three departments. ` +
     `"maybe" = 2-3 stations you are unsure help; this first run will check them too.`;
-  const raw = parseJson<{ label?: string; subtasks?: Subtask[]; maybe?: { id: string; subtask: string }[] }>(await claude(system, user, 900));
+  let reply: string | null = null;
+  let raw: { label?: string; subtasks?: Subtask[]; maybe?: { id: string; subtask: string }[] } | null = null;
+  for (let i = 0; i < 2 && !raw?.subtasks?.length; i++) {
+    reply = await claude(system, user, 1600);
+    raw = parseJson(reply);
+    if (!raw?.subtasks?.length) console.warn(`planner reply unusable (attempt ${i + 1}): ${(reply ?? "null").slice(0, 160).replace(/\s+/g, " ")}`);
+  }
   if (raw?.subtasks?.length) {
     const subtasks = raw.subtasks
       .map((s, i) => ({ id: String(s.id || `s${i + 1}`), title: String(s.title), department: s.department, stations: (s.stations ?? []).filter((x) => ids.has(x)) }))
@@ -207,7 +213,7 @@ function freeFoyerSpot(p: Palace, n: number): [number, number, number] {
 
 // ------------------------------------------------------------------------------------ the quest
 
-export type QuestHooks = { harness?: QuestHarness; onExecute?: (ctx: { info: QuestInfo; route: string[] }) => Promise<boolean> };
+export type QuestHooks = { harness?: QuestHarness; onExecute?: (ctx: { info: QuestInfo; route: string[]; replies: Map<string, string> }) => Promise<boolean> };
 
 export async function startQuest(task: string, hooks: QuestHooks = {}): Promise<{ info: QuestInfo; done: Promise<void> }> {
   if (active) throw new Error(`quest ${active.agent} is still running`);
@@ -342,7 +348,7 @@ async function runQuest(info: QuestInfo, proto: Proto, p: Palace, n: number, hoo
   await proto.must("/phase", { agent, phase: "execute", note: `run 2: learned route, ${learned.length} stations (run 1: ${seen.length})` });
   await proto.must("/route", { agent, routeId: saved.routeId, stations: learned, source: "learned" });
 
-  const handled = hooks.onExecute ? await hooks.onExecute({ info, route: learned }).catch((e) => (console.warn(`execute hook failed: ${e}`), false)) : false;
+  const handled = hooks.onExecute ? await hooks.onExecute({ info, route: learned, replies: new Map(seen.filter((s) => s.via === "handoff").map((s) => [s.id, s.text])) }).catch((e) => (console.warn(`execute hook failed: ${e}`), false)) : false;
   if (!handled) {
     for (const id of learned) {
       const s = bySeen.get(id)!;
