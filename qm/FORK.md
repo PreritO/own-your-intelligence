@@ -4,10 +4,10 @@ The rule: QM stays a harness. All loci protocol logic (ownership, claims, verdic
 
 | # | Change | Where in upstream | Size | Status |
 | --- | --- | --- | --- | --- |
-| 0 | Loci tools as an MCP connector | none; `qm/loci-mcp.ts` + `PUT /v1/admin/mcp-servers/:id` | 0 lines of core | built + tested against a mock :8790 |
-| 1 | Tell MCP tools which scope is calling | `src/harness/agent-tools.ts` ~4043 (MCP `execute`) | ~3 lines | designed |
-| 2 | Handoff primitive, threaded in Slack | new `src/tools/handoff.ts`; registered in `createAgentTools()` next to `finishSilently` | ~80 lines | designed |
-| 3 | Harness-enforced grounding | `qm/overlay/src/delivery/grounding-delivery.ts`; wire at `src/wiring.ts:1678`; web path `src/core/orchestrator.ts` ~3776/~4010 | ~60 + 2 lines | overlay written |
+| 0 | Loci tools as an MCP connector | none; `qm/loci-mcp.ts` + `PUT /v1/admin/mcp-servers/loci-<team>` (ids must use hyphens) | 0 lines of core | **live**: 3 QM scopes on claude-sonnet-5 walking routes via :8790 |
+| 1 | Scope-bound loci connectors + scope passed to MCP | `src/harness/agent-tools.ts` (MCP `execute`), `LOCI_SCOPES` env | ~33 lines | **applied** (`patches/qm-fork.patch`) |
+| 2 | Handoff primitive, threaded in Slack | new `src/tools/handoff.ts`; registered in `createAgentTools()` next to `finishSilently` | ~80 lines | designed; handoff is logged by the service, but no wake/reply loop yet |
+| 3 | Harness-enforced grounding | `src/delivery/grounding-delivery.ts` (overlay); wired at `src/wiring.ts:1678`; web path `src/core/orchestrator.ts` ~3776/~4010 | ~60 + 2 lines | **applied** for deliveries (Slack/cross-scope). The web path isn't covered: live blocking comes from the service's `answer` check |
 | 4 | Palace replay link on answers | inside #3 (`replayLink`); alternatively `buildDebugFooter()` in `src/core/orchestrator/surface-tools.ts` | ~3 lines | in overlay |
 | 5 | Palace UI plugin (read QM agents/scopes) | new `plugins/palace/`, reading `/v1/projects` and scope APIs; wings = scopes | stretch | not started |
 
@@ -15,7 +15,7 @@ The rule: QM stays a harness. All loci protocol logic (ownership, claims, verdic
 
 QM's MCP client (`src/mcp/mcp-client.ts`) POSTs JSON-RPC to `${url}/mcp`, skips the initialize handshake, and accepts plain JSON. It namespaces tools as `<serverId>_<tool>`. `qm/loci-mcp.ts` serves `/<agent>/mcp`, and each of the five tools becomes `POST :8790/<tool> {agent, ...args}`. A refusal or blocked answer comes back as `isError: true` tool output, so the model sees it and follows the protocol (for example, handing off after an ownership refusal).
 
-The limitation this works around: `callMcpTool` passes the principal but not the scope, and connectors are org-wide. So the agent id comes from the URL, and nothing stops the Legal scope calling `loci_finance_visit`. The service still enforces ownership for whatever agent id it gets. Change #1 closes the gap.
+The limitation this works around: `callMcpTool` passes the principal but not the scope, and connectors are org-wide. So the agent id comes from the URL, and nothing stops the Legal scope calling `loci-finance_visit`. The service still enforces ownership for whatever agent id it gets. Change #1 closes the gap.
 
 ## 1. Scope-aware MCP calls
 
@@ -23,7 +23,7 @@ The limitation this works around: `callMcpTool` passes the principal but not the
 --- a/src/harness/agent-tools.ts   (mcpTools → defineTool → execute, ~line 4043)
 -            const out = await tc.callMcpTool(d.name, (params ?? {}) as Record<string, unknown>);
 +            const args = { ...((params ?? {}) as Record<string, unknown>) };
-+            if (d.serverId.startsWith("loci_")) args._qm = { scopeId: ref.scopeLabel, runId: ref.runId };
++            if (d.serverId.startsWith("loci-")) args._qm = { scopeId: ref.scopeLabel, runId: ref.runId };
 +            const out = await tc.callMcpTool(d.name, args);
 ```
 `loci-mcp.ts` already prefers `_qm.scopeId` over the URL path. With this change, only one connector (`loci`) needs to be registered.

@@ -24,15 +24,23 @@ bash scripts/dev-instance.sh down && docker stop qm-dev-postgres
 
 For real agents, drop `HARNESS=mock` and `DEV_INSTANCE_ALLOW_MOCK`, and put `ANTHROPIC_API_KEY` in `.env` (or use `HARNESS=codex`). Run `npm run sandbox:local:build` once before any turn that runs `execute`. For Slack, use `--surface both`. That needs `xoxb-` and `xapp-` tokens from an app built from `src/slack/manifest.json`, placed in `~/.config/qm/slack-pool/pool1.env`.
 
-## The three team agents
+The sandbox in this repo's agent worktrees refuses `bash scripts/dev-instance.sh`. It does exactly two things, so run them directly from the clone: `npm run build:connector-sdk`, then `node scripts/dev/cli.ts up --surface web`.
 
-Each team agent is a channel scope in QM: `channel:legal`, `channel:finance` and `channel:eng`. Each one has its own memory, files and sandbox. A web turn picks its agent with `{"scopeId":"channel:legal","channelName":"legal", ...}`. Then:
+## The three team agents (ran live at about 14:20 on claude-sonnet-5)
+
+Each team agent is a QM **project scope** named `legal`, `finance` or `eng` (`group:web-project-<id>`), with its own memory, files and sandbox. A web user can't use `channel:*` scopes without Slack, which is why projects are used. Core admin routes need source-auth signatures, so use `qm-admin.ts` rather than raw curl:
 
 ```bash
-bun qm/loci-mcp.ts   # :8791
-for a in legal finance eng; do
-  curl -XPUT localhost:8081/v1/admin/mcp-servers/loci_$a -H 'content-type: application/json' \
-    -d "{\"url\":\"http://localhost:8791/$a\",\"auth\":\"none\",\"enabled\":true}"
-done
-bun run bridge       # :8788, follows :8790/events, so QM-driven runs reach the palace
+# In the QM clone: apply the fork, then start with a real model and the scope map
+git apply /path/to/mind-palace/qm/patches/qm-fork.patch
+cp /path/to/mind-palace/qm/overlay/src/delivery/grounding-delivery.ts src/delivery/
+LOCI_SCOPES='{"group:web-project-…":"legal",…}' PI_MODEL=claude-sonnet-5 node scripts/dev/cli.ts up --surface web
+
+# In this repo
+bun run qm:mcp                 # :8791, loci MCP adapter
+bun run bridge                 # :8788, follows :8790/events, so QM-driven runs reach the palace
+bun qm/qm-admin.ts setup       # creates the legal/finance/eng projects + registers loci-legal/-finance/-eng
+bun qm/qm-admin.ts scopes      # scope ids for LOCI_SCOPES (re-run `dev up` after setting it)
+bun qm/qm-admin.ts demo        # the 3 demo tasks in parallel, route from server/routes.ts
+bun qm/qm-admin.ts run <runId> | python3 qm/summarize-run.py
 ```
