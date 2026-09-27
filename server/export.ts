@@ -71,14 +71,17 @@ const str = (v: unknown): string | null =>
 
 function teamToWing(team: string | null, id: string): WingId {
   const t = (team ?? "").toLowerCase();
-  if (t === "finance" || t === "legal") return t;
-  if (t === "eng" || t === "engineering") return "eng";
+  if (TEAM_WINGS.has(t as WingId) && t !== "people") return t as WingId;
+  if (t === "engineering") return "eng";
+  if (t === "operations" || t === "manufacturing") return "ops";
+  if (t === "customer-success" || t === "cs") return "support";
   if (t) return "people"; // people / shared / anything else
   // No team frontmatter: spec says shared People wing. Pages filed under a team
   // directory without frontmatter still go to that team (seed-author slip guard).
   const top = id.split("/")[0];
-  return top === "finance" || top === "legal" || top === "eng" ? top : "people";
+  return TEAM_WINGS.has(top as WingId) ? (top as WingId) : "people";
 }
+const TEAM_WINGS = new Set<WingId>(["finance", "legal", "eng", "marketing", "sales", "ops", "support"]);
 
 const slugify = (s: string) =>
   s.toLowerCase().normalize("NFKD").replace(/[^\w\s/-]/g, "").trim().replace(/[\s_]+/g, "-");
@@ -303,6 +306,10 @@ export const AGENTS: Agent[] = [
   { id: "legal", label: "Legal agent", team: "legal", color: "#bb9af7", home: "room-legal-0" },
   { id: "finance", label: "Finance agent", team: "finance", color: "#e0af68", home: "room-finance-0" },
   { id: "eng", label: "Eng agent", team: "eng", color: "#9ece6a", home: "room-eng-0" },
+  { id: "sales", label: "Sales agent", team: "sales", color: "#2ac3de", home: "room-sales-0" },
+  { id: "support", label: "Support agent", team: "support", color: "#73daca", home: "room-support-0" },
+  { id: "ops", label: "Ops agent", team: "ops", color: "#ff9e64", home: "room-ops-0" },
+  { id: "marketing", label: "Marketing agent", team: "marketing", color: "#f7768e", home: "room-marketing-0" },
 ];
 
 /** Hand-authored fallbacks (loci protocol step 1: only used when nothing was learned). */

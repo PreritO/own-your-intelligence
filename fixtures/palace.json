@@ -61,6 +61,62 @@
         "room-eng-0",
         "room-eng-1"
       ]
+    },
+    {
+      "id": "marketing",
+      "label": "Marketing",
+      "color": "#f7768e",
+      "owner": "marketing",
+      "origin": [
+        0,
+        0,
+        -48
+      ],
+      "rooms": [
+        "room-marketing-0"
+      ]
+    },
+    {
+      "id": "sales",
+      "label": "Sales",
+      "color": "#2ac3de",
+      "owner": "sales",
+      "origin": [
+        48,
+        0,
+        0
+      ],
+      "rooms": [
+        "room-sales-0"
+      ]
+    },
+    {
+      "id": "ops",
+      "label": "Ops",
+      "color": "#ff9e64",
+      "owner": "ops",
+      "origin": [
+        0,
+        0,
+        48
+      ],
+      "rooms": [
+        "room-ops-0"
+      ]
+    },
+    {
+      "id": "support",
+      "label": "Support",
+      "color": "#73daca",
+      "owner": "support",
+      "origin": [
+        -48,
+        0,
+        0
+      ],
+      "rooms": [
+        "room-support-0"
+      ]
     }
   ],
   "rooms": [
@@ -171,6 +227,14 @@
             0,
             -28
           ]
+        },
+        {
+          "to": "room-marketing-0",
+          "pos": [
+            0,
+            0,
+            -40
+          ]
         }
       ]
     },
@@ -236,6 +300,14 @@
           "to": "room-legal-0",
           "pos": [
             28,
+            0,
+            0
+          ]
+        },
+        {
+          "to": "room-sales-0",
+          "pos": [
+            40,
             0,
             0
           ]
@@ -307,6 +379,14 @@
             0,
             28
           ]
+        },
+        {
+          "to": "room-ops-0",
+          "pos": [
+            0,
+            0,
+            40
+          ]
         }
       ]
     },
@@ -372,6 +452,118 @@
           "to": "room-eng-0",
           "pos": [
             -28,
+            0,
+            0
+          ]
+        },
+        {
+          "to": "room-support-0",
+          "pos": [
+            -40,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-marketing-0",
+      "wing": "marketing",
+      "owner": "marketing",
+      "label": "Marketing",
+      "center": [
+        0,
+        0,
+        -48
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-people-1",
+          "pos": [
+            0,
+            0,
+            -42
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-sales-0",
+      "wing": "sales",
+      "owner": "sales",
+      "label": "Sales",
+      "center": [
+        48,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-legal-1",
+          "pos": [
+            42,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-ops-0",
+      "wing": "ops",
+      "owner": "ops",
+      "label": "Ops",
+      "center": [
+        0,
+        0,
+        48
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-finance-1",
+          "pos": [
+            0,
+            0,
+            42
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-support-0",
+      "wing": "support",
+      "owner": "support",
+      "label": "Support",
+      "center": [
+        -48,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-eng-1",
+          "pos": [
+            -42,
             0,
             0
           ]
@@ -2529,6 +2721,34 @@
       "team": "eng",
       "color": "#9ece6a",
       "home": "room-eng-0"
+    },
+    {
+      "id": "sales",
+      "label": "Sales agent",
+      "team": "sales",
+      "color": "#2ac3de",
+      "home": "room-sales-0"
+    },
+    {
+      "id": "support",
+      "label": "Support agent",
+      "team": "support",
+      "color": "#73daca",
+      "home": "room-support-0"
+    },
+    {
+      "id": "ops",
+      "label": "Ops agent",
+      "team": "ops",
+      "color": "#ff9e64",
+      "home": "room-ops-0"
+    },
+    {
+      "id": "marketing",
+      "label": "Marketing agent",
+      "team": "marketing",
+      "color": "#f7768e",
+      "home": "room-marketing-0"
     }
   ],
   "routes": [
@@ -2569,6 +2789,19 @@
         "finance/burn-report-2026-08",
         "finance/runway-forecast",
         "finance/venture-debt-facility"
+      ]
+    },
+    {
+      "id": "quest-onboarding-page-new-engineer",
+      "label": "Create an onboarding page for new engineers",
+      "stations": [
+        "people/org-chart",
+        "people/priya-nand",
+        "people/onboarding-guide",
+        "people/employee-handbook",
+        "legal/ip-assignment",
+        "eng/security-policy",
+        "eng/oncall-rotation"
       ]
     },
     {

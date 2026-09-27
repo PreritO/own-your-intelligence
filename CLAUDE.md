@@ -28,6 +28,7 @@ Ports: web 5173 · ask 8787 · bridge `/events` 8788 · protocol service 8790 (`
 - `memory.id` = GBrain page slug. Nothing else is a key.
 - Positions in meters, y-up; rooms are axis-aligned boxes; doors are gaps in walls, corridors join door pairs.
 - Event types: `task route move claim wait visit handoff reply answer train_step spawn phase artifact`.
+- **8 departments (15:15):** inner wings People(N, shared) Legal(E) Finance(S) Eng(W); outer wings continue each axis: Marketing(N) Sales(E) Ops(S) Support(W). Team agents: legal finance eng sales support ops marketing.
 - **Commissioned quests (main demo flow, 14:45):** the user types a task → a new agent `spawn`s → `phase` plan/explore (tours departments, handoffs to team agents) → gym (`train_step`) → execute (learned route) → `artifact` (new page) → done (`answer`). Commons rooms `room-gym`, `room-workshop`, `room-loose-ends` are real rooms in palace.json.
 - `web/src/api.ts` (`PalaceRuntime`, `Plugin`, `UI_EVENTS`) is the seam between web workspaces.
   Scene builds the runtime; ui/walk/presence/rooms are plugins registered in `web/src/plugins.ts`.
@@ -36,13 +37,13 @@ Ports: web 5173 · ask 8787 · bridge `/events` 8788 · protocol service 8790 (`
 ## Workspace ownership (Superset swarm)
 | Workspace | Owns (only edits these) |
 | --- | --- |
-| `seed` | `fixtures/` (+ `scripts/make-fixtures.ts`) |
+| `seed` / `seed-v2` | `fixtures/` (+ `scripts/make-fixtures.ts`); may run `bun run export` and commit `fixtures/palace.json` |
 | `export` (done) | `server/ask.ts` |
 | `ufo-ext` (done) | `ufo_ext_mindpalace/` |
-| `commission` (was qm-fork, ufo-ext) | `qm/`, `server/bridge.ts`, `server/routes.ts`, `server/protocol/`, `server/commission/` |
+| `commission` / `backend-v2` (was qm-fork, ufo-ext) | + `server/train/` | `qm/`, `server/bridge.ts`, `server/routes.ts`, `server/protocol/`, `server/commission/` |
 | `ui` (was presence/polish) | `web/src/main.ts`, `web/src/controls.ts`, `web/src/agents/` (not avatar.ts), `web/src/walk.ts`, `web/src/ui/`, `web/src/nav.ts`, `web/index.html` |
 | `humans` | `web/src/agents/avatar.ts`, `web/src/agents/human/` |
-| `voxel` | `web/src/scene/` |
+| `voxel` / `ui-v2` | `web/src/scene/` (ui-v2 also owns the `ui` row and `web/src/rooms/`, `web/src/flow/`) |
 | `flow` | `web/src/flow/` |
 | `training` | `server/train/`, `web/src/rooms/` |
 | integrator | `server/layout.ts`, `server/export.ts`, `CLAUDE.md`, `docs/`, `server/schema.ts`, `server/validate.ts`, `web/src/api.ts`, `web/src/events.ts`, `web/src/plugins.ts`, `package.json`, `.claude/` |

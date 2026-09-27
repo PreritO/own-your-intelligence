@@ -3,7 +3,7 @@
 // Pure: no I/O, no randomness, no clock. Same input -> same output.
 import type { Room, Vec3, Wing } from "./schema";
 
-export type WingId = "people" | "legal" | "finance" | "eng";
+export type WingId = "people" | "legal" | "finance" | "eng" | "marketing" | "sales" | "ops" | "support";
 
 export const ROOM_SIZE: Vec3 = [12, 4, 12];
 export const FIRST_ROOM_DIST = 20; // foyer center -> first room center, meters
@@ -15,11 +15,18 @@ export const DOOR_CLEARANCE_DEG = 30; // no pedestal within ±30° of a door dir
 
 export const WINGS: readonly {
   id: WingId; label: string; color: string; owner: Wing["owner"]; dir: [number, number];
+  /** continues outward along the same axis after this wing's last room */
+  after?: WingId;
 }[] = [
   { id: "people", label: "People", color: "#7aa2f7", owner: "shared", dir: [0, -1] }, // N (-z)
   { id: "legal", label: "Legal", color: "#bb9af7", owner: "legal", dir: [1, 0] }, // E (+x)
   { id: "finance", label: "Finance", color: "#e0af68", owner: "finance", dir: [0, 1] }, // S (+z)
   { id: "eng", label: "Eng", color: "#9ece6a", owner: "eng", dir: [-1, 0] }, // W (-x)
+  // Outer departments continue each axis past the inner wing.
+  { id: "marketing", label: "Marketing", color: "#f7768e", owner: "marketing", dir: [0, -1], after: "people" },
+  { id: "sales", label: "Sales", color: "#2ac3de", owner: "sales", dir: [1, 0], after: "legal" },
+  { id: "ops", label: "Ops", color: "#ff9e64", owner: "ops", dir: [0, 1], after: "finance" },
+  { id: "support", label: "Support", color: "#73daca", owner: "support", dir: [-1, 0], after: "eng" },
 ];
 
 export interface LayoutPage {
@@ -70,6 +77,7 @@ export function layout(pagesIn: LayoutPage[], opts: LayoutOptions = {}): LayoutR
   const rooms: Room[] = [foyer];
   const wings: Wing[] = [];
   const members = new Map<string, LayoutPage[]>(); // room id -> pages
+  const lastRoom = new Map<string, { id: string; dist: number }>(); // wing -> outermost room
 
   for (const w of WINGS) {
     const wingPages = pages.filter((p) => p.wing === w.id);
@@ -124,10 +132,12 @@ export function layout(pagesIn: LayoutPage[], opts: LayoutOptions = {}): LayoutR
     const ids: string[] = [];
     const labels = new Map<string, number>();
     buckets.forEach((bucket, i) => {
-      const dist = FIRST_ROOM_DIST + i * ROOM_STEP;
+      const start = w.after ? lastRoom.get(w.after)!.dist + ROOM_STEP : FIRST_ROOM_DIST;
+      const dist = start + i * ROOM_STEP;
       const center: Vec3 = [r2(w.dir[0] * dist), 0, r2(w.dir[1] * dist)];
       const id = roomId(w.id, i);
-      const prevId = i === 0 ? "foyer" : roomId(w.id, i - 1);
+      const prevId = i > 0 ? roomId(w.id, i - 1) : w.after ? lastRoom.get(w.after)!.id : "foyer";
+      lastRoom.set(w.id, { id, dist });
       const prev = rooms.find((x) => x.id === prevId)!;
       // Doors on both ends of the corridor joining prev and this room.
       prev.doors.push({ to: id, pos: [r2(prev.center[0] + w.dir[0] * 6), 0, r2(prev.center[2] + w.dir[1] * 6)] });

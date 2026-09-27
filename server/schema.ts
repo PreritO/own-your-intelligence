@@ -3,8 +3,8 @@
 import { z } from "zod";
 
 export const Vec3 = z.tuple([z.number(), z.number(), z.number()]);
-export const Team = z.enum(["finance", "legal", "eng", "people"]);
-export const Owner = z.enum(["finance", "legal", "eng", "shared"]);
+export const Team = z.enum(["finance", "legal", "eng", "people", "marketing", "sales", "ops", "support"]);
+export const Owner = z.enum(["finance", "legal", "eng", "marketing", "sales", "ops", "support", "shared"]);
 export const Verdict = z.enum(["verified", "stale", "gap"]);
 
 export const Wing = z.object({
