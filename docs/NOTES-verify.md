@@ -26,7 +26,13 @@ Workspace `verify` owns `server/protocol/loci.py`, `server/protocol/judge.py` an
 - Explore toured 13 stations. Every team visit was judged by the LLM, except the rules gaps (`sales/northwind-dpa-request` and `eng/soc2-owner`, "no owner recorded").
 - `legal/nda-template` is now a **gap** ("page doesn't say: data processing agreement and privacy policy references"). Before, it was a fresh, off-topic page counted as usable.
 - Most stations are `partial`, which is fine because they stay verified. `support/sla-policy` came back `answers`.
-- The quest was still in gym/execute at wrap-up; the final answer's claim count is in the PR / run log `/tmp/verify-e2e/runs/`.
+- Run 2 walked the learned route: 8 stations, down from 13. Final answer **not blocked**, `/grounding` ok, phase done at t=149.
+- **Finding: the claim check missed its 10 s deadline on the quest answer.** The prompt carried 13 source pages, so the event fell back to citation-level grounding with no `claims`. The background call then finished and cached: **13 supported, 6 gap, 0 unsupported**.
+- **Finding: Sonnet "extracted" facts from the source pages that aren't in the answer text** (SLA figures, deal value). The answer text is process narration plus gap lists. This is harmless for blocking, since they were all supported, but it is wrong.
+- **TODO (verify, next):**
+  - Send only cited and gap/stale pages, not every verdict.
+  - Raise the answer deadline, or warm the check while the artifact is drafted.
+  - Drop claims whose text shares no content words with the answer.
 
 ## Needed in server/commission (not mine) — for the owner
 - **quest.ts final answer:** the `/answer` text is almost all process ("Done: wrote X from N verified stations: ..."). Claim-level grounding skips process statements, so the deliverable's facts are never checked. Put 3–6 key factual sentences from the artifact into the answer text (e.g. "Summary: <facts>"), so the claims on the page are grounded.
