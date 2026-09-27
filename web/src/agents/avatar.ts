@@ -43,8 +43,9 @@ export class Avatar {
     this.light = new THREE.PointLight(color, 6, 9, 1.6);
     this.light.position.y = 0.2;
 
-    this.tag = makeLabel(name, { color: "#0b0d12", bg: color, px: 42, height: 0.42, onTop: true });
-    this.tag.sprite.position.y = 0.95;
+    this.tag = makeLabel(name, { color: "#0b0d12", bg: color, px: 42, screen: 20, onTop: true });
+    this.tag.sprite.position.y = 0.45;
+    this.tag.sprite.center.set(0.5, -0.5); // sit above the orb at any zoom
 
     this.waitRing = new THREE.Group();
     const dotGeo = new THREE.SphereGeometry(0.06, 8, 6);

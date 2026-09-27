@@ -8,6 +8,7 @@ export interface LabelOpts {
   px?: number; // font size in canvas px
   height?: number; // world height of the sprite in meters
   onTop?: boolean; // ignore depth so it shows through walls
+  screen?: number; // constant on-screen height in CSS px (ignores distance); overrides `height`
 }
 
 /** A billboard text label. Call `set(text)` to redraw. */
@@ -17,11 +18,18 @@ export function makeLabel(text: string, opts: LabelOpts = {}) {
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.minFilter = THREE.LinearFilter;
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: !opts.onTop, depthWrite: false });
+  const mat = new THREE.SpriteMaterial({
+    map: tex,
+    transparent: true,
+    depthTest: !opts.onTop,
+    depthWrite: false,
+    sizeAttenuation: !opts.screen,
+  });
   const sprite = new THREE.Sprite(mat);
   sprite.renderOrder = opts.onTop ? 20 : 5;
   const px = opts.px ?? 40;
-  const h = opts.height ?? 0.45;
+  // sizeAttenuation=false: scale.y maps to NDC height * (1 / P[1][1]); assume the ~60° fov we ship with
+  const h = opts.screen ? ((opts.screen / Math.max(400, innerHeight)) * 2) / 1.73 : (opts.height ?? 0.45);
   let cur = { text: "", color: opts.color ?? "#e6e8ee", bg: opts.bg ?? "rgba(12,14,20,0.78)", border: opts.border };
 
   function draw() {

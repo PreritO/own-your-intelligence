@@ -152,8 +152,9 @@ function play(rt: PalaceRuntime, trace: TraceT, source: string, onEnd: () => voi
     glowing.add(hp.memoryId);
     rt.setRoomLit(mem.room, true);
     lit.add(mem.room);
-    const lbl = makeLabel(`${hp.step}. ${hp.reason}`, { color: "#1b1405", bg: GOLD, px: 38, height: 0.4, onTop: true });
-    lbl.sprite.position.copy(rt.memoryPosition(hp.memoryId)!).add(new THREE.Vector3(0, 1.45, 0));
+    const lbl = makeLabel(`${hp.step}. ${hp.reason}`, { color: "#1b1405", bg: GOLD, px: 40, screen: 24, onTop: true });
+    lbl.sprite.position.copy(rt.memoryPosition(hp.memoryId)!).add(new THREE.Vector3(0, 1.2, 0));
+    lbl.sprite.center.set(0.5, -0.3);
     group.add(lbl.sprite);
     labels.push(lbl);
     const fl = makeGlow(GOLD, 0.5, 1);
@@ -205,12 +206,12 @@ function play(rt: PalaceRuntime, trace: TraceT, source: string, onEnd: () => voi
     }
   });
 
-  // camera: trail the orb by ~3.5 m along the path, a little above it, looking at it
+  // camera: trail the orb by ~4.5 m along the path, a little above it, looking at it
   const cd = director(rt);
   cd.hold("walk", 2, () => {
-    const back = Math.max(0, uAt(t) - 3.5 / total);
+    const back = Math.max(0, uAt(t) - 4.5 / total);
     curve.getPointAt(back, behind);
-    const pos = behind.clone().add(new THREE.Vector3(0, 1.3, 0));
+    const pos = behind.clone().add(new THREE.Vector3(0, 1.9, 0));
     if (pos.distanceTo(orbPos) < 1.5) pos.add(new THREE.Vector3(0, 0.8, 1.2)); // at the very start
     return { pos, look: orbPos.clone(), rate: t < 0 ? 2.5 : 5 };
   });

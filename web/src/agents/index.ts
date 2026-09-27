@@ -62,7 +62,7 @@ export const mountPresence: Plugin = (rt) => {
       ? new THREE.Vector3(room.center[0] - pos.x, 0, room.center[2] - pos.z)
       : new THREE.Vector3(0, 0, 1);
     if (toCenter.lengthSq() < 1e-4) toCenter.set(0, 0, 1);
-    toCenter.normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), (slot(agentId) - 1) * 0.55);
+    toCenter.normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), (slot(agentId) - 1) * 0.95);
     return { room: mem.room, point: pos.clone().addScaledVector(toCenter, 1.35).setY(AVATAR_Y) };
   }
 
@@ -157,7 +157,7 @@ export const mountPresence: Plugin = (rt) => {
   const offFrame = rt.onFrame((dt) => {
     const s = rt.events.speed || 1;
     for (const a of avatars.values()) a.update(dt, s);
-    stations.update(dt);
+    stations.update(dt * Math.max(1, s));
     beams.update(dt * Math.max(1, s));
   });
 
@@ -176,7 +176,7 @@ export const mountPresence: Plugin = (rt) => {
         const av = avatars.get(mode);
         if (!av) return null;
         const p = av.group.position;
-        return { pos: p.clone().add(new THREE.Vector3(0, 7.5, 8.5)), look: p.clone(), rate: 3 };
+        return { pos: p.clone().add(new THREE.Vector3(0, 7.5, 8.5)), look: p.clone(), rate: 8 };
       });
     const label = mode === "free" ? "Free walk" : mode === "overhead" ? "Overhead" : `Following ${N.agent(mode)}`;
     window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.mode, { detail: { mode, label } }));

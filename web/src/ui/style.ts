@@ -20,7 +20,7 @@ export const CSS = /* css */ `
 .mp-agent .st { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mp-agent .pg { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 12px; }
 .mp-agent .key { display: inline-block; min-width: 16px; padding: 0 4px; margin-right: 6px; border: 1px solid var(--line); border-radius: 4px; font-size: 10px; color: var(--muted); text-align: center; }
-.mp-answers { display: flex; flex-direction: column; gap: 8px; }
+.mp-answers { display: flex; flex-direction: column; gap: 8px; max-height: 58vh; overflow-y: auto; scrollbar-width: thin; flex-shrink: 0; }
 .mp-answers:empty { display: none; }
 .mp-card { padding: 10px 12px; border-left: 3px solid var(--c, #fff); animation: mp-in .35s ease-out; }
 .mp-card .who { font-weight: 700; color: var(--c); font-size: 12px; display: flex; justify-content: space-between; }

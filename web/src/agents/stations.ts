@@ -56,8 +56,9 @@ export class Stations {
     const glow = makeGlow(COLORS.gap, 2.2, 0);
     const flare = makeGlow(COLORS.verified, 0.1, 0);
 
-    const label = makeLabel("", { height: 0.34, px: 36 });
-    label.sprite.position.y = 1.05;
+    const label = makeLabel("", { screen: 15, px: 36 });
+    label.sprite.position.y = 0.45;
+    label.sprite.center.set(0.5, -0.4);
     label.sprite.visible = false;
 
     group.add(ring, spinner, column, glow, flare, label.sprite);
@@ -92,7 +93,15 @@ export class Stations {
     s.glow.material.color.set(c);
     s.column.material.color.set(c);
     s.label.sprite.visible = true;
-    if (verdict === "gap") s.label.set(text, { color: "#1a1204", bg: "rgba(255,176,32,0.95)", border: "#ffd27a" });
+    if (verdict === "gap") {
+      // the loudest thing on screen: bigger, constant-size note
+      s.label.dispose();
+      s.label = makeLabel(text, { screen: 21, px: 40, color: "#1a1204", bg: "rgba(255,176,32,0.95)", border: "#ffd27a", onTop: true });
+      s.label.sprite.position.y = 0.45;
+      s.label.sprite.position.y = -0.3;
+      s.label.sprite.center.set(0.5, 1.25); // below the orb, clear of the reporting agent's tag
+      s.group.add(s.label.sprite);
+    }
     else if (verdict === "stale") s.label.set(text, { color: "#e9c27a", bg: "rgba(40,28,8,0.8)", border: "rgba(217,164,65,0.6)" });
     else s.label.set(text, { color: COLORS.verified, bg: "rgba(8,24,16,0.78)", border: "rgba(94,242,160,0.45)" });
   }
@@ -101,6 +110,7 @@ export class Stations {
     return this.map.get(id)?.state ?? null;
   }
 
+  /** dt is scaled by replay speed so timed fades end the same at 1x and 3x. */
   update(dt: number) {
     this.time += dt;
     const t = this.time;
@@ -117,6 +127,7 @@ export class Stations {
 
       switch (s.state) {
         case "verified":
+          s.label.sprite.visible = f < 3;
           s.ring.material.opacity = f < 1.2 ? 0.4 + 0.6 * (f / 1.2) : 0.85;
           s.column.material.opacity = f < 1.2 ? 0.35 * (1 - f / 1.2) : 0;
           s.glow.material.opacity = 0;
@@ -133,7 +144,7 @@ export class Stations {
           s.column.material.opacity = 0.12 + 0.18 * p;
           s.glow.material.opacity = 0.35 + 0.45 * p;
           s.glow.scale.setScalar(2 + 0.8 * p);
-          s.label.sprite.position.y = 1.05 + 0.06 * Math.sin(t * 2.5);
+          s.label.sprite.position.y = -0.3 + 0.06 * Math.sin(t * 2.5);
           break;
         }
       }

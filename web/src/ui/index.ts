@@ -71,7 +71,7 @@ export const mountUI: Plugin = (rt) => {
 
   const routes = new Map<string, string[]>();
   const done = new Map<string, Set<string>>();
-  const handoffs = new Map<string, { from: string; to: string }>();
+  const handoffs = new Map<string, { from: string; to: string; memoryId: string }>();
   const setStatus = (agent: string, text: string) => {
     const r = rows.get(agent);
     if (r) r.st.textContent = text;
@@ -147,7 +147,7 @@ export const mountUI: Plugin = (rt) => {
         line(e, `${A(e.agent)} waits: ${A(e.heldBy)} holds the claim on ${M(e.memoryId)}`, "wait");
         break;
       case "visit": {
-        done.get(e.agent)?.add(e.memoryId);
+        if (routes.get(e.agent)?.includes(e.memoryId)) done.get(e.agent)?.add(e.memoryId);
         setProgress(e.agent);
         const list = verdicts.get(e.memoryId) ?? [];
         list.push({ agent: e.agent, verdict: e.verdict, note: e.note });
@@ -164,14 +164,19 @@ export const mountUI: Plugin = (rt) => {
         break;
       }
       case "handoff":
-        handoffs.set(e.id, { from: e.agent, to: e.toAgent });
+        handoffs.set(e.id, { from: e.agent, to: e.toAgent, memoryId: e.memoryId });
         setStatus(e.agent, `asked ${N.agent(e.toAgent)}, waiting for reply`);
         line(e, `${A(e.agent)} asked ${A(e.toAgent)}: “${esc(e.question)}”`, "handoff");
         break;
       case "reply": {
         const hnd = handoffs.get(e.id);
         line(e, `${A(e.agent)} answered ${hnd ? A(hnd.from) : "the handoff"}: “${esc(e.answer)}”`, "reply");
-        if (hnd) setStatus(hnd.from, `got ${N.agent(e.agent)}'s reply`);
+        if (hnd) {
+          setStatus(hnd.from, `got ${N.agent(e.agent)}'s reply`);
+          // the owner's verified answer covers the asker's station
+          if (routes.get(hnd.from)?.includes(hnd.memoryId)) done.get(hnd.from)?.add(hnd.memoryId);
+          setProgress(hnd.from);
+        }
         break;
       }
       case "answer":
