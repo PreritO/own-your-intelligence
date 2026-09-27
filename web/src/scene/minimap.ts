@@ -1,12 +1,12 @@
 // OWNED BY: scene. Corner minimap: wings (colours), corridors, memories, player arrow. North (-z) is up.
 import type * as THREE from "three";
-import type { Palace } from "../../../server/schema";
+import type { Palace, Room } from "../../../server/schema";
 import type { Layout } from "./layout";
 
 const SIZE = 184; // css px
 const PAD = 12;
 
-export function createMinimap(palace: Palace, layout: Layout, parent: HTMLElement, wingColor: (wing: string) => string) {
+export function createMinimap(palace: Palace, layout: Layout, parent: HTMLElement, roomColor: (room: Room) => string) {
   const dpr = Math.min(devicePixelRatio, 2);
   const wrap = document.createElement("div");
   wrap.className = "mp-minimap";
@@ -30,26 +30,27 @@ export function createMinimap(palace: Palace, layout: Layout, parent: HTMLElemen
   bg.width = bg.height = SIZE * dpr;
   const b = bg.getContext("2d")!;
   b.scale(dpr, dpr);
-  b.fillStyle = "rgba(170,160,140,0.22)";
+  b.fillStyle = "#6a9f3e"; // grass
+  b.fillRect(0, 0, SIZE, SIZE);
+  b.fillStyle = "#b2a58a"; // gravel paths
   for (const f of layout.corridorFloors) b.fillRect(X(f.minX), Z(f.minZ), (f.maxX - f.minX) * k, (f.maxZ - f.minZ) * k);
   for (const r of palace.rooms) {
-    const c = wingColor(r.wing);
-    const x = X(r.center[0] - r.size[0] / 2), z = Z(r.center[2] - r.size[2] / 2);
-    const w = r.size[0] * k, d = r.size[2] * k;
-    b.fillStyle = c + "33";
+    const c = roomColor(r);
+    const x = Math.round(X(r.center[0] - r.size[0] / 2)), z = Math.round(Z(r.center[2] - r.size[2] / 2));
+    const w = Math.round(r.size[0] * k), d = Math.round(r.size[2] * k);
+    b.fillStyle = "#3a3a3a";
+    b.fillRect(x - 1, z - 1, w + 2, d + 2);
+    b.fillStyle = c;
     b.fillRect(x, z, w, d);
-    b.strokeStyle = c + "cc";
-    b.lineWidth = 1.2;
-    b.strokeRect(x + 0.5, z + 0.5, w - 1, d - 1);
+    b.fillStyle = "rgba(0,0,0,0.18)";
+    b.fillRect(x + 2, z + 2, w - 4, d - 4);
   }
   for (const m of palace.memories) {
-    b.fillStyle = `rgba(255,${190 + 50 * m.freshness},${120 + 60 * m.freshness},${0.35 + 0.6 * m.freshness})`;
-    b.beginPath();
-    b.arc(X(m.pos[0]), Z(m.pos[2]), 1.6, 0, Math.PI * 2);
-    b.fill();
+    b.fillStyle = m.freshness > 0.3 ? "#ffe27a" : "#8a8070";
+    b.fillRect(Math.round(X(m.pos[0])) - 1, Math.round(Z(m.pos[2])) - 1, 2, 2);
   }
   // wing initials
-  b.font = "600 9px ui-sans-serif, system-ui, sans-serif";
+  b.font = "700 9px ui-monospace, Menlo, monospace";
   b.textAlign = "center";
   b.textBaseline = "middle";
   for (const w of palace.wings) {
@@ -57,7 +58,9 @@ export function createMinimap(palace: Palace, layout: Layout, parent: HTMLElemen
     if (!rs.length) continue;
     const cx = rs.reduce((s, r) => s + r.center[0], 0) / rs.length;
     const cz = rs.reduce((s, r) => s + r.center[2], 0) / rs.length;
-    b.fillStyle = w.color;
+    b.fillStyle = "#1a1a1a";
+    b.fillText(w.label.toUpperCase(), X(cx) + 1, Z(cz) + 1);
+    b.fillStyle = "#ffffff";
     b.fillText(w.label.toUpperCase(), X(cx), Z(cz));
   }
 
@@ -72,7 +75,7 @@ export function createMinimap(palace: Palace, layout: Layout, parent: HTMLElemen
       for (const id of lit) {
         const r = palace.rooms.find((x) => x.id === id);
         if (!r) continue;
-        g.fillStyle = wingColor(r.wing) + "55";
+        g.fillStyle = "rgba(255,240,160,0.45)";
         g.fillRect(X(r.center[0] - r.size[0] / 2), Z(r.center[2] - r.size[2] / 2), r.size[0] * k, r.size[2] * k);
       }
       const px = X(camera.position.x), pz = Z(camera.position.z);

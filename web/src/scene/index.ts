@@ -1,23 +1,43 @@
-// OWNED BY: scene. The palace renderer: builds rooms, corridors, pedestals, orbs, beams, labels and the
-// PalaceRuntime every plugin receives (web/src/api.ts). Museum-at-night look, < 200 draw calls.
+// OWNED BY: scene (voxel reskin). The palace renderer: a daylight block world built on a 1 m voxel grid from
+// palace.json (rooms, doors, memories unchanged). Builds the PalaceRuntime every plugin receives (web/src/api.ts).
+// Perf: one InstancedMesh per block type, merged/instanced props, < 150 draw calls incl. the shadow pass.
 import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import type { Palace } from "../../../server/schema";
-import { UI_EVENTS, emitUI, type PalaceRuntime } from "../api";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import type { Memory, Palace, Room } from "../../../server/schema";
+import { UI_EVENTS, emitUI, type PalaceRuntime, type SceneLayer } from "../api";
 import type { EventStream } from "../events";
 import { createControls, EYE_HEIGHT } from "../controls";
-import { buildLayout, type Box } from "./layout";
-import { marbleTexture, radialTexture, labelTexture } from "./textures";
+import { buildLayout, boxCells, doorSide, snapDoor, sideNormal, CORRIDOR_WALL_H } from "./layout";
+import * as TX from "./textures";
 import { createMinimap } from "./minimap";
 
-const FOYER_COLOR = "#d9c38f";
-const ORB_R = 0.22;
 const params = new URLSearchParams(location.search);
 const DEBUG = params.has("debug");
+const FOYER_COLOR = "#e8c15a";
+
+// ---------------------------------------------------------------- block palettes (original pixel art)
+type Style = "foyer" | "legal" | "finance" | "eng" | "people" | "gym" | "workshop" | "loose-ends";
+interface Palette { wall: () => HTMLCanvasElement; cap: () => HTMLCanvasElement; floor: () => HTMLCanvasElement; color: string }
+const PALETTES: Record<Style, Palette> = {
+  foyer: { wall: () => TX.polished([206, 204, 196], 21), cap: () => TX.polished([236, 232, 220], 22, true), floor: () => TX.checker([236, 232, 220], [128, 128, 134], 23), color: FOYER_COLOR },
+  legal: { wall: () => TX.bricks([128, 108, 150], [72, 60, 88], 31), cap: () => TX.polished([168, 128, 190], 32, true), floor: () => TX.checker([156, 136, 176], [120, 102, 142], 33), color: "#bb9af7" },
+  finance: { wall: () => TX.sandstone([222, 204, 152], 41), cap: () => TX.metalBlock([240, 196, 70], 42), floor: () => TX.checker([230, 214, 168], [204, 182, 128], 43), color: "#e0af68" },
+  eng: { wall: () => TX.cobble([128, 128, 124], [86, 142, 56], 51), cap: () => TX.cobble([96, 132, 70], [70, 120, 44], 52), floor: () => TX.checker([126, 130, 124], [104, 108, 102], 53), color: "#9ece6a" },
+  people: { wall: () => TX.planks([180, 140, 86], 61), cap: () => TX.bark([106, 78, 46], 62), floor: () => TX.planks([120, 86, 54], 63), color: "#7aa2f7" },
+  gym: { wall: () => TX.metalBlock([204, 208, 214], 71), cap: () => TX.metalBlock([150, 154, 162], 72), floor: () => TX.checker([112, 70, 70], [96, 60, 62], 73), color: "#e06c75" },
+  workshop: { wall: () => TX.planks([156, 112, 64], 81), cap: () => TX.polished([92, 92, 98], 82, true), floor: () => TX.planks([104, 74, 46], 83), color: "#d19a66" },
+  "loose-ends": { wall: () => TX.cobble([136, 128, 118], null, 91), cap: () => TX.bark([96, 72, 44], 92), floor: () => TX.gravel([132, 124, 112], 93), color: "#56b6c2" },
+};
+const COMMONS: Record<string, Style> = { "room-gym": "gym", "room-workshop": "workshop", "room-loose-ends": "loose-ends" };
+const styleOfRoom = (r: Room | undefined): Style => {
+  if (!r) return "foyer";
+  if (COMMONS[r.id]) return COMMONS[r.id];
+  return (r.wing in PALETTES ? r.wing : "foyer") as Style;
+};
 
 export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement, events: EventStream): PalaceRuntime {
   // ---------- renderer / scene ----------
@@ -25,184 +45,263 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   let pixelRatio = Math.min(devicePixelRatio, 1.75);
   renderer.setPixelRatio(pixelRatio);
   renderer.setSize(innerWidth, innerHeight);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = !params.has("noshadows");
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  // The world is static and the sun doesn't move: render the shadow map on demand, not every frame
+  // (saves ~25 draw calls/frame). Call bumpShadows() after anything that changes casters.
+  renderer.shadowMap.autoUpdate = false;
+  let shadowFrames = 3;
+  const bumpShadows = (frames = 2) => { shadowFrames = Math.max(shadowFrames, frames); };
   renderer.info.autoReset = false;
   mount.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  const BG = new THREE.Color("#07080d");
-  scene.background = BG;
-  scene.fog = new THREE.FogExp2("#07080d", 0.018);
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  pmrem.dispose();
-  const ENV_I = 0.06;
-  scene.environmentIntensity = ENV_I;
+  const HORIZON = new THREE.Color("#c4e0ff");
+  scene.background = HORIZON.clone();
+  scene.fog = new THREE.Fog(HORIZON.clone(), 110, 330);
 
-  const HEMI_I = 0.6, MOON_I = 0.4;
-  const hemi = new THREE.HemisphereLight("#8e9cd6", "#0b0a10", HEMI_I);
-  const moon = new THREE.DirectionalLight("#a9b8ff", MOON_I);
-  moon.position.set(18, 40, 12);
-  scene.add(hemi, moon);
+  const HEMI_I = 1.05, SUN_I = 2.7;
+  const hemi = new THREE.HemisphereLight("#d6ebff", "#8c7a52", HEMI_I);
+  const sun = new THREE.DirectionalLight("#fff3dc", SUN_I);
+  const SUN_DIR = new THREE.Vector3(0.55, 1, 0.35).normalize();
+  sun.position.copy(SUN_DIR).multiplyScalar(90);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -72, right: 72, top: 72, bottom: -72, near: 1, far: 220 });
+  sun.shadow.bias = -0.0006;
+  sun.shadow.normalBias = 0.04;
+  sun.shadow.radius = 3;
+  scene.add(hemi, sun, sun.target);
 
-  const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.08, 400);
+  const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.08, 600);
 
   // ---------- lookups ----------
-  const wingById = new Map(palace.wings.map((w) => [w.id, w]));
   const roomById = new Map(palace.rooms.map((r) => [r.id, r]));
-  const memIndex = new Map(palace.memories.map((m, i) => [m.id, i]));
-  const wingHex = (wing: string) => wingById.get(wing)?.color ?? FOYER_COLOR;
-  const roomColor = (roomId?: string) => new THREE.Color(roomId ? wingHex(roomById.get(roomId)?.wing ?? "") : FOYER_COLOR);
-
+  const wingById = new Map(palace.wings.map((w) => [w.id, w]));
+  const styleOf = (roomId?: string) => styleOfRoom(roomId ? roomById.get(roomId) : undefined);
+  const roomHex = (roomId?: string) => {
+    const r = roomId ? roomById.get(roomId) : undefined;
+    return (r && wingById.get(r.wing)?.color) || PALETTES[styleOf(roomId)].color;
+  };
   const layout = buildLayout(palace);
-  const sceneRoot = new THREE.Group();
-  sceneRoot.name = "palace";
-  scene.add(sceneRoot);
+  const root = new THREE.Group();
+  root.name = "palace";
+  scene.add(root);
+  const tmpC = new THREE.Color();
+  const m4 = new THREE.Matrix4();
+  const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+  const Q0 = new THREE.Quaternion();
+  const rnd = mulberry(1234);
+  let time = 0;
 
-  // ---------- floors ----------
-  const marble = marbleTexture();
-  const radial = radialTexture(0, 1.2);
-  radial.channel = 1;
+  // ---------- focus / dim bookkeeping (per-room factor eased in the frame loop) ----------
+  const roomIds = palace.rooms.map((r) => r.id);
+  const focus = new Map<string, { f: number; target: number }>(roomIds.map((id) => [id, { f: 1, target: 1 }]));
+  let outF = 1, outTarget = 1;
+  const roomF = (id?: string) => (id ? focus.get(id)?.f ?? outF : outF);
+  const recolorers: (() => void)[] = []; // run when focus/dim/lit factors change
+
+  // ---------- blocks: walls, caps, door frames (one InstancedMesh per block type) ----------
+  const unitCube = new THREE.BoxGeometry(1, 1, 1);
+  interface Cell { x: number; y: number; z: number; type: string; room?: string }
+  const cells = new Map<string, Cell>();
+  const key = (x: number, y: number, z: number) => `${x},${y},${z}`;
+  const texCache = new Map<string, THREE.Texture>();
+  const texFor = (type: string): THREE.Texture => {
+    let t = texCache.get(type);
+    if (!t) {
+      const [style, part] = type.split(":") as [Style, "wall" | "cap" | "floor" | "notice"];
+      const cv = part === "notice" ? noticeBoard() : PALETTES[style][part]();
+      t = TX.pixelTex(cv, part === "floor");
+      texCache.set(type, t);
+    }
+    return t;
+  };
+  // jambs: wall cells flanking each door gap get the frame/cap block
+  const jamb = new Set<string>();
+  const thresholds: { x: number; z: number; room: string; to: string; nx: number; nz: number; along: "x" | "z" }[] = [];
+  for (const r of palace.rooms) {
+    for (const d of r.doors) {
+      if (!roomById.has(d.to)) continue;
+      const s = doorSide(r, d.pos);
+      const [px, pz] = snapDoor(r, d.pos);
+      const [nx, nz] = sideNormal(s);
+      const along = s === "N" || s === "S" ? "x" : "z";
+      for (const o of [-1, 0, 1]) thresholds.push({ x: along === "x" ? Math.round(px) + o : Math.round(px), z: along === "z" ? Math.round(pz) + o : Math.round(pz), room: r.id, to: d.to, nx, nz, along });
+      for (const o of [-2, 2]) for (let y = 0; y < 3; y++) jamb.add(along === "x" ? key(Math.round(px) + o, y, Math.round(pz)) : key(Math.round(px), y, Math.round(pz) + o));
+    }
+  }
+  const noticeRoom = palace.rooms.find((r) => r.id === "room-loose-ends");
+  for (const w of layout.walls) {
+    const style = styleOf(w.roomId);
+    const topY = w.kind === "corridor-wall" ? CORRIDOR_WALL_H - 1 : Math.round(w.max[1]) - 1;
+    for (const [x, y, z] of boxCells(w)) {
+      const k = key(x, y, z);
+      if (cells.has(k)) continue;
+      let part = w.kind === "lintel" || y === topY || jamb.has(k) ? "cap" : "wall";
+      if (noticeRoom && w.roomId === noticeRoom.id && w.kind === "wall" && (y === 1 || y === 2) && Math.abs(z - (noticeRoom.center[2] - noticeRoom.size[2] / 2)) < 0.01 && Math.abs(x - noticeRoom.center[0]) <= 4) part = "notice";
+      cells.set(k, { x, y, z, type: `${style}:${part}`, room: w.roomId });
+    }
+  }
+  const byType = new Map<string, Cell[]>();
+  for (const c of cells.values()) (byType.get(c.type) ?? byType.set(c.type, []).get(c.type)!).push(c);
+  const blockMeshes: THREE.InstancedMesh[] = [];
+  for (const [type, list] of byType) {
+    const mat = new THREE.MeshLambertMaterial({ map: texFor(type) });
+    const mesh = new THREE.InstancedMesh(unitCube, mat, list.length);
+    mesh.name = `blocks:${type}`;
+    mesh.castShadow = mesh.receiveShadow = true;
+    const jitter = list.map(() => 0.88 + rnd() * 0.12);
+    list.forEach((c, i) => {
+      mesh.setMatrixAt(i, m4.makeTranslation(c.x, c.y + 0.5, c.z));
+      mesh.setColorAt(i, tmpC.setScalar(jitter[i]));
+    });
+    recolorers.push(() => {
+      list.forEach((c, i) => mesh.setColorAt(i, tmpC.setScalar(jitter[i] * (0.25 + 0.75 * roomF(c.room)))));
+      mesh.instanceColor!.needsUpdate = true;
+    });
+    mesh.computeBoundingSphere();
+    blockMeshes.push(mesh);
+    root.add(mesh);
+  }
+
+  // ---------- floors (one plane per room for per-room lit/focus; corridors merged) ----------
   const worldUV = (geo: THREE.BufferGeometry) => {
     const pos = geo.getAttribute("position");
     const uv = new Float32Array(pos.count * 2);
-    for (let i = 0; i < pos.count; i++) {
-      uv[i * 2] = pos.getX(i) / 2;
-      uv[i * 2 + 1] = pos.getZ(i) / 2;
-    }
-    geo.setAttribute("uv1", geo.getAttribute("uv").clone());
+    for (let i = 0; i < pos.count; i++) { uv[i * 2] = pos.getX(i) + 0.5; uv[i * 2 + 1] = pos.getZ(i) + 0.5; }
     geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
   };
-  interface RoomVis { floor: THREE.MeshStandardMaterial; label: THREE.SpriteMaterial; lit: number; litTarget: number }
+  const floorPlane = (minX: number, maxX: number, minZ: number, maxZ: number, y = 0) => {
+    const g = new THREE.PlaneGeometry(maxX - minX, maxZ - minZ);
+    g.rotateX(-Math.PI / 2);
+    g.translate((minX + maxX) / 2, y, (minZ + maxZ) / 2);
+    worldUV(g);
+    return g;
+  };
+  interface RoomVis { floor: THREE.MeshLambertMaterial; sign?: THREE.SpriteMaterial; lit: number; litTarget: number }
   const roomVis = new Map<string, RoomVis>();
   for (const r of palace.rooms) {
-    const geo = new THREE.PlaneGeometry(r.size[0], r.size[2]);
-    geo.rotateX(-Math.PI / 2);
-    geo.translate(r.center[0], r.center[1], r.center[2]);
-    worldUV(geo);
-    const mat = new THREE.MeshStandardMaterial({
-      map: marble, color: "#8e94a2", roughness: 0.55, metalness: 0.1,
-      emissive: roomColor(r.id), emissiveMap: radial, emissiveIntensity: 0.03,
-    });
+    const hx = r.size[0] / 2, hz = r.size[2] / 2;
+    const geo = floorPlane(r.center[0] - hx + 0.5, r.center[0] + hx - 0.5, r.center[2] - hz + 0.5, r.center[2] + hz - 0.5, 0.002);
+    const mat = new THREE.MeshLambertMaterial({ map: texFor(`${styleOf(r.id)}:floor`), emissive: new THREE.Color(roomHex(r.id)), emissiveIntensity: 0 });
     const floor = new THREE.Mesh(geo, mat);
+    floor.receiveShadow = true;
     floor.name = `floor:${r.id}`;
-    sceneRoot.add(floor);
-    roomVis.set(r.id, { floor: mat, label: null as unknown as THREE.SpriteMaterial, lit: 0, litTarget: 0 });
+    root.add(floor);
+    roomVis.set(r.id, { floor: mat, lit: 0, litTarget: 0 });
   }
+  const pathMat = new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.gravel([150, 138, 118], 99), true) });
   if (layout.corridorFloors.length) {
-    const geos = layout.corridorFloors.map((f) => {
-      const g = new THREE.PlaneGeometry(f.maxX - f.minX, f.maxZ - f.minZ);
-      g.rotateX(-Math.PI / 2);
-      g.translate((f.minX + f.maxX) / 2, -0.004, (f.minZ + f.maxZ) / 2);
-      worldUV(g);
-      return g;
-    });
-    const merged = mergePlanes(geos);
-    const corridorFloor = new THREE.Mesh(merged, new THREE.MeshStandardMaterial({ map: marble, color: "#7d8290", roughness: 0.4, metalness: 0.15 }));
-    corridorFloor.name = "corridor-floors";
-    sceneRoot.add(corridorFloor);
+    const cf = new THREE.Mesh(mergeGeometries(layout.corridorFloors.map((f) => floorPlane(f.minX, f.maxX, f.minZ, f.maxZ, 0.001))), pathMat);
+    cf.receiveShadow = true;
+    cf.name = "corridor-floors";
+    root.add(cf);
   }
 
-  // ---------- walls (one InstancedMesh) ----------
-  const unitBox = new THREE.BoxGeometry(1, 1, 1);
-  unitBox.translate(0.5, 0.5, 0.5); // min corner at origin -> scale = size
-  const m4 = new THREE.Matrix4();
-  const boxMatrix = (b: Box, grow = 0) =>
-    m4.compose(
-      new THREE.Vector3(b.min[0] - grow, b.min[1], b.min[2] - grow),
-      new THREE.Quaternion(),
-      new THREE.Vector3(b.max[0] - b.min[0] + grow * 2, b.max[1] - b.min[1], b.max[2] - b.min[2] + grow * 2),
-    );
-  const wallMat = new THREE.MeshStandardMaterial({ color: "#3a4052", emissive: "#0c0e15", roughness: 0.82, metalness: 0.05 });
-  const walls = new THREE.InstancedMesh(unitBox, wallMat, layout.walls.length);
-  walls.name = "walls";
-  layout.walls.forEach((b, i) => walls.setMatrixAt(i, boxMatrix(b)));
-  walls.computeBoundingSphere();
-  sceneRoot.add(walls);
-
-  // ---------- wing-coloured trim (one InstancedMesh, per-instance colour) ----------
-  interface TrimDef { box: Box; room?: string; base: THREE.Color; strength: number }
-  const trims: TrimDef[] = [];
-  const addTrim = (box: Box, room: string | undefined, base: THREE.Color, strength = 1) => trims.push({ box, room, base, strength });
-  for (const w of layout.walls) {
-    const c = w.kind === "corridor-wall" ? new THREE.Color(FOYER_COLOR) : roomColor(w.roomId);
-    const thinX = w.max[0] - w.min[0] < w.max[2] - w.min[2];
-    const gx = thinX ? 0.025 : 0, gz = thinX ? 0 : 0.025;
-    const grow = (b: Box): Box => ({ ...b, min: [b.min[0] - gx, b.min[1], b.min[2] - gz], max: [b.max[0] + gx, b.max[1], b.max[2] + gz] });
-    if (w.kind === "wall") {
-      addTrim(grow({ ...w, min: [w.min[0], w.min[1], w.min[2]], max: [w.max[0], w.min[1] + 0.09, w.max[2]] }), w.roomId, c, 0.8);
-      addTrim(grow({ ...w, min: [w.min[0], w.max[1] - 0.06, w.min[2]], max: [w.max[0], w.max[1] + 0.02, w.max[2]] }), w.roomId, c, 1);
-    } else if (w.kind === "lintel") {
-      // glowing door frame on both wall faces: header + two jambs (thin, not the whole reveal)
-      const alongX = !thinX; // the gap runs along x
-      const s = 0.06, d = 0.05, o = 0.02;
-      const faces = alongX
-        ? [[w.min[2] - o, w.min[2] + d - o], [w.max[2] - d + o, w.max[2] + o]]
-        : [[w.min[0] - o, w.min[0] + d - o], [w.max[0] - d + o, w.max[0] + o]];
-      const g0 = alongX ? w.min[0] : w.min[2], g1 = alongX ? w.max[0] : w.max[2];
-      for (const [f0, f1] of faces) {
-        const mk = (a0: number, a1: number, y0: number, y1: number): Box =>
-          alongX ? { ...w, min: [a0, y0, f0], max: [a1, y1, f1] } : { ...w, min: [f0, y0, a0], max: [f1, y1, a1] };
-        addTrim(mk(g0, g1, w.min[1] - s, w.min[1]), w.roomId, c, 1.1);
-        addTrim(mk(g0, g0 + s, 0, w.min[1]), w.roomId, c, 1.1);
-        addTrim(mk(g1 - s, g1, 0, w.min[1]), w.roomId, c, 1.1);
-      }
-    } else {
-      addTrim(grow({ ...w, min: [w.min[0], w.max[1] - 0.05, w.min[2]], max: [w.max[0], w.max[1] + 0.02, w.max[2]] }), undefined, c, 0.7);
+  // ---------- door thresholds: team-coloured wool stripe + banners on the jambs ----------
+  const doorColor = (room: string, to: string) => roomHex(roomById.get(room)?.wing === "foyer" ? to : room);
+  const woolTex = TX.pixelTex(TX.wool());
+  const carpet = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.07, 1), new THREE.MeshLambertMaterial({ map: woolTex }), Math.max(1, thresholds.length));
+  carpet.name = "door-stripes";
+  carpet.receiveShadow = true;
+  thresholds.forEach((t, i) => {
+    carpet.setMatrixAt(i, m4.makeTranslation(t.x, 0.035, t.z));
+    carpet.setColorAt(i, tmpC.set(doorColor(t.room, t.to)));
+  });
+  root.add(carpet);
+  interface BannerDef { room: string; color: THREE.Color }
+  const bannerDefs: BannerDef[] = [];
+  const bannerMats: THREE.Matrix4[] = [];
+  for (const t of thresholds) {
+    // one pass per door (use the middle threshold cell): banners on both jambs, both faces
+    const mid = thresholds.filter((u) => u.room === t.room && u.to === t.to);
+    if (mid[1] !== t) continue;
+    for (const o of [-2, 2]) for (const face of [-1, 1]) {
+      const bx = t.along === "x" ? t.x + o : t.x + face * 0.53, bz = t.along === "z" ? t.z + o : t.z + face * 0.53;
+      const ry = t.along === "x" ? (face > 0 ? 0 : Math.PI) : (face > 0 ? Math.PI / 2 : -Math.PI / 2);
+      bannerMats.push(new THREE.Matrix4().compose(V(bx, 1.95, bz), new THREE.Quaternion().setFromAxisAngle(THREE.Object3D.DEFAULT_UP, ry), V(1, 1, 1)));
+      bannerDefs.push({ room: t.room, color: new THREE.Color(doorColor(t.room, t.to)) });
     }
   }
-  const trimMesh = new THREE.InstancedMesh(unitBox, new THREE.MeshBasicMaterial({ toneMapped: false }), trims.length);
-  trimMesh.name = "trim";
-  trims.forEach((t, i) => trimMesh.setMatrixAt(i, boxMatrix(t.box)));
-  sceneRoot.add(trimMesh);
+  const bannerTex = TX.pixelTex(TX.banner());
+  bannerTex.wrapS = bannerTex.wrapT = THREE.ClampToEdgeWrapping;
+  const banners = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.8, 1.6), new THREE.MeshLambertMaterial({ map: bannerTex, alphaTest: 0.5, side: THREE.DoubleSide }), Math.max(1, bannerMats.length));
+  banners.name = "banners";
+  bannerMats.forEach((mm, i) => { banners.setMatrixAt(i, mm); banners.setColorAt(i, bannerDefs[i].color); });
+  root.add(banners);
 
-  // ---------- pedestals + orbs + floor light pools ----------
-  const N = palace.memories.length;
-  const pedGeo = new THREE.LatheGeometry(
-    [
-      new THREE.Vector2(0.0, 0), new THREE.Vector2(0.36, 0), new THREE.Vector2(0.36, 0.08), new THREE.Vector2(0.27, 0.12),
-      new THREE.Vector2(0.21, 0.2), new THREE.Vector2(0.19, 0.86), new THREE.Vector2(0.27, 0.92), new THREE.Vector2(0.3, 1),
-      new THREE.Vector2(0.0, 1),
-    ],
-    10,
-  );
-  const pedestals = new THREE.InstancedMesh(pedGeo, new THREE.MeshStandardMaterial({ color: "#c9c2b3", roughness: 0.45, metalness: 0.05 }), Math.max(N, 1));
-  pedestals.name = "pedestals";
-  pedestals.count = N;
-  // Orb: glowing core shader (bright centre, softer rim) so it reads as light even with bloom off.
-  const orbMat = new THREE.ShaderMaterial({
-    vertexShader: /* glsl */ `
-      varying vec3 vC; varying float vF;
-      void main() {
-        vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.0);
-        vec3 n = normalize(mat3(modelMatrix * instanceMatrix) * normal);
-        vec3 v = normalize(cameraPosition - wp.xyz);
-        vF = clamp(dot(n, v), 0.0, 1.0);
-        vC = instanceColor;
-        gl_Position = projectionMatrix * viewMatrix * wp;
-      }`,
-    fragmentShader: /* glsl */ `
-      varying vec3 vC; varying float vF;
-      void main() {
-        float core = pow(vF, 2.5);
-        vec3 c = vC * (0.55 + 0.9 * core) + vec3(1.0, 0.95, 0.85) * core * 0.35 * min(1.0, dot(vC, vec3(0.33)));
-        gl_FragColor = vec4(c, 1.0);
-      }`,
-  });
-  const orbs = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(ORB_R, 2), orbMat, Math.max(N, 1));
-  orbs.name = "orbs";
-  orbs.count = N;
-  const poolGeo = new THREE.PlaneGeometry(2.6, 2.6);
-  poolGeo.rotateX(-Math.PI / 2);
-  const pools = new THREE.InstancedMesh(
-    poolGeo,
-    new THREE.MeshBasicMaterial({ map: radialTexture(0, 0.8), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2 }),
-    Math.max(N, 1),
-  );
-  pools.name = "orb-pools";
-  pools.count = N;
-  // Halo: camera-facing soft disc per orb (instanced billboard), additive.
+  // ---------- torches: emissive blocks on interior walls (no PointLights) ----------
+  interface TorchDef { room: string }
+  const torchDefs: TorchDef[] = [];
+  const stickM: THREE.Matrix4[] = [], headM: THREE.Matrix4[] = [];
+  for (const r of palace.rooms) {
+    const hx = r.size[0] / 2, hz = r.size[2] / 2;
+    const offs = [-(Math.min(hx, hz) - 2), Math.min(hx, hz) - 2];
+    for (const [nx, nz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      for (const o of offs) {
+        const inset = (nx ? hx : hz) - 0.5; // interior face of the wall block
+        const x = r.center[0] + (nx ? nx * inset : o), z = r.center[2] + (nz ? nz * inset : o);
+        const tilt = new THREE.Quaternion().setFromAxisAngle(V(nz, 0, -nx), 0.35);
+        const base = V(x - nx * 0.1, 2.1, z - nz * 0.1);
+        stickM.push(new THREE.Matrix4().compose(base, tilt, V(1, 1, 1)));
+        const top = V(0, 0.3, 0).applyQuaternion(tilt).add(base);
+        headM.push(new THREE.Matrix4().compose(top, tilt, V(1, 1, 1)));
+        torchDefs.push({ room: r.id });
+      }
+    }
+  }
+  const stickGeo = new THREE.BoxGeometry(0.1, 0.5, 0.1);
+  const sticks = new THREE.InstancedMesh(stickGeo, new THREE.MeshLambertMaterial({ color: "#7a5230" }), torchDefs.length);
+  const heads = new THREE.InstancedMesh(new THREE.BoxGeometry(0.16, 0.16, 0.16), new THREE.MeshBasicMaterial({ toneMapped: false }), torchDefs.length);
+  sticks.name = "torch-sticks";
+  heads.name = "torch-heads";
+  stickM.forEach((mm, i) => { sticks.setMatrixAt(i, mm); heads.setMatrixAt(i, headM[i]); });
+  const TORCH = new THREE.Color("#ffc65a");
+  const refreshTorches = (flick = 0) => {
+    torchDefs.forEach((t, i) => {
+      const v = roomVis.get(t.room);
+      const k = (1.05 + 0.5 * (v?.lit ?? 0) + flick * Math.sin(time * 13 + i * 2.1)) * (0.3 + 0.7 * roomF(t.room));
+      heads.setColorAt(i, tmpC.copy(TORCH).multiplyScalar(k));
+    });
+    heads.instanceColor!.needsUpdate = true;
+  };
+  root.add(sticks, heads);
+
+  // ---------- Hall of Quests: gold ring inlay in the foyer floor (open ring for new lecterns) ----------
+  const foyer = roomById.get("foyer") ?? palace.rooms[0];
+  if (foyer) {
+    const ring: [number, number][] = [];
+    for (let x = -5; x <= 5; x++) for (let z = -5; z <= 5; z++) {
+      const d = Math.hypot(x, z);
+      if (d > 2.6 && d < 3.7) ring.push([foyer.center[0] + x, foyer.center[2] + z]);
+    }
+    const inlay = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.03, 1), new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.metalBlock([240, 196, 70], 7)) }), ring.length + 1);
+    ring.forEach(([x, z], i) => inlay.setMatrixAt(i, m4.makeTranslation(x, 0.015, z)));
+    inlay.setMatrixAt(ring.length, m4.compose(V(foyer.center[0], 0.015, foyer.center[2]), Q0, V(1, 1, 1)));
+    inlay.receiveShadow = true;
+    inlay.name = "quest-ring";
+    root.add(inlay);
+  }
+
+  // ---------- memories: lecterns + floating books + halos + cobwebs ----------
+  const mems: Memory[] = [...palace.memories];
+  const memIndex = new Map(mems.map((m, i) => [m.id, i]));
+  const CAP = mems.length + 32;
+  const lecternGeo = (() => {
+    const base = new THREE.BoxGeometry(0.72, 0.12, 0.72); base.translate(0, 0.06, 0);
+    const post = new THREE.BoxGeometry(0.34, 0.6, 0.34); post.translate(0, 0.42, 0);
+    const top = new THREE.BoxGeometry(0.74, 0.1, 0.6); top.rotateX(0.38); top.translate(0, 0.78, 0);
+    return mergeGeometries([base, post, top]);
+  })();
+  const lecterns = new THREE.InstancedMesh(lecternGeo, new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.lectern()) }), CAP);
+  lecterns.name = "lecterns";
+  lecterns.castShadow = lecterns.receiveShadow = true;
+  const bookGeo = new THREE.BoxGeometry(0.4, 0.1, 0.3);
+  const books = new THREE.InstancedMesh(bookGeo, new THREE.MeshBasicMaterial({ map: TX.pixelTex(TX.book()), toneMapped: false }), CAP);
+  books.name = "books";
   const haloMat = new THREE.ShaderMaterial({
     vertexShader: /* glsl */ `
       varying vec3 vC; varying vec2 vUv;
@@ -216,40 +315,61 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     fragmentShader: /* glsl */ `
       varying vec3 vC; varying vec2 vUv;
       void main() {
-        float d = length(vUv - 0.5) * 2.0;
-        float a = pow(max(0.0, 1.0 - d), 2.2);
+        vec2 q = floor(vUv * 8.0) / 8.0 + 0.0625; // pixelated falloff
+        float d = length(q - 0.5) * 2.0;
+        float a = pow(max(0.0, 1.0 - d), 1.8);
         gl_FragColor = vec4(vC * a, 1.0);
       }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   });
-  const halos = new THREE.InstancedMesh(new THREE.PlaneGeometry(1.5, 1.5), haloMat, Math.max(N, 1));
-  halos.name = "orb-halos";
-  halos.count = N;
+  const halos = new THREE.InstancedMesh(new THREE.PlaneGeometry(1.3, 1.3), haloMat, CAP);
+  halos.name = "book-halos";
   halos.frustumCulled = false;
-  const FRESH = new THREE.Color("#ffcf86"), STALE = new THREE.Color("#8f8272");
-  const orbBase: THREE.Color[] = [];
+  const webGeo = (() => {
+    const a = new THREE.PlaneGeometry(0.7, 0.7);
+    const b = a.clone(); b.rotateY(Math.PI / 2);
+    return mergeGeometries([a, b]);
+  })();
+  const webTex = TX.pixelTex(TX.cobweb());
+  const webs = new THREE.InstancedMesh(webGeo, new THREE.MeshLambertMaterial({ map: webTex, alphaTest: 0.5, side: THREE.DoubleSide, transparent: false }), CAP);
+  webs.name = "cobwebs";
+  const FRESH = new THREE.Color("#ffd98a"), STALE = new THREE.Color("#8a8070");
+  const memBase: THREE.Color[] = [];
+  const spawnT = new Map<number, number>(); // index -> seconds since spawn (addMemory flourish)
+  const gapped = new Set<number>();
   const glowOverride = new Map<number, number>();
-  palace.memories.forEach((m, i) => {
-    const pedH = Math.max(0.2, m.pos[1] - ORB_R - 0.08);
-    pedestals.setMatrixAt(i, m4.compose(new THREE.Vector3(m.pos[0], 0, m.pos[2]), new THREE.Quaternion(), new THREE.Vector3(1, pedH, 1)));
-    orbs.setMatrixAt(i, m4.makeTranslation(m.pos[0], m.pos[1], m.pos[2]));
-    pools.setMatrixAt(i, m4.makeTranslation(m.pos[0], 0.015, m.pos[2]));
-    orbBase.push(STALE.clone().lerp(FRESH, m.freshness));
-  });
-  pedestals.computeBoundingSphere();
-  orbs.computeBoundingSphere();
-  sceneRoot.add(pedestals, orbs, pools, halos);
+  let webCount = 0;
+  const webOf: number[] = [];
+  const placeMemory = (m: Memory, i: number) => {
+    lecterns.setMatrixAt(i, m4.compose(V(m.pos[0], 0, m.pos[2]), new THREE.Quaternion().setFromAxisAngle(THREE.Object3D.DEFAULT_UP, lecternYaw(m)), V(1, 1, 1)));
+    memBase[i] = STALE.clone().lerp(FRESH, m.freshness);
+    if (m.freshness < 0.3) {
+      webs.setMatrixAt(webCount, m4.compose(V(m.pos[0] + 0.28, 0.95, m.pos[2] + 0.28), new THREE.Quaternion().setFromAxisAngle(THREE.Object3D.DEFAULT_UP, Math.PI / 4), V(1, 1, 1)));
+      webOf[webCount] = i;
+      webCount++;
+      webs.count = webCount;
+    }
+  };
+  const lecternYaw = (m: Memory) => {
+    const r = roomById.get(m.room);
+    return r ? Math.atan2(r.center[0] - m.pos[0], r.center[2] - m.pos[2]) : 0;
+  };
+  webs.count = 0;
+  mems.forEach(placeMemory);
+  const setCounts = () => { lecterns.count = books.count = halos.count = mems.length; };
+  setCounts();
+  lecterns.computeBoundingSphere();
+  root.add(lecterns, books, halos, webs);
 
-  // ---------- dust on stale memories (one Points, shader-animated) ----------
-  const stale = palace.memories.filter((m) => m.freshness < 0.3);
-  const DUST_PER = 46;
-  const dustPos = new Float32Array(stale.length * DUST_PER * 3);
-  const dustSeed = new Float32Array(stale.length * DUST_PER);
-  let di = 0;
-  const rnd = mulberry(42);
-  for (const m of stale) {
-    for (let k = 0; k < DUST_PER; k++, di++) {
-      const a = rnd() * Math.PI * 2, rr = 0.15 + rnd() * 0.75, y = (rnd() - 0.3) * 1.3;
+  // dust on stale memories: grey pixel motes (normal blending, reads in daylight)
+  const stale = mems.filter((m) => m.freshness < 0.3);
+  const DUST_PER = 26;
+  const dustPos = new Float32Array(Math.max(1, stale.length * DUST_PER) * 3);
+  const dustSeed = new Float32Array(Math.max(1, stale.length * DUST_PER));
+  {
+    let di = 0;
+    for (const m of stale) for (let k = 0; k < DUST_PER; k++, di++) {
+      const a = rnd() * Math.PI * 2, rr = 0.2 + rnd() * 0.6, y = (rnd() - 0.2) * 1.1;
       dustPos.set([m.pos[0] + Math.cos(a) * rr, m.pos[1] + y, m.pos[2] + Math.sin(a) * rr], di * 3);
       dustSeed[di] = rnd() * 100;
     }
@@ -262,115 +382,284 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     vertexShader: /* glsl */ `
       attribute float seed; uniform float uTime; uniform float uScale; varying float vA;
       void main() {
-        vec3 p = position;
-        float t = uTime * 0.25 + seed;
-        p += vec3(sin(t * 1.3) * 0.12, sin(t * 0.7 + seed) * 0.18, cos(t * 1.1) * 0.12);
+        vec3 p = position; float t = uTime * 0.25 + seed;
+        p += vec3(sin(t * 1.3) * 0.1, fract(t * 0.08 + seed) * 0.5 - 0.25, cos(t * 1.1) * 0.1);
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
-        gl_PointSize = (0.022 + 0.018 * fract(seed)) * uScale / -mv.z;
-        vA = 0.35 + 0.35 * sin(t * 2.0 + seed * 3.0);
+        gl_PointSize = 0.045 * uScale / -mv.z;
+        vA = 0.55 + 0.3 * sin(t * 2.0 + seed * 3.0);
       }`,
     fragmentShader: /* glsl */ `
       varying float vA; uniform float uDim;
-      void main() {
-        float d = length(gl_PointCoord - 0.5);
-        if (d > 0.5) discard;
-        gl_FragColor = vec4(vec3(0.85, 0.76, 0.6) * uDim, vA * smoothstep(0.5, 0.0, d));
-      }`,
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      void main() { gl_FragColor = vec4(vec3(0.62, 0.6, 0.55) * uDim, vA); }`,
+    transparent: true, depthWrite: false,
   });
   const dust = new THREE.Points(dustGeo, dustMat);
   dust.name = "dust";
   dust.frustumCulled = false;
-  if (stale.length) sceneRoot.add(dust);
+  if (stale.length) root.add(dust);
 
-  // ---------- link beams (one LineSegments, arcs, vertex colours) ----------
-  const SEG = 18;
-  const links = palace.links
-    .map((l) => ({ a: memIndex.get(l.from), b: memIndex.get(l.to) }))
-    .filter((l): l is { a: number; b: number } => l.a !== undefined && l.b !== undefined && l.a !== l.b);
-  const beamPos = new Float32Array(links.length * SEG * 2 * 3);
-  const beamCol = new Float32Array(beamPos.length);
-  const beamBaseA: THREE.Color[] = [], beamBaseB: THREE.Color[] = [];
-  const pa = new THREE.Vector3(), pb = new THREE.Vector3(), pc = new THREE.Vector3();
-  links.forEach((l, li) => {
-    const A = palace.memories[l.a], B = palace.memories[l.b];
-    pa.fromArray(A.pos);
-    pb.fromArray(B.pos);
-    const dist = pa.distanceTo(pb);
-    const lift = Math.min(0.5 + dist * 0.12, 2.2);
-    const pt = (t: number) => pc.lerpVectors(pa, pb, t).setY(pc.y + Math.sin(Math.PI * t) * lift).toArray();
-    for (let s = 0; s < SEG; s++) {
-      beamPos.set(pt(s / SEG), (li * SEG + s) * 6);
-      beamPos.set(pt((s + 1) / SEG), (li * SEG + s) * 6 + 3);
+  // ---------- spawn flourish: block particles + light column (addMemory) ----------
+  const PMAX = 120;
+  const parts = new THREE.InstancedMesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial({ toneMapped: false }), PMAX);
+  parts.name = "spawn-particles";
+  parts.frustumCulled = false;
+  parts.count = 0;
+  const pState: { p: THREE.Vector3; v: THREE.Vector3; life: number; max: number; c: THREE.Color }[] = [];
+  const column = new THREE.Mesh(new THREE.BoxGeometry(0.9, 30, 0.9), new THREE.MeshBasicMaterial({ color: "#ffe9a8", transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+  column.name = "spawn-column";
+  column.visible = false;
+  let columnT = -1;
+  root.add(parts, column);
+  const burst = (at: THREE.Vector3, color: THREE.Color) => {
+    for (let k = 0; k < 44; k++) {
+      if (pState.length >= PMAX) pState.shift();
+      const a = rnd() * Math.PI * 2, s = 1 + rnd() * 2.6;
+      const c = k % 3 === 0 ? new THREE.Color("#ffffff") : k % 3 === 1 ? new THREE.Color("#ffd24a") : color.clone();
+      pState.push({ p: at.clone().add(V((rnd() - 0.5) * 0.4, rnd() * 0.4, (rnd() - 0.5) * 0.4)), v: V(Math.cos(a) * s, 2.5 + rnd() * 3.5, Math.sin(a) * s), life: 0, max: 0.9 + rnd() * 0.8, c: c.multiplyScalar(1.4) });
     }
-    beamBaseA.push(roomColor(A.room).lerp(new THREE.Color("#fff1d6"), 0.35));
-    beamBaseB.push(roomColor(B.room).lerp(new THREE.Color("#fff1d6"), 0.35));
-  });
-  const beamGeo = new THREE.BufferGeometry();
-  beamGeo.setAttribute("position", new THREE.BufferAttribute(beamPos, 3));
-  const beamColAttr = new THREE.BufferAttribute(beamCol, 3);
-  beamColAttr.setUsage(THREE.DynamicDrawUsage);
-  beamGeo.setAttribute("color", beamColAttr);
-  const beams = new THREE.LineSegments(
-    beamGeo,
-    new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }),
-  );
-  beams.name = "link-beams";
-  beams.frustumCulled = false;
-  if (links.length) sceneRoot.add(beams);
+    column.position.set(at.x, 15, at.z);
+    column.visible = true;
+    columnT = 0;
+  };
 
-  // ---------- room labels ----------
-  for (const r of palace.rooms) {
-    const wing = wingById.get(r.wing);
-    const caption = wing ? wing.label : r.wing === "foyer" ? "Mind Palace" : r.wing;
-    const { tex, aspect } = labelTexture(r.label, caption, wingHex(r.wing));
-    const mat = new THREE.SpriteMaterial({ map: tex, color: "#c8c4bc", transparent: true, depthWrite: false, fog: true, opacity: 0.95 });
-    const sp = new THREE.Sprite(mat);
-    const h = 0.95;
-    sp.scale.set(h * aspect, h, 1);
-    sp.position.set(r.center[0], r.center[1] + Math.min(r.size[1] - 0.55, 3.35), r.center[2]);
-    sp.name = `label:${r.id}`;
-    sceneRoot.add(sp);
-    roomVis.get(r.id)!.label = mat;
-  }
-
-  // ---------- night sky ----------
+  // ---------- memory labels (layer "memoryLabels"): one atlas + one instanced billboard ----------
+  let atlas = TX.labelAtlas(mems.map((m) => m.title));
+  const labelGeo = new THREE.InstancedBufferGeometry();
   {
-    const n = 1400, p = new Float32Array(n * 3), rs = mulberry(9);
-    for (let i = 0; i < n; i++) {
-      const th = rs() * Math.PI * 2, ph = Math.acos(rs() * 0.92), R = 180;
-      p.set([Math.sin(ph) * Math.cos(th) * R, Math.cos(ph) * R, Math.sin(ph) * Math.sin(th) * R], i * 3);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(p, 3));
-    const stars = new THREE.Points(g, new THREE.PointsMaterial({ color: "#c9d2ff", size: 1.4, sizeAttenuation: false, fog: false, transparent: true, opacity: 0.7 }));
-    stars.name = "stars";
-    scene.add(stars);
+    const pl = new THREE.PlaneGeometry(1, 1);
+    pl.translate(0, 0.5, 0);
+    labelGeo.index = pl.index;
+    labelGeo.setAttribute("position", pl.getAttribute("position"));
+    labelGeo.setAttribute("uv", pl.getAttribute("uv"));
   }
+  const rectAttr = new THREE.InstancedBufferAttribute(new Float32Array(CAP * 4), 4);
+  const anchorAttr = new THREE.InstancedBufferAttribute(new Float32Array(CAP * 3), 3);
+  labelGeo.setAttribute("aRect", rectAttr);
+  labelGeo.setAttribute("aAnchor", anchorAttr);
+  const labelMat = new THREE.ShaderMaterial({
+    uniforms: { map: { value: atlas.tex }, uH: { value: 0.17 } },
+    vertexShader: /* glsl */ `
+      attribute vec4 aRect; attribute vec3 aAnchor; uniform float uH; varying vec2 vUv;
+      void main() {
+        vec4 c = viewMatrix * modelMatrix * vec4(aAnchor, 1.0);
+        c.xy += vec2(position.x * aRect.w, position.y) * uH;
+        vUv = vec2(uv.x * aRect.x, mix(aRect.y, aRect.z, uv.y));
+        gl_Position = projectionMatrix * c;
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D map; varying vec2 vUv;
+      void main() { vec4 t = texture2D(map, vUv); if (t.a < 0.3) discard; gl_FragColor = t;
+        #include <colorspace_fragment>
+      }`,
+    transparent: true, depthWrite: false,
+  });
+  const memLabels = new THREE.Mesh(labelGeo, labelMat);
+  memLabels.name = "memory-labels";
+  memLabels.frustumCulled = false;
+  memLabels.visible = false;
+  const writeLabels = () => {
+    atlas.rows.forEach((r, i) => {
+      rectAttr.setXYZW(i, r.u1, r.v0, r.v1, r.aspect);
+      anchorAttr.setXYZ(i, mems[i].pos[0], mems[i].pos[1] + 0.42, mems[i].pos[2]);
+    });
+    rectAttr.needsUpdate = anchorAttr.needsUpdate = true;
+    labelGeo.instanceCount = mems.length;
+  };
+  writeLabels();
+  root.add(memLabels);
 
-  // ---------- post: bloom ----------
+  // ---------- link beams (layer "links", off by default): pixel-dotted arcs ----------
+  const linkPts: number[] = [], linkCol: number[] = [];
+  for (const l of palace.links) {
+    const a = memIndex.get(l.from), b = memIndex.get(l.to);
+    if (a === undefined || b === undefined || a === b) continue;
+    const A = V(...mems[a].pos), B = V(...mems[b].pos);
+    const dist = A.distanceTo(B), lift = Math.min(0.6 + dist * 0.12, 2.4);
+    const ca = new THREE.Color(roomHex(mems[a].room)), cb = new THREE.Color(roomHex(mems[b].room));
+    const n = Math.max(4, Math.round(dist / 0.4));
+    for (let s = 1; s < n; s++) {
+      const t = s / n;
+      const p = A.clone().lerp(B, t);
+      linkPts.push(p.x, p.y + Math.sin(Math.PI * t) * lift, p.z);
+      const c = ca.clone().lerp(cb, t);
+      linkCol.push(c.r, c.g, c.b);
+    }
+  }
+  const linkGeo = new THREE.BufferGeometry();
+  linkGeo.setAttribute("position", new THREE.Float32BufferAttribute(linkPts, 3));
+  linkGeo.setAttribute("color", new THREE.Float32BufferAttribute(linkCol, 3));
+  const linkDots = new THREE.Points(linkGeo, new THREE.PointsMaterial({ size: 0.09, vertexColors: true, sizeAttenuation: true, toneMapped: false }));
+  linkDots.name = "link-dots";
+  linkDots.visible = false;
+  root.add(linkDots);
+
+  // ---------- signs: pixel-font wooden boards over each room entrance ----------
+  const signs = new THREE.Group();
+  signs.name = "room-signs";
+  for (const r of palace.rooms) {
+    const isFoyer = r.id === (foyer?.id ?? "");
+    const wing = wingById.get(r.wing);
+    const caption = isFoyer ? "Mind Palace" : wing ? wing.label + " wing" : COMMONS[r.id] ? "Commons" : r.wing;
+    const title = isFoyer ? "Hall of Quests" : r.label;
+    const { tex, aspect } = TX.signTexture(title, caption, roomHex(r.id));
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, alphaTest: 0.5, fog: true });
+    const sp = new THREE.Sprite(mat);
+    const h = isFoyer ? 3.2 : 2.8;
+    sp.scale.set(h * aspect, h, 1);
+    const entry = r.doors.find((d) => roomById.has(d.to));
+    if (isFoyer || !entry) sp.position.set(r.center[0], r.size[1] + 3.2, r.center[2]);
+    else {
+      const [x, z] = snapDoor(r, entry.pos);
+      sp.position.set(x, r.size[1] + 1.6, z);
+    }
+    sp.name = `sign:${r.id}`;
+    signs.add(sp);
+    roomVis.get(r.id)!.sign = mat;
+  }
+  root.add(signs);
+
+  // ---------- ceilings (layer "ceiling", off by default: overview looks in) ----------
+  const ceilCells: [number, number, number][] = [];
+  for (const r of palace.rooms) {
+    const hx = r.size[0] / 2, hz = r.size[2] / 2;
+    for (let x = r.center[0] - hx; x <= r.center[0] + hx; x++) for (let z = r.center[2] - hz; z <= r.center[2] + hz; z++) ceilCells.push([x, r.size[1], z]);
+  }
+  const ceiling = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.5, 1), new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.planks([150, 112, 66], 5)) }), ceilCells.length);
+  ceilCells.forEach(([x, y, z], i) => ceiling.setMatrixAt(i, m4.makeTranslation(x, y + 0.25, z)));
+  ceiling.name = "ceilings";
+  ceiling.castShadow = true;
+  ceiling.visible = false;
+  root.add(ceiling);
+
+  // ---------- outdoors: grass, trees, flowers, sky, sun, clouds ----------
+  const outdoor = new THREE.Group();
+  outdoor.name = "outdoors";
+  scene.add(outdoor);
+  const outMats: THREE.MeshLambertMaterial[] = [];
+  const grassTex = TX.pixelTex(TX.grass(), true);
+  grassTex.repeat.set(700, 700);
+  const grassMat = new THREE.MeshLambertMaterial({ map: grassTex });
+  outMats.push(grassMat);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), grassMat);
+  ground.rotateX(-Math.PI / 2);
+  ground.position.set(0.5, -0.08, 0.5);
+  ground.receiveShadow = true;
+  ground.name = "grass";
+  outdoor.add(ground);
+  const blocked = (x: number, z: number, pad: number) =>
+    palace.rooms.some((r) => Math.abs(x - r.center[0]) < r.size[0] / 2 + pad && Math.abs(z - r.center[2]) < r.size[2] / 2 + pad) ||
+    layout.corridorFloors.some((f) => x > f.minX - pad && x < f.maxX + pad && z > f.minZ - pad && z < f.maxZ + pad);
+  const trunkCells: [number, number, number][] = [], leafCells: [number, number, number][] = [];
+  {
+    const tr = mulberry(77);
+    let tries = 0;
+    const placed: [number, number][] = [];
+    while (placed.length < 34 && tries++ < 3000) {
+      const a = tr() * Math.PI * 2, d = 14 + tr() * 62;
+      const x = Math.round(Math.cos(a) * d), z = Math.round(Math.sin(a) * d);
+      if (blocked(x, z, 4.5) || placed.some(([px, pz]) => Math.hypot(px - x, pz - z) < 6)) continue;
+      placed.push([x, z]);
+      const h = 4 + Math.floor(tr() * 3);
+      for (let y = 0; y < h; y++) trunkCells.push([x, y, z]);
+      for (let y = h - 2; y <= h + 1; y++) {
+        const R = y >= h ? 1 : 2;
+        for (let dx = -R; dx <= R; dx++) for (let dz = -R; dz <= R; dz++) {
+          if (dx === 0 && dz === 0 && y < h) continue;
+          if (Math.abs(dx) === R && Math.abs(dz) === R && (y === h + 1 || tr() < 0.6)) continue;
+          leafCells.push([x + dx, y, z + dz]);
+        }
+      }
+    }
+  }
+  const trunkMat = new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.bark([104, 78, 48], 3)) });
+  const leafMat = new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.leaves()) });
+  outMats.push(trunkMat, leafMat);
+  const trunks = new THREE.InstancedMesh(unitCube, trunkMat, trunkCells.length);
+  const leavesMesh = new THREE.InstancedMesh(unitCube, leafMat, leafCells.length);
+  trunkCells.forEach(([x, y, z], i) => trunks.setMatrixAt(i, m4.makeTranslation(x, y + 0.5, z)));
+  leafCells.forEach(([x, y, z], i) => leavesMesh.setMatrixAt(i, m4.makeTranslation(x, y + 0.5, z)));
+  trunks.castShadow = leavesMesh.castShadow = true;
+  trunks.receiveShadow = leavesMesh.receiveShadow = true;
+  trunks.name = "tree-trunks";
+  leavesMesh.name = "tree-leaves";
+  outdoor.add(trunks, leavesMesh);
+  const plantGeo = (() => {
+    const a = new THREE.PlaneGeometry(0.8, 0.8); a.rotateY(Math.PI / 4); a.translate(0, 0.4, 0);
+    const b = new THREE.PlaneGeometry(0.8, 0.8); b.rotateY(-Math.PI / 4); b.translate(0, 0.4, 0);
+    return mergeGeometries([a, b]);
+  })();
+  for (const kind of [0, 1, 2] as const) {
+    const n = kind === 2 ? 320 : 70;
+    const pm = new THREE.MeshLambertMaterial({ map: TX.pixelTex(TX.plant(kind)), alphaTest: 0.5, side: THREE.DoubleSide });
+    outMats.push(pm);
+    const mesh = new THREE.InstancedMesh(plantGeo, pm, n);
+    const pr = mulberry(500 + kind);
+    let i = 0, tries = 0;
+    while (i < n && tries++ < 20000) {
+      const a = pr() * Math.PI * 2, d = 3 + pr() * 70;
+      const x = Math.round(Math.cos(a) * d), z = Math.round(Math.sin(a) * d);
+      if (blocked(x, z, 1.2)) continue;
+      mesh.setMatrixAt(i++, m4.compose(V(x, 0, z), Q0, V(1, 0.8 + pr() * 0.4, 1)));
+    }
+    mesh.count = i;
+    mesh.name = `plants:${kind}`;
+    outdoor.add(mesh);
+  }
+  // sky dome (gradient, follows camera)
+  const skyMat = new THREE.ShaderMaterial({
+    uniforms: { uTop: { value: new THREE.Color("#5c9cf2") }, uHor: { value: HORIZON.clone() }, uDim: { value: 1 } },
+    vertexShader: /* glsl */ `varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader: /* glsl */ `uniform vec3 uTop; uniform vec3 uHor; uniform float uDim; varying vec3 vP;
+      void main(){ float h = clamp(normalize(vP).y, 0.0, 1.0); gl_FragColor = vec4(mix(uHor, uTop, pow(h, 0.55)) * uDim, 1.0);
+        #include <colorspace_fragment>
+      }`,
+    side: THREE.BackSide, depthWrite: false, fog: false,
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(480, 24, 12), skyMat);
+  sky.name = "sky";
+  sky.renderOrder = -10;
+  scene.add(sky);
+  const sunSprite = new THREE.Mesh(new THREE.PlaneGeometry(34, 34), new THREE.MeshBasicMaterial({ map: TX.pixelTex(TX.sun()), transparent: true, fog: false, depthWrite: false, toneMapped: false }));
+  sunSprite.name = "sun";
+  sunSprite.renderOrder = -9;
+  scene.add(sunSprite);
+  const cloudCells: THREE.Matrix4[] = [];
+  {
+    const cr = mulberry(31);
+    for (let c = 0; c < 26; c++) {
+      const cx = (cr() - 0.5) * 520, cz = (cr() - 0.5) * 520;
+      const w = 3 + Math.floor(cr() * 5), d = 2 + Math.floor(cr() * 4);
+      for (let i = 0; i < w; i++) for (let j = 0; j < d; j++) {
+        if ((i === 0 || i === w - 1) && (j === 0 || j === d - 1) && cr() < 0.7) continue;
+        cloudCells.push(new THREE.Matrix4().compose(V(cx + i * 8, 70 + (c % 3) * 4, cz + j * 8), Q0, V(8, 3, 8)));
+      }
+    }
+  }
+  const clouds = new THREE.InstancedMesh(unitCube, new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: 0.86, fog: false }), cloudCells.length);
+  cloudCells.forEach((mm, i) => clouds.setMatrixAt(i, mm));
+  clouds.name = "clouds";
+  clouds.frustumCulled = false;
+  scene.add(clouds);
+
+  // ---------- post: bloom (layer "bloom", off by default; subtle when on) ----------
   const composer = new EffectComposer(renderer);
   composer.setPixelRatio(pixelRatio);
   composer.setSize(innerWidth, innerHeight);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.85, 0.55, 0.78);
-  composer.addPass(bloom);
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.35, 0.4, 0.92));
   composer.addPass(new OutputPass());
-  let useBloom = !params.has("nobloom");
+  let useBloom = params.has("bloom");
 
   // ---------- controls ----------
   const walkable = (x: number, z: number) =>
     palace.rooms.some((r) => Math.abs(x - r.center[0]) < r.size[0] / 2 - 0.1 && Math.abs(z - r.center[2]) < r.size[2] / 2 - 0.1) ||
     layout.corridorFloors.some((f) => x > f.minX && x < f.maxX && z > f.minZ && z < f.maxZ);
   const controls = createControls(camera, renderer.domElement, layout.colliders, walkable);
-  const foyer = roomById.get("foyer") ?? palace.rooms[0];
   if (foyer) {
     camera.position.set(foyer.center[0], EYE_HEIGHT, foyer.center[2] + foyer.size[2] * 0.32);
     camera.lookAt(foyer.center[0], EYE_HEIGHT, foyer.center[2] - 10);
-  } else {
-    camera.position.set(0, EYE_HEIGHT, 4);
-  }
+  } else camera.position.set(0, EYE_HEIGHT, 4);
 
   // ---------- HUD (scene-owned bits) ----------
   const style = document.createElement("style");
@@ -379,17 +668,15 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const sh = document.createElement("div");
   sh.className = "mp-scene-hud";
   sh.style.pointerEvents = "none";
-  sh.innerHTML = `<div class="mp-cross"></div><div class="mp-tip"></div><div class="mp-hint"><b>Click</b> to walk &nbsp;·&nbsp; <b>WASD</b> move &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Esc</b> release<br><span>click a glowing memory to open it</span></div>`;
+  sh.innerHTML = `<div class="mp-cross"></div><div class="mp-tip"></div><div class="mp-hint"><b>Click</b> to walk &nbsp;·&nbsp; <b>WASD</b> move &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Esc</b> release<br><span>click a glowing book to open it</span></div>`;
   hud.appendChild(sh);
-  const cross = sh.querySelector<HTMLElement>(".mp-cross")!;
   const tip = sh.querySelector<HTMLElement>(".mp-tip")!;
-  const hint = sh.querySelector<HTMLElement>(".mp-hint")!;
   const syncHud = () => {
     sh.classList.toggle("locked", controls.locked);
     sh.classList.toggle("released", controls.released || flying !== null);
   };
   controls.onLockChange(syncHud);
-  const minimap = params.has("nominimap") ? null : createMinimap(palace, layout, sh, wingHex);
+  const minimap = params.has("nominimap") ? null : createMinimap(palace, layout, sh, (r) => roomHex(r.id));
   let debugEl: HTMLElement | null = null;
   if (DEBUG) {
     debugEl = document.createElement("div");
@@ -397,60 +684,77 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     sh.appendChild(debugEl);
   }
 
-  // ---------- state: glow, dim, lit ----------
+  // ---------- state: glow, dim, lit, focus ----------
   let dimTarget = 1, dim = 1;
   const litRooms = new Set<string>();
   let hovered = -1;
-  let flare = new Map<number, number>(); // memory index -> seconds left (arrival flare)
-  const tmpC = new THREE.Color();
-  const orbGlow = (i: number) => {
+  const flare = new Map<number, number>();
+  const memGlow = (i: number) => {
     const o = glowOverride.get(i);
-    let g = o ?? (0.2 + 1.8 * palace.memories[i].freshness) * (0.35 + 0.65 * dim);
-    if (i === hovered) g = Math.max(g * 1.5, 1.6);
+    let g = o ?? 0.2 + 1.8 * mems[i].freshness;
+    if (i === hovered) g = Math.max(g * 1.4, 1.6);
     const f = flare.get(i);
     if (f !== undefined) g = Math.max(g, 1 + 3 * Math.min(1, f));
     return g;
   };
-  const refreshOrbs = () => {
-    for (let i = 0; i < N; i++) {
-      const g = orbGlow(i);
-      orbs.setColorAt(i, tmpC.copy(orbBase[i]).multiplyScalar(0.55 * g));
-      pools.setColorAt(i, tmpC.copy(orbBase[i]).multiplyScalar(0.2 * Math.min(g, 3)));
-      halos.setColorAt(i, tmpC.copy(orbBase[i]).multiplyScalar(0.16 * Math.min(g, 4)));
+  const refreshMems = () => {
+    for (let i = 0; i < mems.length; i++) {
+      const g = memGlow(i), rf = roomF(mems[i].room);
+      const k = gapped.has(i) ? 0 : 1;
+      books.setColorAt(i, tmpC.copy(memBase[i]).multiplyScalar((0.45 + 0.42 * Math.min(g, 3)) * (0.3 + 0.7 * rf)));
+      halos.setColorAt(i, tmpC.copy(memBase[i]).multiplyScalar(k * 0.34 * Math.max(0, Math.min(g, 4) - 0.4) * rf));
+      lecterns.setColorAt(i, tmpC.setScalar(0.25 + 0.75 * rf));
     }
-    if (halos.instanceColor) halos.instanceColor.needsUpdate = true;
-    if (orbs.instanceColor) orbs.instanceColor.needsUpdate = true;
-    if (pools.instanceColor) pools.instanceColor.needsUpdate = true;
+    books.instanceColor!.needsUpdate = true;
+    halos.instanceColor!.needsUpdate = true;
+    lecterns.instanceColor!.needsUpdate = true;
   };
-  const refreshTrim = () => {
-    trims.forEach((t, i) => {
-      const lit = t.room ? (roomVis.get(t.room)?.lit ?? 0) : 0;
-      const k = t.strength * (0.45 + 0.6 * lit) * (0.3 + 0.7 * dim);
-      trimMesh.setColorAt(i, tmpC.copy(t.base).multiplyScalar(k));
-    });
-    if (trimMesh.instanceColor) trimMesh.instanceColor.needsUpdate = true;
-  };
-  const applyDim = () => {
+  const applyFactors = () => {
     hemi.intensity = HEMI_I * (0.35 + 0.65 * dim);
-    moon.intensity = MOON_I * dim;
-    scene.environmentIntensity = ENV_I * dim;
-    dustMat.uniforms.uDim.value = 0.4 + 0.6 * dim;
-    for (const v of roomVis.values()) v.label.opacity = 0.35 + 0.6 * dim + 0.05 * v.lit;
+    sun.intensity = SUN_I * (0.25 + 0.75 * dim);
+    skyMat.uniforms.uDim.value = 0.45 + 0.55 * dim;
+    (scene.background as THREE.Color).copy(HORIZON).multiplyScalar(0.45 + 0.55 * dim);
+    (scene.fog as THREE.Fog).color.copy(scene.background as THREE.Color);
+    dustMat.uniforms.uDim.value = 0.5 + 0.5 * dim;
+    for (const mt of outMats) mt.color.setScalar(0.3 + 0.7 * outF);
+    pathMat.color.setScalar(0.3 + 0.7 * outF);
+    for (const [id, v] of roomVis) {
+      const f = roomF(id);
+      v.floor.color.setScalar(0.25 + 0.75 * f);
+      if (v.sign) v.sign.opacity = 0.35 + 0.65 * f;
+    }
+    recolorers.forEach((fn) => fn());
+    carpet.instanceColor && thresholds.forEach((t, i) => carpet.setColorAt(i, tmpC.set(doorColor(t.room, t.to)).multiplyScalar(0.3 + 0.7 * roomF(t.room))));
+    carpet.instanceColor!.needsUpdate = true;
+    bannerDefs.forEach((b, i) => banners.setColorAt(i, tmpC.copy(b.color).multiplyScalar(0.3 + 0.7 * roomF(b.room))));
+    banners.instanceColor!.needsUpdate = true;
   };
-  refreshOrbs();
-  refreshTrim();
+  refreshMems();
+  refreshTorches();
+  applyFactors();
+
+  // gap verdicts: the station's book vanishes, leaving a visibly empty lectern
+  events.subscribe((e) => {
+    if (e.type !== "visit") return;
+    const i = memIndex.get(e.memoryId);
+    if (i === undefined) return;
+    if (e.verdict === "gap") gapped.add(i);
+    else gapped.delete(i);
+  });
 
   // ---------- picking ----------
   const ray = new THREE.Raycaster();
-  ray.far = 30;
+  ray.far = 60;
   const ndc = new THREE.Vector2();
   const pointer = new THREE.Vector2(0, 0);
   let pointerInside = false;
-  const pickTargets = [orbs, pedestals, walls];
+  const wallBoxes = layout.walls.map((w) => new THREE.Box3(V(w.min[0] - 0.5 * 0, w.min[1], w.min[2]), V(w.max[0], w.max[1], w.max[2])));
+  const hitV = new THREE.Vector3();
   const pick = (at: THREE.Vector2): number => {
     ray.setFromCamera(at, camera);
-    const hit = ray.intersectObjects(pickTargets, false)[0];
-    if (!hit || hit.object === walls || hit.instanceId === undefined) return -1;
+    const hit = ray.intersectObjects([books, lecterns], false)[0];
+    if (!hit || hit.instanceId === undefined) return -1;
+    for (const b of wallBoxes) if (ray.ray.intersectBox(b, hitV) && hitV.distanceTo(ray.ray.origin) < hit.distance - 0.05) return -1;
     return hit.instanceId;
   };
   renderer.domElement.addEventListener("pointermove", (e) => {
@@ -462,10 +766,9 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     const at = controls.locked ? ndc.set(0, 0) : ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
     const i = pick(at);
     if (i >= 0) {
-      const memoryId = palace.memories[i].id;
-      if (controls.locked) controls.unlock(); // free the mouse for the side panel
+      if (controls.locked) controls.unlock();
       flare.set(i, 0.6);
-      emitUI(UI_EVENTS.select, { memoryId });
+      emitUI(UI_EVENTS.select, { memoryId: mems[i].id });
       return;
     }
     if (!controls.released && flying === null) controls.lock();
@@ -473,25 +776,24 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
 
   // ---------- flyTo ----------
   let flying: null | { t: number; dur: number; p0: THREE.Vector3; p1: THREE.Vector3; q0: THREE.Quaternion; q1: THREE.Quaternion; peak: number; idx: number } = null;
+  const roomOf = (x: number, z: number): string | undefined =>
+    palace.rooms.find((r) => Math.abs(x - r.center[0]) <= r.size[0] / 2 && Math.abs(z - r.center[2]) <= r.size[2] / 2)?.id;
   const flyTo = (memoryId: string) => {
     const i = memIndex.get(memoryId);
     if (i === undefined) return;
-    const m = palace.memories[i];
+    const m = mems[i];
     const room = roomById.get(m.room);
-    const orb = new THREE.Vector3(...m.pos);
-    const dir = new THREE.Vector2(
-      (room ? room.center[0] : camera.position.x) - m.pos[0],
-      (room ? room.center[2] : camera.position.z) - m.pos[2],
-    );
+    const orb = V(...m.pos);
+    const dir = new THREE.Vector2((room ? room.center[0] : camera.position.x) - m.pos[0], (room ? room.center[2] : camera.position.z) - m.pos[2]);
     if (dir.length() < 0.5) dir.set(camera.position.x - m.pos[0], camera.position.z - m.pos[2]);
     if (dir.length() < 0.01) dir.set(0, 1);
     dir.normalize().multiplyScalar(2.7);
     let x = m.pos[0] + dir.x, z = m.pos[2] + dir.y;
     if (room) {
-      x = THREE.MathUtils.clamp(x, room.center[0] - room.size[0] / 2 + 0.7, room.center[0] + room.size[0] / 2 - 0.7);
-      z = THREE.MathUtils.clamp(z, room.center[2] - room.size[2] / 2 + 0.7, room.center[2] + room.size[2] / 2 - 0.7);
+      x = THREE.MathUtils.clamp(x, room.center[0] - room.size[0] / 2 + 1.2, room.center[0] + room.size[0] / 2 - 1.2);
+      z = THREE.MathUtils.clamp(z, room.center[2] - room.size[2] / 2 + 1.2, room.center[2] + room.size[2] / 2 - 1.2);
     }
-    const p1 = new THREE.Vector3(x, EYE_HEIGHT, z);
+    const p1 = V(x, EYE_HEIGHT, z);
     const q1 = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(p1, orb.clone().setY(orb.y - 0.15), camera.up));
     const dist = camera.position.distanceTo(p1);
     const sameRoom = room && roomOf(camera.position.x, camera.position.z) === room.id;
@@ -504,33 +806,30 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     };
     syncHud();
   };
-  const onFlyTo = (e: Event) => {
+  window.addEventListener(UI_EVENTS.flyTo, (e: Event) => {
     const id = (e as CustomEvent<{ memoryId?: string }>).detail?.memoryId;
     if (id) flyTo(id);
-  };
-  window.addEventListener(UI_EVENTS.flyTo, onFlyTo);
-  const roomOf = (x: number, z: number): string | undefined =>
-    palace.rooms.find((r) => Math.abs(x - r.center[0]) <= r.size[0] / 2 && Math.abs(z - r.center[2]) <= r.size[2] / 2)?.id;
+  });
   const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOutBack = (t: number) => 1 + 2.4 * Math.pow(t - 1, 3) + 1.4 * Math.pow(t - 1, 2);
 
   // ---------- frame loop ----------
   const frameCbs = new Set<(dt: number) => void>();
   const clock = new THREE.Clock();
-  let time = 0;
   const bob = new THREE.Matrix4();
   const q = new THREE.Quaternion();
-  const s1 = new THREE.Vector3(1, 1, 1);
-  const tmpV = new THREE.Vector3();
+  const tilt = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), 0.22);
+  const s1 = V(1, 1, 1);
+  const tmpV = V();
   const yawE = new THREE.Euler(0, 0, 0, "YXZ");
-  let fpsAcc = 0, fpsFrames = 0, fps = 60, perfStrikes = 0;
-  const camPrev = new THREE.Vector3(Infinity, 0, 0);
+  let fpsAcc = 0, fpsFrames = 0, fps = 60, perfStrikes = 0, torchAcc = 0;
+  const camPrev = V(Infinity, 0, 0);
 
   renderer.setAnimationLoop(() => {
     const dt = Math.min(clock.getDelta(), 0.1);
     time += dt;
     renderer.info.reset();
 
-    // player / flight
     if (flying) {
       flying.t = Math.min(1, flying.t + dt / flying.dur);
       const k = ease(flying.t);
@@ -543,102 +842,123 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
         if (!controls.released) controls.settle();
         syncHud();
       }
-    } else {
-      controls.update(dt);
-    }
+    } else controls.update(dt);
 
-    // plugins
     frameCbs.forEach((cb) => cb(dt));
 
-    // dim / lit easing
-    const dimNext = dim + (dimTarget - dim) * (1 - Math.exp(-dt * 5));
-    let trimDirty = false;
-    if (Math.abs(dimNext - dim) > 1e-4) { dim = dimNext; applyDim(); trimDirty = true; } else if (dim !== dimTarget) { dim = dimTarget; applyDim(); trimDirty = true; }
+    // dim / lit / focus easing
+    const ek = 1 - Math.exp(-dt * 5);
+    let dirty = false;
+    if (Math.abs(dimTarget - dim) > 1e-3) { dim += (dimTarget - dim) * ek; dirty = true; } else if (dim !== dimTarget) { dim = dimTarget; dirty = true; }
+    if (Math.abs(outTarget - outF) > 1e-3) { outF += (outTarget - outF) * ek; dirty = true; } else if (outF !== outTarget) { outF = outTarget; dirty = true; }
+    for (const v of focus.values()) {
+      if (Math.abs(v.target - v.f) > 1e-3) { v.f += (v.target - v.f) * ek; dirty = true; } else if (v.f !== v.target) { v.f = v.target; dirty = true; }
+    }
+    let torchDirty = dirty;
     for (const [id, v] of roomVis) {
       if (v.lit !== v.litTarget) {
         v.lit += (v.litTarget - v.lit) * (1 - Math.exp(-dt * 6));
         if (Math.abs(v.lit - v.litTarget) < 0.01) v.lit = v.litTarget;
-        trimDirty = true;
+        torchDirty = true;
       }
-      v.floor.emissiveIntensity = (0.012 + 0.28 * v.lit) * (0.4 + 0.6 * dim);
-      void id;
+      v.floor.emissiveIntensity = 0.22 * v.lit * roomF(id);
     }
-    if (trimDirty) refreshTrim();
+    if (dirty) applyFactors();
+    torchAcc += dt;
+    if (torchDirty || torchAcc > 0.08) { torchAcc = 0; refreshTorches(0.08); }
 
-    // hover (crosshair when locked, mouse otherwise)
+    // hover
     let h = -1;
     if (!flying && (controls.locked || pointerInside)) h = pick(controls.locked ? ndc.set(0, 0) : pointer);
     if (h !== hovered) {
       hovered = h;
       renderer.domElement.style.cursor = h >= 0 ? "pointer" : "";
-      tip.textContent = h >= 0 ? palace.memories[h].title : "";
+      tip.textContent = h >= 0 ? mems[h].title : "";
       tip.classList.toggle("on", h >= 0);
     }
     if (h >= 0 && !controls.locked) {
       tip.style.left = ((pointer.x + 1) / 2) * innerWidth + "px";
       tip.style.top = ((1 - pointer.y) / 2) * innerHeight + 22 + "px";
-    } else if (h >= 0) {
-      tip.style.left = "50%";
-      tip.style.top = "calc(50% + 22px)";
-    }
+    } else if (h >= 0) { tip.style.left = "50%"; tip.style.top = "calc(50% + 22px)"; }
 
-    // orbs: bob + spin, glow
+    // books: bob + slow spin; spawn animation; gap = empty lectern
     for (const [i, left] of flare) { if (left - dt <= 0) flare.delete(i); else flare.set(i, left - dt); }
-    for (let i = 0; i < N; i++) {
-      const p = palace.memories[i].pos;
-      q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, time * 0.4 + i);
-      const sc = i === hovered ? 1.18 : 1;
-      bob.compose(tmpV.set(p[0], p[1] + Math.sin(time * 1.3 + i * 1.7) * 0.035, p[2]), q, s1.setScalar(sc));
-      orbs.setMatrixAt(i, bob);
+    for (let i = 0; i < mems.length; i++) {
+      const p = mems[i].pos;
+      let sc = i === hovered ? 1.2 : 1, drop = 0, lsc = 1;
+      const st = spawnT.get(i);
+      if (st !== undefined) {
+        const ts = st + dt;
+        if (ts > 2) spawnT.delete(i); else spawnT.set(i, ts);
+        lsc = ts < 0.5 ? Math.max(0.001, easeOutBack(ts / 0.5)) : 1;
+        const tb = THREE.MathUtils.clamp((ts - 0.35) / 0.7, 0, 1);
+        drop = (1 - tb * tb) * 2.6;
+        sc *= tb > 0 ? 1 : 0.001;
+        lecterns.setMatrixAt(i, m4.compose(tmpV.set(p[0], 0, p[2]), q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, lecternYaw(mems[i])), s1.setScalar(lsc)));
+        lecterns.instanceMatrix.needsUpdate = true;
+      }
+      if (gapped.has(i)) sc = 0.001;
+      q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, time * 0.5 + i).multiply(tilt);
+      bob.compose(tmpV.set(p[0], p[1] + 0.05 + Math.sin(time * 1.6 + i * 1.7) * 0.06 + drop, p[2]), q, s1.setScalar(sc));
+      books.setMatrixAt(i, bob);
       halos.setMatrixAt(i, bob);
     }
-    orbs.instanceMatrix.needsUpdate = true;
+    books.instanceMatrix.needsUpdate = true;
     halos.instanceMatrix.needsUpdate = true;
-    refreshOrbs();
-
-    // dust
+    refreshMems();
     dustMat.uniforms.uTime.value = time;
 
-    // beams: brighten within 6 m of either end, soft travelling shimmer
-    if (links.length) {
-      const cp = camera.position;
-      for (let li = 0; li < links.length; li++) {
-        const A = palace.memories[links[li].a].pos, B = palace.memories[links[li].b].pos;
-        const dA = Math.hypot(cp.x - A[0], cp.y - A[1], cp.z - A[2]);
-        const dB = Math.hypot(cp.x - B[0], cp.y - B[1], cp.z - B[2]);
-        const near = Math.max(smooth(6, 1.5, dA), smooth(6, 1.5, dB));
-        const hot = hovered === links[li].a || hovered === links[li].b ? 1 : 0;
-        const base = (0.09 + 0.75 * Math.max(near, hot)) * (0.4 + 0.6 * dim);
-        const ca = beamBaseA[li], cb = beamBaseB[li];
-        for (let s = 0; s <= SEG * 2 - 1; s++) {
-          const u = (Math.floor(s / 2) + (s % 2)) / SEG;
-          const shimmer = 0.75 + 0.25 * Math.sin(time * 2.2 - u * 9 + li);
-          const k = base * shimmer;
-          const o = (li * SEG * 2 + s) * 3;
-          beamCol[o] = (ca.r + (cb.r - ca.r) * u) * k;
-          beamCol[o + 1] = (ca.g + (cb.g - ca.g) * u) * k;
-          beamCol[o + 2] = (ca.b + (cb.b - ca.b) * u) * k;
-        }
+    // spawn particles + column
+    if (pState.length) {
+      let n = 0;
+      for (let k = pState.length - 1; k >= 0; k--) {
+        const s = pState[k];
+        s.life += dt;
+        if (s.life >= s.max) { pState.splice(k, 1); continue; }
+        s.v.y -= 9 * dt;
+        s.p.addScaledVector(s.v, dt);
+        if (s.p.y < 0.05) { s.p.y = 0.05; s.v.set(s.v.x * 0.5, -s.v.y * 0.3, s.v.z * 0.5); }
       }
-      beamColAttr.needsUpdate = true;
+      for (const s of pState) {
+        const f = 1 - s.life / s.max;
+        parts.setMatrixAt(n, m4.compose(s.p, Q0, s1.setScalar(Math.max(0.01, f * 1.3))));
+        parts.setColorAt(n, s.c);
+        n++;
+      }
+      parts.count = n;
+      parts.instanceMatrix.needsUpdate = true;
+      if (parts.instanceColor) parts.instanceColor.needsUpdate = true;
+      parts.visible = n > 0;
+    } else parts.visible = false;
+    if (columnT >= 0) {
+      columnT += dt;
+      const f = columnT < 0.15 ? columnT / 0.15 : Math.max(0, 1 - (columnT - 0.15) / 1.4);
+      (column.material as THREE.MeshBasicMaterial).opacity = 0.55 * f;
+      column.scale.set(0.4 + 0.6 * f, 1, 0.4 + 0.6 * f);
+      if (f <= 0 && columnT > 0.2) { column.visible = false; columnT = -1; }
     }
 
-    // minimap (only when the camera moved or turned)
+    // sky follows camera; sun faces camera; clouds drift
+    sky.position.copy(camera.position);
+    sunSprite.position.copy(camera.position).addScaledVector(SUN_DIR, 380);
+    sunSprite.lookAt(camera.position);
+    clouds.position.x = ((time * 0.8) % 520);
+
+    // minimap
     if (minimap) {
       yawE.setFromQuaternion(camera.quaternion, "YXZ");
-      const key = camera.position.x * 1e3 + camera.position.z + yawE.y * 7;
-      if (key !== camPrev.x || litRooms.size !== camPrev.y) {
-        camPrev.set(key, litRooms.size, 0);
+      const k2 = camera.position.x * 1e3 + camera.position.z + yawE.y * 7;
+      if (k2 !== camPrev.x || litRooms.size !== camPrev.y) {
+        camPrev.set(k2, litRooms.size, 0);
         minimap.setLit(litRooms);
         minimap.draw(camera, yawE.y);
       }
     }
 
-    // render
+    if (shadowFrames > 0) { renderer.shadowMap.needsUpdate = true; shadowFrames--; }
     if (useBloom) composer.render(dt);
     else renderer.render(scene, camera);
 
-    // perf: fps meter + auto-degrade (drop bloom, then pixel ratio) if the laptop can't keep up
     fpsAcc += dt;
     fpsFrames++;
     if (fpsAcc >= 1) {
@@ -650,6 +970,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
           perfStrikes = 0;
           if (useBloom) useBloom = false;
           else if (pixelRatio > 1) { pixelRatio = 1; renderer.setPixelRatio(1); composer.setPixelRatio(1); }
+          else if (sun.shadow.mapSize.x > 1024) { sun.shadow.mapSize.set(1024, 1024); sun.shadow.map?.dispose(); sun.shadow.map = null; bumpShadows(); }
         }
       } else perfStrikes = 0;
       if (debugEl) {
@@ -667,14 +988,21 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     composer.setSize(innerWidth, innerHeight);
     dustMat.uniforms.uScale.value = innerHeight / 2;
   });
-
   syncHud();
+
+  const layers: Record<SceneLayer, (on: boolean) => void> = {
+    links: (on) => { linkDots.visible = on; },
+    roomLabels: (on) => { signs.visible = on; },
+    memoryLabels: (on) => { memLabels.visible = on; },
+    ceiling: (on) => { ceiling.visible = on; bumpShadows(); },
+    bloom: (on) => { useBloom = on; },
+  };
 
   const rt: PalaceRuntime = {
     palace, scene, camera, renderer, hud, events,
     memoryPosition(id) {
-      const m = palace.memories[memIndex.get(id) ?? -1];
-      return m ? new THREE.Vector3(...m.pos) : undefined;
+      const m = mems[memIndex.get(id) ?? -1];
+      return m ? V(...m.pos) : undefined;
     },
     setMemoryGlow(id, intensity) {
       const i = memIndex.get(id);
@@ -696,26 +1024,79 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       get locked() { return controls.locked; },
     },
     onFrame(cb) { frameCbs.add(cb); return () => { frameCbs.delete(cb); }; },
+    setLayerVisible(layer, visible) { layers[layer]?.(visible); },
+    focusRooms(ids) {
+      const set = ids && ids.length ? new Set(ids) : null;
+      for (const [id, v] of focus) v.target = !set || set.has(id) ? 1 : 0.12;
+      outTarget = set ? 0.4 : 1;
+    },
+    addMemory(memory) {
+      let i = memIndex.get(memory.id);
+      if (i !== undefined) {
+        mems[i] = memory;
+        placeMemory(memory, i);
+      } else {
+        if (mems.length >= CAP) return;
+        i = mems.length;
+        mems.push(memory);
+        memIndex.set(memory.id, i);
+        if (!palace.memories.some((m) => m.id === memory.id)) palace.memories.push(memory);
+        placeMemory(memory, i);
+        setCounts();
+        lecterns.boundingSphere = null;
+        books.boundingSphere = null;
+        atlas.tex.dispose();
+        atlas = TX.labelAtlas(mems.map((m) => m.title));
+        labelMat.uniforms.map.value = atlas.tex;
+        writeLabels();
+      }
+      lecterns.setMatrixAt(i, m4.compose(V(memory.pos[0], 0, memory.pos[2]), Q0, V(0.001, 0.001, 0.001)));
+      lecterns.instanceMatrix.needsUpdate = true;
+      spawnT.set(i, 0);
+      bumpShadows(80); // lectern pops in over ~0.5 s
+      flare.set(i, 2.2);
+      burst(V(memory.pos[0], 0.6, memory.pos[2]), new THREE.Color(roomHex(memory.room)));
+    },
   };
 
-  // QA hooks (not part of the contract): window.palaceScene.teleport(x, z, yawDeg) etc.
+  // QA hooks (not part of the contract)
   (window as unknown as { palaceScene: unknown }).palaceScene = {
     teleport(x: number, z: number, yawDeg = 0) {
       camera.position.set(x, EYE_HEIGHT, z);
       camera.quaternion.setFromEuler(new THREE.Euler(0, THREE.MathUtils.degToRad(yawDeg), 0, "YXZ"));
       controls.settle();
     },
+    view(pos: [number, number, number], look: [number, number, number]) {
+      controls.release();
+      camera.position.set(...pos);
+      camera.lookAt(...look);
+    },
     flyTo,
     layout,
-    stats: () => ({ fps, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, bloom: useBloom }),
+    stats: () => ({ fps, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, bloom: useBloom, shadows: renderer.shadowMap.enabled }),
     setBloom(on: boolean) { useBloom = on; },
   };
   return rt;
 }
 
-function smooth(e0: number, e1: number, x: number) {
-  const t = THREE.MathUtils.clamp((x - e0) / (e1 - e0), 0, 1);
-  return t * t * (3 - 2 * t);
+/** Loose Ends notice board: cork with pinned notes (original art). */
+function noticeBoard(): HTMLCanvasElement {
+  const c = TX.gravel([176, 128, 78], 404);
+  const g = c.getContext("2d")!;
+  const notes = ["#f4efe0", "#f6d86b", "#9fd3f0", "#f2a2a2", "#f4efe0"];
+  const r = mulberry(8);
+  for (let k = 0; k < 5; k++) {
+    const x = 1 + Math.floor(r() * 10), y = 1 + Math.floor(r() * 10);
+    g.fillStyle = notes[k];
+    g.fillRect(x, y, 5, 4);
+    g.fillStyle = "#8a8a8a";
+    g.fillRect(x + 1, y + 2, 3, 1);
+    g.fillStyle = "#d02020";
+    g.fillRect(x + 2, y, 1, 1);
+  }
+  g.fillStyle = "#6a4a28";
+  g.fillRect(0, 0, 16, 1); g.fillRect(0, 15, 16, 1); g.fillRect(0, 0, 1, 16); g.fillRect(15, 0, 1, 16);
+  return c;
 }
 
 function mulberry(a: number) {
@@ -728,47 +1109,26 @@ function mulberry(a: number) {
   };
 }
 
-/** Merge non-indexed-compatible plane geometries (position, normal, uv, uv1, index). */
-function mergePlanes(geos: THREE.BufferGeometry[]): THREE.BufferGeometry {
-  const out = new THREE.BufferGeometry();
-  const names = ["position", "normal", "uv", "uv1"] as const;
-  let vCount = 0, iCount = 0;
-  for (const g of geos) { vCount += g.getAttribute("position").count; iCount += g.getIndex()!.count; }
-  const index: number[] = new Array(iCount);
-  const arrays = names.map((n) => new Float32Array(vCount * geos[0].getAttribute(n).itemSize));
-  let vo = 0, io = 0;
-  for (const g of geos) {
-    names.forEach((n, k) => { const a = g.getAttribute(n); arrays[k].set(a.array as Float32Array, vo * a.itemSize); });
-    const idx = g.getIndex()!;
-    for (let j = 0; j < idx.count; j++) index[io++] = idx.getX(j) + vo;
-    vo += g.getAttribute("position").count;
-  }
-  names.forEach((n, k) => out.setAttribute(n, new THREE.BufferAttribute(arrays[k], geos[0].getAttribute(n).itemSize)));
-  out.setIndex(index);
-  return out;
-}
-
-
+const PX_FONT = `ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
 const SCENE_CSS = `
-.mp-scene-hud { position: fixed; inset: 0; pointer-events: none; font: 13px/1.4 ui-sans-serif, system-ui, sans-serif; color: #e9e3d6; }
+.mp-scene-hud { position: fixed; inset: 0; pointer-events: none; font: 13px/1.4 ${PX_FONT}; color: #f2f2f2; }
 .mp-scene-hud * { pointer-events: none; }
-.mp-cross { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
-  background: rgba(255,240,215,.9); box-shadow: 0 0 8px rgba(255,210,150,.8); opacity: 0; transition: opacity .2s; }
+.mp-cross { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; opacity: 0;
+  background: linear-gradient(#fff,#fff) center/2px 14px no-repeat, linear-gradient(#fff,#fff) center/14px 2px no-repeat; mix-blend-mode: difference; }
 .mp-scene-hud.locked .mp-cross { opacity: 1; }
-.mp-tip { position: absolute; transform: translateX(-50%); padding: 4px 10px; border-radius: 999px; white-space: nowrap;
-  background: rgba(12,13,18,.78); border: 1px solid rgba(255,214,160,.35); color: #fbe9cc; letter-spacing: .01em;
-  font: 500 12.5px/1.3 ui-serif, Georgia, serif; opacity: 0; transition: opacity .15s; }
+.mp-tip { position: absolute; transform: translateX(-50%); padding: 3px 8px; white-space: nowrap; background: rgba(16,0,16,.86);
+  border: 2px solid #2a0a5e; box-shadow: inset 0 0 0 1px #5a2ab0; color: #fff; font: 600 12.5px/1.3 ${PX_FONT};
+  text-shadow: 2px 2px 0 #3f3f3f; opacity: 0; }
 .mp-tip.on { opacity: 1; }
-.mp-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); text-align: center; padding: 10px 18px;
-  border-radius: 12px; background: rgba(10,11,16,.55); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px);
-  color: #d8d2c4; font-size: 12.5px; letter-spacing: .02em; transition: opacity .35s; }
-.mp-hint b { color: #ffe2b0; font-weight: 600; }
-.mp-hint span { color: #9a9486; font-size: 11.5px; }
+.mp-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); text-align: center; padding: 8px 14px;
+  background: rgba(0,0,0,.55); border: 2px solid rgba(0,0,0,.6); color: #e8e8e8; font-size: 12.5px; text-shadow: 2px 2px 0 #222; transition: opacity .35s; }
+.mp-hint b { color: #ffe65c; font-weight: 700; }
+.mp-hint span { color: #bdbdbd; font-size: 11.5px; }
 .mp-scene-hud.locked .mp-hint, .mp-scene-hud.released .mp-hint { opacity: 0; }
-.mp-minimap { position: absolute; left: 16px; bottom: 16px; padding: 6px; border-radius: 14px;
-  background: rgba(8,9,13,.72); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 8px 30px rgba(0,0,0,.45); backdrop-filter: blur(6px); }
-.mp-minimap canvas { display: block; }
-.mp-debug { position: absolute; left: 16px; top: 16px; white-space: pre; font: 11px/1.45 ui-monospace, Menlo, monospace;
-  color: #b8f7c8; background: rgba(0,0,0,.6); padding: 6px 9px; border-radius: 8px; }
+.mp-minimap { position: absolute; left: 16px; bottom: 16px; padding: 4px; background: #8b8b8b;
+  border: 3px solid; border-color: #fff #555 #555 #fff; box-shadow: 0 0 0 2px #000; }
+.mp-minimap canvas { display: block; image-rendering: pixelated; }
+.mp-debug { position: absolute; left: 16px; top: 16px; white-space: pre; font: 11px/1.45 ${PX_FONT};
+  color: #fff; background: rgba(0,0,0,.55); padding: 4px 8px; text-shadow: 1px 1px 0 #333; }
 @media (max-width: 640px) { .mp-minimap canvas { width: 120px !important; height: 120px !important; } }
 `;
