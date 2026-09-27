@@ -1,6 +1,6 @@
 ---
 name: gbrain-bridge
-description: Load when reading from or writing to GBrain - seeding the brain, exporting pages and links, running queries, building retrieval traces, or writing Loose End answers back to pages in Mind Palace.
+description: Load when reading from or writing to GBrain - seeding the brain, exporting pages and links, running queries, building retrieval traces, or writing Loose End answers back to pages in Agent Palace.
 ---
 # GBrain bridge
 

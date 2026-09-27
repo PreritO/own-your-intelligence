@@ -1,6 +1,6 @@
 ---
 name: loci-protocol
-description: Load when writing agent prompts, orchestrator/protocol-service tools, harness adapters (QM fork, UFO extension), RL rewards, or anything that decides how agents retrieve, claim, hand off or answer in Mind Palace.
+description: Load when writing agent prompts, orchestrator/protocol-service tools, harness adapters (QM fork, UFO extension), RL rewards, or anything that decides how agents retrieve, claim, hand off or answer in Agent Palace.
 ---
 # Loci protocol
 

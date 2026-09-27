@@ -1,4 +1,4 @@
-// FORK OVERLAY (Mind Palace). Copy to <qm>/src/mindpalace/loci-scopes.ts (see qm/FORK.md §1).
+// FORK OVERLAY (Agent Palace). Copy to <qm>/src/mindpalace/loci-scopes.ts (see qm/FORK.md §1).
 //
 // Which loci agent a QM scope is. Team agents (legal, finance, eng, ...) are QM project scopes, and a
 // commissioned quest agent (quest-<n>) gets its own project scope when it spawns. The map is

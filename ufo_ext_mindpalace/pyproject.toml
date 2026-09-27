@@ -1,7 +1,7 @@
 [project]
 name = "ufo-ext-mindpalace"
 version = "0.1.0"
-description = "Mind Palace extension for UFO: loci protocol tools, per-team GBrain scope, Loose End loop, scripted loci-walker model"
+description = "Agent Palace extension for UFO: loci protocol tools, per-team GBrain scope, Loose End loop, scripted loci-walker model"
 requires-python = ">=3.12"
 # `ufo` (ufo.sdk) is provided by the host UFO install; the package itself needs nothing else.
 dependencies = []

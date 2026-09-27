@@ -1,6 +1,6 @@
 ---
 name: presence-lessons
-description: Lessons from the presence workspace (agent avatars, station states, handoff beams, feed, camera modes, ask-bar walk, nav). Load before changing web/src/agents, web/src/ui, web/src/walk.ts or web/src/nav.ts in Mind Palace.
+description: Lessons from the presence workspace (agent avatars, station states, handoff beams, feed, camera modes, ask-bar walk, nav). Load before changing web/src/agents, web/src/ui, web/src/walk.ts or web/src/nav.ts in Agent Palace.
 ---
 # Presence lessons
 

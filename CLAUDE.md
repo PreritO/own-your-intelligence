@@ -1,8 +1,8 @@
-# Mind Palace — read this first
+# Agent Palace — read this first
 
 Full spec: `docs/SPEC.md`. This file is the condensed version every agent must follow.
 
-Mind Palace renders Acme Robotics' company brain (GBrain) as a walkable three.js memory palace and shows
+Agent Palace renders Acme Robotics' company brain (GBrain) as a walkable three.js memory palace and shows
 three team agents (Legal, Finance, Eng) walking it at once using the **loci protocol**: routes as
 checklists, loud gaps, ownership by room, claims before work, answers only from verified stations.
 

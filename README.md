@@ -1,8 +1,8 @@
-# Mind Palace
+# Agent Palace
 
 **Your company's agents, walking your company's memory, where you can see what they checked.**
 
-Mind Palace turns a company's shared brain into a walkable, block-built building: one wing per department (Legal, Finance, Eng, People, Sales, Marketing, Ops, Support), one glowing block per page. Then it sends a team of AI agents into it. You watch them walk their routes room by room, ask each other for help, get stopped when they try to cite something they never read, and flag what nobody wrote down.
+Agent Palace turns a company's shared brain into a walkable, block-built building: one wing per department (Legal, Finance, Eng, People, Sales, Marketing, Ops, Support), one glowing block per page. Then it sends a team of AI agents into it. You watch them walk their routes room by room, ask each other for help, get stopped when they try to cite something they never read, and flag what nobody wrote down.
 
 Built in one afternoon at the YC "Own Your Intelligence" hackathon (September 27, 2026).
 
@@ -16,7 +16,7 @@ Before a company commits to something (signing a contract, filling out a securit
 2. **Which team still owes an answer?**
 3. **What does nobody own?**
 
-Today that lives in someone's head or a Slack thread. Mind Palace makes agents answer those questions under rules they can't talk their way around, and shows the whole run so a human can audit it in seconds:
+Today that lives in someone's head or a Slack thread. Agent Palace makes agents answer those questions under rules they can't talk their way around, and shows the whole run so a human can audit it in seconds:
 
 - **Routes are checklists.** A task has an ordered list of stations (pages). The agent visits every one; it can't answer from half the context.
 - **Ownership is enforced.** Each room belongs to a team. An agent that reaches a room it doesn't own must stop at the door and send a handoff to that team's agent.

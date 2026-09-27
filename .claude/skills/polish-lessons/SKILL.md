@@ -1,6 +1,6 @@
 ---
 name: polish-lessons
-description: Lessons from the polish/ui workspace - overview map camera in controls.ts, game-HUD quest log, party bar, follow mode with route ribbon, commission/quest events, stage pacing and headless QA. Load before changing web/src/controls.ts, web/src/ui, web/src/agents (not avatar.ts) or DEMO.md in Mind Palace.
+description: Lessons from the polish/ui workspace - overview map camera in controls.ts, game-HUD quest log, party bar, follow mode with route ribbon, commission/quest events, stage pacing and headless QA. Load before changing web/src/controls.ts, web/src/ui, web/src/agents (not avatar.ts) or DEMO.md in Agent Palace.
 ---
 # Polish / UI lessons
 

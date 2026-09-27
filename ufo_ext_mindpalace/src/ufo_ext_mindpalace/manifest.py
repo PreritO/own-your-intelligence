@@ -1,4 +1,4 @@
-"""Mind Palace for UFO: the entry point (`ufo.extension` -> manifest, `ufo.pack` -> pack).
+"""Agent Palace for UFO: the entry point (`ufo.extension` -> manifest, `ufo.pack` -> pack).
 
 Imports only `ufo.sdk` (plus this package). Points used:
   tools           loci_* (forward to the protocol service on :8790), gbrain_stations (per-team
@@ -24,7 +24,7 @@ from ufo_ext_mindpalace.model import WALKER_SPEC
 NAME = "mindpalace"
 VERSION = "0.1.0"
 
-RULES = """## Mind Palace: the loci protocol
+RULES = """## Agent Palace: the loci protocol
 You walk Acme Robotics' company brain (GBrain) as a memory palace with the loci_* tools. The protocol
 service enforces these rules; follow them and read its refusals:
 1. Start every task with loci_route(task): it gives the ordered stations (memory ids) to walk.
@@ -124,9 +124,9 @@ def _agent(team: str, label: str) -> AgentProvision:
             model="auto",
             reasoning="auto",
             internet_access_allowed=False,
-            prompt=f"You are Acme Robotics' {label} agent in the Mind Palace. Your team owns the {label} wing; "
+            prompt=f"You are Acme Robotics' {label} agent in the Agent Palace. Your team owns the {label} wing; "
             "the People wing is shared. Work only through the loci_* tools and follow the loci protocol.",
-            purpose=f"Answers {label} questions from the company brain by walking the Mind Palace.",
+            purpose=f"Answers {label} questions from the company brain by walking the Agent Palace.",
         ),
         tools=tuple(n for n, _, _ in TOOL_SPECS),
     )
@@ -143,7 +143,7 @@ def manifest() -> Manifest:
     )
 
 
-# A pack = the stock `assistant` pack's extensions plus Mind Palace. `[pack] name = "mindpalace_pack"`.
+# A pack = the stock `assistant` pack's extensions plus Agent Palace. `[pack] name = "mindpalace_pack"`.
 # (A trimmed set fails at boot: memory's actions need the kinds other assistant extensions register.)
 PACK_EXTENSIONS = (
     "mindpalace",

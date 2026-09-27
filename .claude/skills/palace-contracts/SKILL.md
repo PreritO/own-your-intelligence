@@ -1,6 +1,6 @@
 ---
 name: palace-contracts
-description: Load before touching palace.json, trace.json, the /events stream, web/src/api.ts, or any code that reads or writes them. Defines the frozen Mind Palace data contracts and file-ownership rules.
+description: Load before touching palace.json, trace.json, the /events stream, web/src/api.ts, or any code that reads or writes them. Defines the frozen Agent Palace data contracts and file-ownership rules.
 ---
 # Palace contracts
 

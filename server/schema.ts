@@ -1,4 +1,4 @@
-// FROZEN data contracts for Mind Palace. Changing a shape needs integrator sign-off
+// FROZEN data contracts for Agent Palace. Changing a shape needs integrator sign-off
 // (propose in docs/NOTES-<workspace>.md). The browser imports these types too.
 import { z } from "zod";
 

@@ -1,6 +1,6 @@
 ---
 name: ui-v3-lessons
-description: Lessons from ui-v3 (collapsed quest box, River leaderboard in the Gym, gym-scoreboard.json generation ladders). Load before changing web/src/ui/leaderboard.ts, the quest board, or the Gym's DOM board in Mind Palace.
+description: Lessons from ui-v3 (collapsed quest box, River leaderboard in the Gym, gym-scoreboard.json generation ladders). Load before changing web/src/ui/leaderboard.ts, the quest board, or the Gym's DOM board in Agent Palace.
 ---
 
 # ui-v3 lessons

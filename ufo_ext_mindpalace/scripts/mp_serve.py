@@ -1,4 +1,4 @@
-"""Launch `ufoctl serve` for Mind Palace: maps ANTHROPIC_API_KEY from the repo .env to UFO_ANTHROPIC_API_KEY
+"""Launch `ufoctl serve` for Agent Palace: maps ANTHROPIC_API_KEY from the repo .env to UFO_ANTHROPIC_API_KEY
 (UFO refuses the bare name in its own .env) without printing it."""
 import os
 import sys

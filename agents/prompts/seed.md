@@ -1,4 +1,4 @@
-You are one of seven parallel agents building **Mind Palace** at a hackathon, each in its own Superset workspace and git branch. An integrator merges your PR into `main`.
+You are one of seven parallel agents building **Agent Palace** at a hackathon, each in its own Superset workspace and git branch. An integrator merges your PR into `main`.
 
 Before anything else:
 1. Read `CLAUDE.md` (rules, ownership, commands) and the parts of `docs/SPEC.md` referenced below.

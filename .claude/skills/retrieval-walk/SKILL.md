@@ -1,6 +1,6 @@
 ---
 name: retrieval-walk
-description: Load when working on the ask bar, single-trace replay, guide orb, camera path, or answer panel (web/src/walk.ts, web/src/ui). The original hero feature of Mind Palace.
+description: Load when working on the ask bar, single-trace replay, guide orb, camera path, or answer panel (web/src/walk.ts, web/src/ui). The original hero feature of Agent Palace.
 ---
 # Retrieval walk
 

@@ -66,8 +66,8 @@ export const mountUI: Plugin = (rt) => {
   const logPanel = h("div", "mp-panel mp-log-panel");
   const hero = h("div", "mp-hero");
   hero.innerHTML =
-    `<div class="brand">Mind Palace</div>` +
-    `<div class="pitch">Harnesses like QM and UFO run agents. Mind Palace makes sure they can't bluff, and shows you.</div>` +
+    `<div class="brand">Agent Palace</div>` +
+    `<div class="pitch">Harnesses like QM and UFO run agents. Agent Palace makes sure they can't bluff, and shows you.</div>` +
     `<ul class="claims"><li><b>Grounded</b> by construction: every answer cites a page it checked</li>` +
     `<li><b>Multiplayer</b> by design: departments own knowledge, so agents ask the owner</li>` +
     `<li><b>Gets better</b> with use: each run leaves a learned route</li></ul>`;

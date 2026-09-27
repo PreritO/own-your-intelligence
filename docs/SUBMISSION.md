@@ -1,6 +1,6 @@
-# Mind Palace: sponsor submission checklist
+# Agent Palace: sponsor submission checklist
 
-**One line:** harnesses like QM and UFO run your agents. Mind Palace makes multiplayer agents auditable. Every claim traces to a page an agent actually walked to, gaps go to the team that owns them, and each department agent trains on its own verified runs.
+**One line:** harnesses like QM and UFO run your agents. Agent Palace makes multiplayer agents auditable. Every claim traces to a page an agent actually walked to, gaps go to the team that owns them, and each department agent trains on its own verified runs.
 
 **Main demo:** `http://localhost:5173/?demo&hold`. Commission "Answer Northwind Logistics' security questionnaire", press `G` for Task flow, then press 🏋 Gym.
 

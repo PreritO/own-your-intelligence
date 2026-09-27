@@ -1,7 +1,7 @@
 [project]
 name = "mind-palace-train"
 version = "0.1.0"
-description = "Mind Palace Gym: River AI datasets, SFT specialists, palace RL env, eval scoreboard"
+description = "Agent Palace Gym: River AI datasets, SFT specialists, palace RL env, eval scoreboard"
 requires-python = ">=3.12"
 # Dry-run paths (trajectories, eval --dry-run, rl --dry-run) are stdlib-only.
 dependencies = []

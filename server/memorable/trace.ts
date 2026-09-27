@@ -1,4 +1,4 @@
-// Pure helpers between Mind Palace runs and Memorable procedures (no I/O, unit-tested).
+// Pure helpers between Agent Palace runs and Memorable procedures (no I/O, unit-tested).
 //
 //   runToTrace()        a successful run (PalaceEvent[]) -> the trace JSON Memorable's /v1/extract and
 //                       `memorable ingest -` take: {session_id, harness, task_description, tool_calls[]}

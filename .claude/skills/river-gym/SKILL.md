@@ -1,6 +1,6 @@
 ---
 name: river-gym
-description: Load when working on River AI training (server/train - trajectories, SFT, RL env, eval) or the special rooms in web/src/rooms (Gym, Workshop, Loose Ends) in Mind Palace.
+description: Load when working on River AI training (server/train - trajectories, SFT, RL env, eval) or the special rooms in web/src/rooms (Gym, Workshop, Loose Ends) in Agent Palace.
 ---
 # River Gym + special rooms
 

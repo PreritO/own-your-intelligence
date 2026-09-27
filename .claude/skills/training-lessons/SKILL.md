@@ -1,6 +1,6 @@
 ---
 name: training-lessons
-description: Lessons from the training workspace (server/train River Gym + web/src/rooms Loose Ends, Workshop, Gym). Load before changing the Gym reward, datasets, River jobs or the special rooms in Mind Palace.
+description: Lessons from the training workspace (server/train River Gym + web/src/rooms Loose Ends, Workshop, Gym). Load before changing the Gym reward, datasets, River jobs or the special rooms in Agent Palace.
 ---
 # Training workspace lessons
 

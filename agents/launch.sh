@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Spawn the Mind Palace swarm: one Superset workspace + Claude agent per workspace.
+# Spawn the Agent Palace swarm: one Superset workspace + Claude agent per workspace.
 # Usage: agents/launch.sh [workspace ...]   (default: all seven)
 # Needs: superset auth login; SUPERSET_PROJECT set (superset projects list).
 set -euo pipefail

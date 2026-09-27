@@ -471,7 +471,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const signDefs = palace.rooms.map((r) => {
     const isFoyer = r.id === (foyer?.id ?? "");
     const wing = wingById.get(r.wing);
-    const caption = isFoyer ? "Mind Palace" : wing ? wing.label + " wing" : COMMONS[r.id] ? "Commons" : r.wing;
+    const caption = isFoyer ? "Agent Palace" : wing ? wing.label + " wing" : COMMONS[r.id] ? "Commons" : r.wing;
     const title = isFoyer ? "Hall of Quests" : r.label;
     const { tex, aspect } = TX.signTexture(title, caption, roomHex(r.id));
     const entry = r.doors.find((d) => roomById.has(d.to));

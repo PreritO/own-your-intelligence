@@ -1,4 +1,4 @@
-# Mind Palace stage runbook
+# Agent Palace stage runbook
 
 For the person at the laptop. The demo runs on the seeded fake company (Acme Robotics) only.
 

@@ -81,7 +81,7 @@ function eventsResponse(url: URL): Response {
     start(c) {
       ctrl = c;
       subscribers.add(c);
-      send(c, `retry: 1000\n: mind-palace bridge\n\n`);
+      send(c, `retry: 1000\n: agent-palace bridge\n\n`);
       if (run && !run.done && url.searchParams.get("catchup") !== "0") {
         send(c, sse(runInfo(run), "run"));
         for (const e of run.events) send(c, sse(e));

@@ -1,6 +1,6 @@
 ---
 name: humans-lessons
-description: Lessons from the humans workspace (blocky voxel agent figures in web/src/agents/human and avatar.ts) - skinned box rig, pixel-art atlas, procedural poses, pixel nameplate/bubble, headless close-up QA. Load before changing how agents look or animate in Mind Palace.
+description: Lessons from the humans workspace (blocky voxel agent figures in web/src/agents/human and avatar.ts) - skinned box rig, pixel-art atlas, procedural poses, pixel nameplate/bubble, headless close-up QA. Load before changing how agents look or animate in Agent Palace.
 ---
 # Humans lessons
 

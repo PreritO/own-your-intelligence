@@ -14,7 +14,7 @@ index f6bfc8a..0931640 100644
    };
  }
  
-+// Mind Palace fork: loci connectors are bound to the scope of the agent they serve (src/mindpalace).
++// Agent Palace fork: loci connectors are bound to the scope of the agent they serve (src/mindpalace).
 +
  export function createAgentTools(ref: ToolContextRef, opts?: AgentToolsOptions): ToolDefinition[] {
    const processActions = {
@@ -23,7 +23,7 @@ index f6bfc8a..0931640 100644
    const mcpDefs = opts?.mcpTools?.() ?? [];
    const mcpTools = mcpDefs
      .filter((d) => !opts?.readOnly || d.readOnly)
-+    // Mind Palace fork: a scope sees only its own loci connector (others are refused at execute anyway).
++    // Agent Palace fork: a scope sees only its own loci connector (others are refused at execute anyway).
 +    .filter((d) => !ref.scopeLabel || lociConnectorAllowed(d.serverId, lociScopeAgent(ref.scopeLabel)))
      .map((d) =>
        defineTool({
@@ -32,7 +32,7 @@ index f6bfc8a..0931640 100644
            const tc = ref.current;
            if (!tc) return text("[error] no active tool context");
            await recordCall(callId, { tool: d.name, mcpServer: d.serverId, args: params });
-+          // Mind Palace fork: loci connectors are scope-bound. The harness refuses a team agent calling
++          // Agent Palace fork: loci connectors are scope-bound. The harness refuses a team agent calling
 +          // another team's connector, and tells the protocol service which scope is calling.
 +          const lociArgs = { ...((params ?? {}) as Record<string, unknown>) };
 +          if (d.serverId.startsWith("loci-")) {

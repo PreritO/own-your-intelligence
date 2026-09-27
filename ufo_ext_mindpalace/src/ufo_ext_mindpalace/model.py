@@ -1,7 +1,7 @@
 """`mindpalace-walker`: a UFO model provider that runs the scripted loci walker (walker.py).
 
 Stand-in for a Gym-trained River specialist served to UFO agents (spec: "Model provider"), and a way
-to run a real UFO turn through the Mind Palace tools with no model key. Imports only ufo.sdk.
+to run a real UFO turn through the Agent Palace tools with no model key. Imports only ufo.sdk.
 """
 
 from __future__ import annotations

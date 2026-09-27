@@ -1,4 +1,4 @@
-# qm/: the Mind Palace fork of QM
+# qm/: the Agent Palace fork of QM
 
 Upstream QM is **not vendored** here, because it's about 42 MB and has its own toolchain. This directory holds the fork's own files and the design of its diff.
 
@@ -32,8 +32,8 @@ Each team agent is a QM **project scope** named `legal`, `finance` or `eng` (`gr
 
 ```bash
 # In the QM clone: apply the fork, then start with a real model and the scope map
-git apply /path/to/mind-palace/qm/patches/qm-fork.patch
-cp /path/to/mind-palace/qm/overlay/src/delivery/grounding-delivery.ts src/delivery/
+git apply /path/to/agent-palace/qm/patches/qm-fork.patch
+cp /path/to/agent-palace/qm/overlay/src/delivery/grounding-delivery.ts src/delivery/
 LOCI_SCOPES='{"group:web-project-…":"legal",…}' PI_MODEL=claude-sonnet-5 node scripts/dev/cli.ts up --surface web
 
 # In this repo

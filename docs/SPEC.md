@@ -1,10 +1,10 @@
-# Mind Palace — Hackathon Build Spec
+# Agent Palace — Hackathon Build Spec
 
 Sep 27, 2026 · @Prerit
 
 ## Overview
 
-Mind Palace renders a company's shared brain as a walkable 3D memory palace, and shows a team of agents working inside it at once. Each wing belongs to a team (Finance, Legal, Eng, People), and each team's agent walks the palace to fetch, verify and hand off information. Memory champions have used the method of loci for 2,500 years; here it becomes the protocol agents use to retrieve correctly and coordinate.
+Agent Palace renders a company's shared brain as a walkable 3D memory palace, and shows a team of agents working inside it at once. Each wing belongs to a team (Finance, Legal, Eng, People), and each team's agent walks the palace to fetch, verify and hand off information. Memory champions have used the method of loci for 2,500 years; here it becomes the protocol agents use to retrieve correctly and coordinate.
 
 The demo moment: three agents get tasks at the same time. You watch them fan out through the palace, walk fixed routes station by station, meet at a shared room, hand off a question to the agent that owns it, and flag a gap when a station comes up empty instead of guessing.
 
@@ -20,7 +20,7 @@ Hard constraints:
 - **Time box:** hacking runs 1:15 to 5:00 PM (about 3.75 hours). Anything not demoable by 4:30 is cut.
 - **Stack:** TypeScript, Vite, three.js, Bun. Runs in a browser against our QM fork, which orchestrates the agents; a small Bun server bridges QM to the palace.
 - **Data:** GBrain holds the company brain as Markdown pages in a Git repo, with typed links. The demo runs on a seeded fake company, never real data.
-- **Sponsors:** GBrain is the memory; QM is the core harness: we fork it, and the team agents are QM agents. Our fork adds three things to the harness: a palace UI plugin, cross-scope handoffs, and harness-enforced grounding. Memorable supplies learned routes. River trains team specialists in the Gym. UFO gets a Mind Palace extension and is QM's fallback harness. Superset is how we build.
+- **Sponsors:** GBrain is the memory; QM is the core harness: we fork it, and the team agents are QM agents. Our fork adds three things to the harness: a palace UI plugin, cross-scope handoffs, and harness-enforced grounding. Memorable supplies learned routes. River trains team specialists in the Gym. UFO gets a Agent Palace extension and is QM's fallback harness. Superset is how we build.
 - **Non-goals:** real auth, mobile, VR, editing memories by hand inside the palace.
 
 ## Side quests we're targeting
@@ -35,7 +35,7 @@ One project, entered for five side quests; each has a room or feature that owns 
 | River AI: best custom model | Team-specialist agents trained in the Gym on the company's own runs: SFT specialists plus RL with the palace as the environment | The Gym | Live RL job with reward climbing, per-team scoreboard vs base and frontier |
 | QM: fork it, do something new | A QM fork where the harness itself gains a palace UI plugin, cross-scope handoffs and grounding enforcement | Orchestrator | The fork's diff, a task sent from Slack walking the palace, an ungrounded answer blocked live |
 
-UFO (best extension, best business automation for startups): one Mind Palace extension for UFO that adds loci tools, a GBrain connector, the palace as a surface, and River specialists as a model provider. Evidence: a UFO agent in Slack walking the palace, and a Loose End posted to the owning team and answered by a human, writing the page back to GBrain.
+UFO (best extension, best business automation for startups): one Agent Palace extension for UFO that adds loci tools, a GBrain connector, the palace as a surface, and River specialists as a model provider. Evidence: a UFO agent in Slack walking the palace, and a Loose End posted to the owning team and answered by a human, writing the page back to GBrain.
 
 ## Demo script
 
@@ -62,14 +62,14 @@ Backup plan: a recorded event log replays identically if live agents or the netw
 
 One GBrain feeds two paths: an export that builds the palace once, and an ask path that records which pages retrieval touched so the renderer can replay them as a walk.
 
-&#91;embedded content: Mind Palace pipeline · build path and ask path\]
+&#91;embedded content: Agent Palace pipeline · build path and ask path\]
 
 The exporter and the ask server are the only code that knows GBrain exists; the renderer only reads `palace.json` and `trace.json`, so frontend agents can work against fixtures from minute one.
 
 Repo layout:
 
 ```
-mind-palace/
+agent-palace/
   CLAUDE.md                 # this spec, condensed; read first
   .claude/skills/           # custom skills (see below)
   fixtures/
@@ -415,7 +415,7 @@ Five skills go in `.claude/skills/<name>/SKILL.md` during Phase 0; each agent lo
 ```markdown
 ---
 name: palace-contracts
-description: Load before touching palace.json, trace.json, or any code that reads or writes them. Defines the frozen data contracts and ownership rules for Mind Palace.
+description: Load before touching palace.json, trace.json, or any code that reads or writes them. Defines the frozen data contracts and ownership rules for Agent Palace.
 ---
 # Palace contracts
 - Schemas live in the spec's Data contracts section; copies in fixtures/.
@@ -428,7 +428,7 @@ description: Load before touching palace.json, trace.json, or any code that read
 ```markdown
 ---
 name: threejs-palace-scene
-description: Load when building or changing the three.js palace: rooms, pedestals, link beams, lighting, controls, picking. Style and performance rules for Mind Palace.
+description: Load when building or changing the three.js palace: rooms, pedestals, link beams, lighting, controls, picking. Style and performance rules for Agent Palace.
 ---
 # Palace scene
 - Look: dark marble floor, low-poly walls, wing-colored trim, warm emissive memories. Calm, museum-at-night.
@@ -443,7 +443,7 @@ description: Load when building or changing the three.js palace: rooms, pedestal
 ```markdown
 ---
 name: retrieval-walk
-description: Load when working on the ask bar, trace replay, guide orb, camera path, or answer panel. The hero demo feature of Mind Palace.
+description: Load when working on the ask bar, trace replay, guide orb, camera path, or answer panel. The hero demo feature of Agent Palace.
 ---
 # Retrieval walk
 - Input: a trace.json. Output: a 8-15 s cinematic from the player's position to the answer.
@@ -458,7 +458,7 @@ description: Load when working on the ask bar, trace replay, guide orb, camera p
 ```markdown
 ---
 name: gbrain-bridge
-description: Load when reading from GBrain: exporting pages and links, running queries, building retrieval traces for Mind Palace.
+description: Load when reading from GBrain: exporting pages and links, running queries, building retrieval traces for Agent Palace.
 ---
 # GBrain bridge
 - GBrain stores pages as Markdown in a git repo with typed links, plus a Postgres/PGLite index. Prefer the gbrain CLI and MCP tools over parsing internals; run `gbrain --help` first.
@@ -472,7 +472,7 @@ description: Load when reading from GBrain: exporting pages and links, running q
 ```markdown
 ---
 name: loci-protocol
-description: Load when writing agent prompts, orchestrator tools, or anything that decides how agents retrieve, claim, hand off or answer in Mind Palace.
+description: Load when writing agent prompts, orchestrator tools, or anything that decides how agents retrieve, claim, hand off or answer in Agent Palace.
 ---
 # Loci protocol
 - Retrieval is by route: an ordered list of stations. Visit every station, in order. No skipping, no answering early.

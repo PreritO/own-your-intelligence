@@ -1,6 +1,6 @@
 ---
 name: scene-lessons
-description: Lessons from the scene workspace (three.js palace renderer, controls, picking, minimap). Load before changing web/src/scene, web/src/controls.ts or anything that depends on PalaceRuntime visuals in Mind Palace.
+description: Lessons from the scene workspace (three.js palace renderer, controls, picking, minimap). Load before changing web/src/scene, web/src/controls.ts or anything that depends on PalaceRuntime visuals in Agent Palace.
 ---
 # Scene lessons
 

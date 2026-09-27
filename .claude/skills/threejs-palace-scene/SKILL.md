@@ -1,6 +1,6 @@
 ---
 name: threejs-palace-scene
-description: Load when building or changing the three.js palace in web/src/scene, controls.ts or main.ts - rooms, pedestals, link beams, lighting, controls, picking, minimap. Style and performance rules for Mind Palace.
+description: Load when building or changing the three.js palace in web/src/scene, controls.ts or main.ts - rooms, pedestals, link beams, lighting, controls, picking, minimap. Style and performance rules for Agent Palace.
 ---
 # Palace scene
 

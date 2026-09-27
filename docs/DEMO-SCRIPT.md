@@ -1,4 +1,4 @@
-# Mind Palace: Loom talk-through (≈5 minutes)
+# Agent Palace: Loom talk-through (≈5 minutes)
 
 A script you can read while recording. Each beat has **Do** (clicks), **You'll see** (what should appear, so you know when to talk), and **Say** (spoken lines). Say it in your own words if you like; the numbers are all real.
 
@@ -36,12 +36,12 @@ Close other windows, set the browser to full screen, start Loom on the browser t
 ## 1. The problem (0:00 – 0:30)
 
 **Do:** Tab 1. Don't touch anything.
-**You'll see:** the block palace from above: eight department wings, trees around the edges, the Mind Palace panel on the left.
+**You'll see:** the block palace from above: eight department wings, trees around the edges, the Agent Palace panel on the left.
 
 **Say:**
 > "Every startup is starting to hand real work to AI agents: answering customer questionnaires, preparing renewals, triaging incidents. The problem isn't getting an agent to produce an answer. It's knowing whether you can trust it. What did it actually check? Which team should have been asked? And what does nobody at the company actually know?
 >
-> This is Mind Palace. It makes teams of agents auditable. Harnesses like QM and UFO run your agents; Mind Palace makes sure they can't bluff, and shows you exactly how they got the answer."
+> This is Agent Palace. It makes teams of agents auditable. Harnesses like QM and UFO run your agents; Agent Palace makes sure they can't bluff, and shows you exactly how they got the answer."
 
 ---
 
@@ -173,7 +173,7 @@ bun run memorable:demo "Fill out the security review Northwind sent us"
 **Do:** Click **⌂ Map** to return to the overview.
 
 **Say:**
-> "So that's Mind Palace. Multiplayer agents that respect who owns what, can't cite what they didn't read, say out loud what the company doesn't know, and get better every time they run. It works across harnesses (QM and UFO both drive it), with GBrain as the memory, Memorable for learned routes and River for the models. Thanks for watching."
+> "So that's Agent Palace. Multiplayer agents that respect who owns what, can't cite what they didn't read, say out loud what the company doesn't know, and get better every time they run. It works across harnesses (QM and UFO both drive it), with GBrain as the memory, Memorable for learned routes and River for the models. Thanks for watching."
 
 ---
 

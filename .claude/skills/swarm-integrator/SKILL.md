@@ -1,6 +1,6 @@
 ---
 name: swarm-integrator
-description: Load when acting as the integrator for the Mind Palace Superset swarm - spawning workspaces, reviewing per-workspace PRs, merging in order, enforcing gates and the cut list.
+description: Load when acting as the integrator for the Agent Palace Superset swarm - spawning workspaces, reviewing per-workspace PRs, merging in order, enforcing gates and the cut list.
 ---
 # Swarm integrator
 

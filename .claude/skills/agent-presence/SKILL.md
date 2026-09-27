@@ -1,6 +1,6 @@
 ---
 name: agent-presence
-description: Load when building the multiplayer presence layer in web/src/agents - agent avatars, station state markers, handoff beams, the event feed, camera modes and replay speed. The multiplayer hero feature of Mind Palace.
+description: Load when building the multiplayer presence layer in web/src/agents - agent avatars, station state markers, handoff beams, the event feed, camera modes and replay speed. The multiplayer hero feature of Agent Palace.
 ---
 # Agent presence
 
