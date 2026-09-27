@@ -4,7 +4,7 @@
 //                       `memorable ingest -` take: {session_id, harness, task_description, tool_calls[]}
 //   stationsFromText()  whatever recall/show printed -> ordered palace station ids
 //
-// Trace shape (verified against the live API, see NOTES-memorable.md). Memorable only keeps allow-listed
+// Trace shape (verified against the live API, see docs/NOTES-memorable.md). Memorable only keeps allow-listed
 // input fields (command, file_path, path, query, description, ...) and `result.{ok,exit_code}`. Its
 // admission prefilter refuses traces that only read ("no_decisive_steps"), have no postcondition, or use
 // one verb throughout ("single_verb"). So each step is the loci protocol tool the agent really called,

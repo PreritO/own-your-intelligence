@@ -4,7 +4,7 @@
     python server/gbrain/reset.py --all      # git checkout -- fixtures/seed-brain (every local edit!)
     python server/gbrain/reset.py --dry-run  # say what would happen
 
-(requested as `bun run reset-brain`; see NOTES-loose-ends.md). A running protocol service keeps its
+(requested as `bun run reset-brain`; see docs/NOTES-loose-ends.md). A running protocol service keeps its
 inbox in memory, so reset through it instead: `curl -XPOST localhost:8790/loose-ends/reset -d '{"brain":true}'`.
 
 Only pages whose working copy contains the write-back marker ("via Loose Ends") are reverted by

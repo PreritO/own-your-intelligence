@@ -1,6 +1,6 @@
 // Claude calls with JSON output (structured outputs) and a disk cache, so an import can be
 // replayed offline and byte-for-byte. Raw fetch like server/commission/claude.ts: the repo has no
-// Anthropic SDK dependency and package.json is integrator-owned (see NOTES-import.md).
+// Anthropic SDK dependency and package.json is integrator-owned (see docs/NOTES-import.md).
 // The API key is read from the environment (or the main checkout's .env) and never logged.
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";

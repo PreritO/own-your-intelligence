@@ -1,5 +1,5 @@
 // FROZEN data contracts for Mind Palace. Changing a shape needs integrator sign-off
-// (propose in NOTES-<workspace>.md). The browser imports these types too.
+// (propose in docs/NOTES-<workspace>.md). The browser imports these types too.
 import { z } from "zod";
 
 export const Vec3 = z.tuple([z.number(), z.number(), z.number()]);

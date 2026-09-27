@@ -2,7 +2,7 @@
 //
 //   POST :8788/commission?harness=qm {task}
 //
-// Setup (once, QM already running on portal :8129 / core :8081, see NOTES-qm-fork.md):
+// Setup (once, QM already running on portal :8129 / core :8081, see docs/NOTES-qm-fork.md):
 //   LOCI_MCP_PORT=8792 bun qm/loci-mcp.ts          # an adapter that also serves /quest-<n>/mcp
 //   bun qm/qm-admin.ts quest-setup                   # QM project "quest" + connector quest-loci
 //
@@ -10,7 +10,7 @@
 // scope gets one turn with the learned route. Its pi harness (claude-sonnet-5) calls quest-loci_claim /
 // _visit / _handoff, which the adapter forwards to :8790 as agent quest-<n>. Team handoffs are answered
 // by this orchestrator on behalf of legal/finance/eng (team visit + their run-1 reply), because nothing
-// wakes a team QM scope on a handoff yet (NOTES-qm-fork.md "Handoff reply loop").
+// wakes a team QM scope on a handoff yet (docs/NOTES-qm-fork.md "Handoff reply loop").
 //
 // Honest limits: the connector id is `quest-loci`, not `loci-quest`, so the fork's scope-binding check
 // (serverId starts with "loci-") does not apply to it; binding it needs LOCI_SCOPES + a QM restart,

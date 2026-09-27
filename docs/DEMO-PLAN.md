@@ -56,7 +56,7 @@ Used in the extended cut: "same protocol, different harness."
 
 ### D. GBrain-backed ask (10 min, medium risk)
 
-Start the ask server with the isolated brain so `/` really queries GBrain (`server/ask.ts:98`); each hop's reason then reads "gbrain query: ranked result #N" (`server/ask.ts:145`). Use the isolated brain from `NOTES-seed.md`, never `~/.gbrain`. If the query hangs, it falls back to keyword search; note that and move on.
+Start the ask server with the isolated brain so `/` really queries GBrain (`server/ask.ts:98`); each hop's reason then reads "gbrain query: ranked result #N" (`server/ask.ts:145`). Use the isolated brain from `docs/NOTES-seed.md`, never `~/.gbrain`. If the query hangs, it falls back to keyword search; note that and move on.
 
 ### E. Gym auto-play (5 min, low risk)
 
@@ -96,7 +96,7 @@ Re-time these against the actual replays in rehearsal; if the quest runs long, t
 1. Press R, then R: contract task explores 9 stations, then walks a learned 5-station route. Call it a "learned route", not Memorable.
 2. Press G: flow panel scorecard.
 3. Terminal: isolated `gbrain stats` (pages, typed links).
-4. River fine-tune log: loss 134 → 9.5 and the RL job id from `NOTES-training.md`.
+4. River fine-tune log: loss 134 → 9.5 and the RL job id from `docs/NOTES-training.md`.
 5. `?demo=ufo-contract`: "same protocol, different harness."
 6. `git log --merges --oneline | head -15` and the Superset workspace list.
 
@@ -108,7 +108,7 @@ Re-time these against the actual replays in rehearsal; if the quest runs long, t
 | GBrain | Yes, narrowly | "The palace is our GBrain: pages and typed links; the ask bar queries it." | `/` hop reason + `gbrain stats` |
 | River | Narrowly | "We fine-tuned a Legal specialist on palace routes." Never call the Gym sparkline "learning": quest train steps are `checkpoint:"sim"` (`server/commission/quest.ts:429`) and real RL rewards are noisy. | SFT loss log + job ids |
 | UFO | Yes | "Same protocol, different harness." | `?demo=ufo-contract` |
-| Memorable | **No** | No CLI or key (`NOTES-qm-fork.md:99-103`); both runs are hand-authored. | — |
+| Memorable | **No** | No CLI or key (`docs/NOTES-qm-fork.md:99-103`); both runs are hand-authored. | — |
 | Superset | Narrowly | "Orchestrated from one Superset workspace: an integrator agent ran ~20 parallel Claude Code agents in git worktrees, PRs #1-#14+." (They were Claude Code subagents, not Superset workspaces; Superset CLI login failed.) | Merge log (`git log --merges`) |
 
 Not wired, don't mention: Slack, Finance waking to reply to handoffs via QM, Loose End write-back to GBrain (it writes to `server/protocol/.overlay/`).

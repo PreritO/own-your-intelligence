@@ -1,6 +1,6 @@
 """The `gbrain` CLI, pinned to the ISOLATED project brain. Never the personal ~/.gbrain.
 
-gbrain 0.42 reads its config from `$GBRAIN_HOME/.gbrain` (NOTES-seed.md). `--path` alone is not
+gbrain 0.42 reads its config from `$GBRAIN_HOME/.gbrain` (docs/NOTES-seed.md). `--path` alone is not
 enough, and DATABASE_URL / GBRAIN_DATABASE_URL override the config, so both are dropped from the
 child's environment. The project brain is seeded by `bash fixtures/seed-gbrain.sh` into <repo>/.gbrain.
 

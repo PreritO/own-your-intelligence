@@ -4,7 +4,7 @@ description: Load when working on the QM fork (qm/, server/bridge.ts, server/rou
 ---
 # Harness adapters (QM fork + UFO)
 
-- **Read before coding.** QM: its repo docs on plugins, tools, scopes → `NOTES-qm-fork.md`. UFO: `spec.md` extension-system section + `extensions/sample` in ufo-core → `NOTES-ufo-ext.md`. Record the extension points you found and the exact commands that got stock software running.
+- **Read before coding.** QM: its repo docs on plugins, tools, scopes → `docs/NOTES-qm-fork.md`. UFO: `spec.md` extension-system section + `extensions/sample` in ufo-core → `docs/NOTES-ufo-ext.md`. Record the extension points you found and the exact commands that got stock software running.
 - **Gate 2:15:** stock QM running with three agents scoped to Legal, Finance, Eng. If not, UFO (single process, SQLite: `make install && make init && make serve`) becomes the demo harness. Tell the integrator the moment you know.
 - Both harnesses call the same protocol service on :8790 and nothing else. Adapters only translate: tool call → HTTP → result. No ownership/claim/grounding logic in adapters.
 - `server/bridge.ts` (Bun, :8788): `GET /events` as SSE (`data: <PalaceEvent JSON>\n\n`, CORS `*`), `POST /dispatch` to start the three demo tasks, and it appends every run to `fixtures/replays/run-<timestamp>.jsonl`. It can proxy the protocol service's own event stream, so either harness produces identical `/events`.

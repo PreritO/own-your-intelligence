@@ -76,9 +76,9 @@ Every live button falls back to its recording if the bridge doesn't answer withi
 Setup for each integration lives next to it:
 
 - **QM agents:** `qm/README.md` and `qm/FORK.md` (stock QM plus our patch, three team-scoped agents).
-- **UFO extension:** `ufo_ext_mindpalace/` and `NOTES-ufo-ext.md`.
-- **GBrain:** `bash fixtures/seed-gbrain.sh --fresh` builds an isolated brain inside the repo (never your personal `~/.gbrain`); start the ask server with `MP_GBRAIN_HOME` pointing at it. See `NOTES-seed.md`.
-- **River training:** `server/train/` and `NOTES-training.md`.
+- **UFO extension:** `ufo_ext_mindpalace/` and `docs/NOTES-ufo-ext.md`.
+- **GBrain:** `bash fixtures/seed-gbrain.sh --fresh` builds an isolated brain inside the repo (never your personal `~/.gbrain`); start the ask server with `MP_GBRAIN_HOME` pointing at it. See `docs/NOTES-seed.md`.
+- **River training:** `server/train/` and `docs/NOTES-training.md`.
 
 ## How it works
 
@@ -104,7 +104,7 @@ scripted ───┘           (ownership, claims, verdicts,
 | **GBrain** | The company brain: an isolated brain seeded with Acme Robotics' pages and typed links. The ask bar queries it when `MP_GBRAIN_HOME` is set; the palace exporter reads the same Markdown directly. |
 | **QM** | The main harness. Our fork gives three team-scoped agents the loci tools, and the grounding check blocks answers that cite unvisited stations. Slack delivery and handoff wake-ups aren't wired yet. |
 | **UFO** | Second harness, same protocol: an extension exposing the loci tools, plus the Loose End loop (a gap is posted to the owning team, a human's reply is written back, and the station re-verifies). |
-| **River AI** | Fine-tuned a Legal specialist on palace routes (real SFT and RL jobs; ids and logs in `NOTES-training.md`). The Gym's in-quest training steps are simulated. |
+| **River AI** | Fine-tuned a Legal specialist on palace routes (real SFT and RL jobs; ids and logs in `docs/NOTES-training.md`). The Gym's in-quest training steps are simulated. |
 | **Superset** | Where it was built: one Superset workspace ran an integrator agent that coordinated about 20 parallel Claude Code agents in git worktrees, merged through PRs (`git log --merges`). |
 
 ## Repo layout

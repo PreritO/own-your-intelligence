@@ -1,6 +1,6 @@
 // Memorable client: ingest successful runs, recall a stored workflow for a new task.
 //
-// What Memorable exposes (docs: https://www.memorable.sh/doc/api, /doc/cli; see NOTES-memorable.md):
+// What Memorable exposes (docs: https://www.memorable.sh/doc/api, /doc/cli; see docs/NOTES-memorable.md):
 //   - HTTP: POST /v1/extract (trace -> procedure draft), POST /v1/embed (query vector). There is NO HTTP
 //     recall/search endpoint: the service parses, the store lives on the caller's side.
 //   - CLI (`npm i -g memorable-cli`): `ingest -` calls /v1/extract AND stores the procedure in the local
@@ -60,7 +60,7 @@ const strip = (s: string) => s.replace(/\x1b\[[0-9;]*m/g, "").replace(/mk_[A-Za-
 export type Recalled = RecallHit & ShowMapping & { ms: number };
 export type RecallMiss = { miss: string; ms: number; hit?: RecallHit };
 
-// Semantic hits below this are "nearest neighbour", not "same task" (calibrated in NOTES-memorable.md).
+// Semantic hits below this are "nearest neighbour", not "same task" (calibrated in docs/NOTES-memorable.md).
 export const MIN_SCORE = Number(process.env.MEMORABLE_MIN_SCORE ?? 0.5);
 
 /**

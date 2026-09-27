@@ -9,7 +9,7 @@
 2. pushes the new page into the ISOLATED project brain with `gbrain put` (cli.GBrain).
 
 Reset everything with `python server/gbrain/reset.py` (git checkout of fixtures/seed-brain, re-put of
-the reverted pages, Loose Ends state and outbox cleared). See NOTES-loose-ends.md.
+the reverted pages, Loose Ends state and outbox cleared). See docs/NOTES-loose-ends.md.
 """
 
 from __future__ import annotations

@@ -40,7 +40,7 @@ SCOREBOARD = FIXTURES / "gym-scoreboard.json"
 QWEN = "Qwen/Qwen3.5-9B"
 CLAUDE_MODEL = os.environ.get("COMMISSION_MODEL", "claude-sonnet-5")
 
-# The Legal SFT checkpoint River produced in the training workspace (NOTES-training.md). server/train/out
+# The Legal SFT checkpoint River produced in the training workspace (docs/NOTES-training.md). server/train/out
 # is gitignored, so the path is pinned here; out/checkpoints.json or RIVER_CHECKPOINT_<TEAM> override it.
 DEFAULT_CHECKPOINTS: dict[str, dict[str, str]] = {
     "legal": {

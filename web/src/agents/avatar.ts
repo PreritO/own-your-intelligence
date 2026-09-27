@@ -5,7 +5,7 @@
 //
 // Public API is unchanged from the orb version (group, pos, walk, end, moving, setTag, setWaiting, ping,
 // update, teleport, dispose, AVATAR_Y). New OPTIONAL methods, safe to ignore: setActivity, setBubble,
-// face, playSpawn (see NOTES-humans.md). Without them the pose and bubble are inferred:
+// face, playSpawn (see docs/NOTES-humans.md). Without them the pose and bubble are inferred:
 //   moving -> walk · setWaiting(true) -> waiting · stopped next to a memory orb -> reading · else idle.
 import * as THREE from "three";
 import { disposeTree } from "./fx";

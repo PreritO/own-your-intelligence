@@ -324,7 +324,7 @@ Bun HTTP on port 8787.
 
 ### 5a. QM fork (`qm/` as a forked checkout, plus `server/bridge.ts`)
 
-- [ ] First: read QM's repo docs on plugins, tools and scopes before writing any code; record the extension points found in `NOTES-qm-fork.md`
+- [ ] First: read QM's repo docs on plugins, tools and scopes before writing any code; record the extension points found in `docs/NOTES-qm-fork.md`
 - [ ] Stock QM runs (locally or on Fly) by 2:15, with three agents scoped to Legal, Finance and Eng rooms
 - [ ] Tools `visit`, `claim`, `handoff`, `reply`, `answer` added to the fork as thin adapters to the protocol service (no protocol logic in the fork)
 - [ ] Handoff primitive: permission check, threaded request and reply, visible in Slack and emitted as events
@@ -336,7 +336,7 @@ Bun HTTP on port 8787.
 
 ### 5c. Protocol service + UFO extension (`server/protocol/`, `ufo_ext_mindpalace/`)
 
-- [ ] First: read `spec.md`'s extension-system section and `extensions/sample` in ufo-core before writing any code; note the tool, connector, surface and model-provider contracts in `NOTES-ufo-ext.md`
+- [ ] First: read `spec.md`'s extension-system section and `extensions/sample` in ufo-core before writing any code; note the tool, connector, surface and model-provider contracts in `docs/NOTES-ufo-ext.md`
 - [ ] Stock UFO runs (`make install`, `make init`, `make serve` on SQLite) by 2:15
 - [ ] Protocol service passes its own tests: ownership refusal, claim wait, gap verdict, blocked ungrounded answer
 - [ ] UFO extension installs and exposes the five tools; a UFO agent completes the contract-signoff route
@@ -400,7 +400,7 @@ Seven agents run in parallel Superset workspaces, each on its own branch and wor
 
 Rules every agent follows (put these in `CLAUDE.md`):
 
-- Never edit files outside your "Owns" column. Need a change elsewhere? Write it in `NOTES-<workspace>.md` and stop.
+- Never edit files outside your "Owns" column. Need a change elsewhere? Write it in `docs/NOTES-<workspace>.md` and stop.
 - Never change `palace.json` or `trace.json` shape. Propose changes in notes.
 - Commit every 20 to 30 minutes with a message that says which checkbox passed. Keep Superset's screen recording running all afternoon: the swarm is itself a side-quest entry.
 - Work against fixtures, not live services, until your merge slot.
@@ -421,7 +421,7 @@ description: Load before touching palace.json, trace.json, or any code that read
 - Schemas live in the spec's Data contracts section; copies in fixtures/.
 - memory.id = GBrain page slug. Never invent another key.
 - Positions are meters, y-up. Rooms are axis-aligned boxes.
-- Never change a schema. Write proposals in NOTES-<workspace>.md.
+- Never change a schema. Write proposals in docs/NOTES-<workspace>.md.
 - Verify: `bun run validate` checks both fixtures against zod schemas in server/schema.ts.
 ```
 

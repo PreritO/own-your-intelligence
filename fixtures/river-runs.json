@@ -1,5 +1,5 @@
 {
-  "about": "Real River AI jobs from the training workspace (NOTES-training.md and the server/train/out logs of ws/training). Every number is copied from a log; nothing is estimated. The Gym leaderboard (web/src/rooms/gym.ts) renders this file.",
+  "about": "Real River AI jobs from the training workspace (docs/NOTES-training.md and the server/train/out logs of ws/training). Every number is copied from a log; nothing is estimated. The Gym leaderboard (web/src/rooms/gym.ts) renders this file.",
   "jobs": [
     {
       "jobId": "50692a37-0f22-4aa7-b1f6-903fbd180ffe:model:1",

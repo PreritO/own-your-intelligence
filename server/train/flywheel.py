@@ -55,7 +55,7 @@ LADDER = OUT / "ladder"  # gitignored: SFT rows, job records, bench results
 LADDER_TEAMS = ("legal", "eng", "sales")
 HELDOUT_N = 20
 
-# Generation 1 for Legal predates this file: the route-plan SFT from NOTES-training.md.
+# Generation 1 for Legal predates this file: the route-plan SFT from docs/NOTES-training.md.
 LEGACY = {
     ("legal", 1): {
         "jobId": "50692a37-0f22-4aa7-b1f6-903fbd180ffe:model:1",

@@ -7,7 +7,7 @@
 //
 // Every reply is labelled with the model that actually wrote it, e.g. "[Legal specialist (River SFT, Qwen3.5-9B)] ...",
 // "[Claude claude-sonnet-5] ..." or "[Claude claude-sonnet-5 · River fallback: timeout] ...". The reply event has
-// no source field yet (proposal in NOTES-river-serve.md), so the label rides at the start of `answer`.
+// no source field yet (proposal in docs/NOTES-river-serve.md), so the label rides at the start of `answer`.
 //
 //   bun server/commission/models.ts legal     # prints teamModel(legal) and one live reply
 import { claude, MODEL } from "./claude";

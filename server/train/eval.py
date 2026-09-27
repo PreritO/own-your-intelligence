@@ -102,7 +102,7 @@ def main() -> None:
                         continue
                     path = info["inference_path"]
                     board[team][key] = {**eval_river(rows, lambda m, path=path, info=info: _content(client.chat_complete_from_checkpoint(m, checkpoint_path=path, base_model=info.get("base_model", base), **GEN)), a.show, key), "kind": "checkpoint"}
-            # Frontier planner column: not wired (no frontier key in this workspace); see NOTES-training.md.
+            # Frontier planner column: not wired (no frontier key in this workspace); see docs/NOTES-training.md.
 
     print(f"\nGym scoreboard ({mode}) · held-out tasks per team · reward = docs/SPEC.md Gym rules\n")
     hdr = f"{'team':8} {'policy':28} {'n':>4} {'reward':>7} {'/max':>6} {'correct':>8} {'compliant':>10} {'tools':>6} {'latency':>8}"

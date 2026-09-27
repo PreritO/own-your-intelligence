@@ -11,5 +11,5 @@ description: Load before touching palace.json, trace.json, the /events stream, w
 - Ownership: every wing and room has `owner` ∈ finance | legal | eng | shared. People wing and foyer are `shared` (read-only for all agents).
 - `/events`: one `PalaceEvent` JSON per line, `t` = seconds since dispatch, monotonic. Types: task, route, move (to = room id), claim, wait, visit (verdict), handoff, reply, answer, train_step.
 - Web seam: `web/src/api.ts` `PalaceRuntime` + `Plugin`. Plugins get the runtime; they don't import each other.
-- Never change a schema, `api.ts` or `events.ts`. Write the proposal in `NOTES-<workspace>.md`; the integrator decides.
+- Never change a schema, `api.ts` or `events.ts`. Write the proposal in `docs/NOTES-<workspace>.md`; the integrator decides.
 - Verify: `bun run validate` (schema + referential integrity + max 12 memories/room + sorted ids) and `bun run typecheck`.

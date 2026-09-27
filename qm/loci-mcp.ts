@@ -16,7 +16,7 @@
 //   POST /bind        {run, agent?, qmRunId?, threadRef?, route?, handoffId?}  bind a QM turn to a protocol run
 //   GET  /bindings    current bindings
 //   POST /grounding   {scopeId, agent?, threadRef?, text}  the fork's pre-post check; forwarded to
-//                     POST :8790/grounding {agent, run, text, route} (see NOTES-qm-multi.md, route gate)
+//                     POST :8790/grounding {agent, run, text, route} (see docs/NOTES-qm-multi.md, route gate)
 //   GET  /<agent>/notes  what a quest agent submitted through reflect / write_page (read by server/commission/qm.ts)
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";

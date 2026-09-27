@@ -32,7 +32,7 @@ Ports: web 5173 · ask 8787 · bridge `/events` 8788 · protocol service 8790 (`
 - **Commissioned quests (main demo flow, 14:45):** the user types a task → a new agent `spawn`s → `phase` plan/explore (tours departments, handoffs to team agents) → gym (`train_step`) → execute (learned route) → `artifact` (new page) → done (`answer`). Commons rooms `room-gym`, `room-workshop`, `room-loose-ends` are real rooms in palace.json.
 - `web/src/api.ts` (`PalaceRuntime`, `Plugin`, `UI_EVENTS`) is the seam between web workspaces.
   Scene builds the runtime; ui/walk/presence/rooms are plugins registered in `web/src/plugins.ts`.
-- Never change a schema or `api.ts`. Propose changes in `NOTES-<workspace>.md` and ping the integrator.
+- Never change a schema or `api.ts`. Propose changes in `docs/NOTES-<workspace>.md` and ping the integrator.
 
 ## Workspace ownership (Superset swarm)
 | Workspace | Owns (only edits these) |
@@ -54,11 +54,11 @@ Ports: web 5173 · ask 8787 · bridge `/events` 8788 · protocol service 8790 (`
 | `training` | `server/train/`, `web/src/rooms/` |
 | integrator | `server/layout.ts`, `server/export.ts`, `CLAUDE.md`, `docs/`, `server/schema.ts`, `server/validate.ts`, `web/src/api.ts`, `web/src/events.ts`, `web/src/plugins.ts`, `package.json`, `.claude/` |
 
-Everyone may create `NOTES-<workspace>.md` and `.claude/skills/<workspace>-lessons/SKILL.md`.
+Everyone may create `docs/NOTES-<workspace>.md` and `.claude/skills/<workspace>-lessons/SKILL.md`.
 Need a dependency? Add it in your notes file; the integrator adds it to `package.json`.
 
 ## Rules
-1. Never edit files outside your Owns row. Need a change elsewhere? Write it in `NOTES-<workspace>.md` and move on.
+1. Never edit files outside your Owns row. Need a change elsewhere? Write it in `docs/NOTES-<workspace>.md` and move on.
 2. Work against fixtures, not live services, until your merge slot.
 3. Commit every 20–30 min; the message names the checkbox that passed (e.g. `scene: [x] pointer-lock WASD + collision`).
 4. Load your workspace's skill plus `palace-contracts` before writing code.
