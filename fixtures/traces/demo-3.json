@@ -1,0 +1,33 @@
+{
+  "question": "Who owns the SOC 2 renewal?",
+  "hops": [
+    {
+      "step": 1,
+      "memoryId": "eng/soc2-renewal",
+      "reason": "keyword match: SOC 2 renewal",
+      "score": 0.94
+    },
+    {
+      "step": 2,
+      "memoryId": "eng/soc2-owner",
+      "reason": "graph link: owned_by",
+      "score": 0.81
+    },
+    {
+      "step": 3,
+      "memoryId": "eng/security-policy",
+      "reason": "graph link: governed_by (stale: last reviewed March)",
+      "score": 0.62
+    },
+    {
+      "step": 4,
+      "memoryId": "people/org-chart",
+      "reason": "graph link: listed_in",
+      "score": 0.57
+    }
+  ],
+  "answerMemoryIds": [
+    "eng/soc2-renewal"
+  ],
+  "answer": "No owner is recorded. The SOC 2 Owner page is empty, the security policy is stale and names no compliance owner, and the org chart has no security or compliance lead. The renewal window opens Nov 1 with Brightline."
+}

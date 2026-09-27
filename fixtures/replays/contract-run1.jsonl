@@ -1,0 +1,31 @@
+{"t":0,"agent":"legal","type":"task","text":"Can we sign the Gripworks contract this week?","run":"contract-run1"}
+{"t":0.3,"agent":"legal","type":"route","routeId":"explore-contract-signoff","stations":["companies/gripworks","legal/contract-playbook","legal/voltcell-supply-agreement","legal/gripworks-msa","legal/vendor-onboarding","finance/purchase-order-policy","finance/budget-2026-q4","legal/approvals","people/signatories"],"source":"explore","run":"contract-run1"}
+{"t":0.5,"agent":"legal","type":"move","to":"room-people-0","run":"contract-run1"}
+{"t":1.1,"agent":"legal","type":"claim","memoryId":"companies/gripworks","run":"contract-run1"}
+{"t":1.7,"agent":"legal","type":"visit","memoryId":"companies/gripworks","verdict":"verified","run":"contract-run1"}
+{"t":2.1,"agent":"legal","type":"move","to":"room-legal-0","run":"contract-run1"}
+{"t":2.7,"agent":"legal","type":"claim","memoryId":"legal/contract-playbook","run":"contract-run1"}
+{"t":3.3,"agent":"legal","type":"visit","memoryId":"legal/contract-playbook","verdict":"verified","note":"general positions only, nothing Gripworks-specific","run":"contract-run1"}
+{"t":3.7,"agent":"legal","type":"claim","memoryId":"legal/voltcell-supply-agreement","run":"contract-run1"}
+{"t":4.3,"agent":"legal","type":"visit","memoryId":"legal/voltcell-supply-agreement","verdict":"verified","note":"wrong vendor, dead end","run":"contract-run1"}
+{"t":4.7,"agent":"legal","type":"claim","memoryId":"legal/gripworks-msa","run":"contract-run1"}
+{"t":5.3,"agent":"legal","type":"visit","memoryId":"legal/gripworks-msa","verdict":"verified","run":"contract-run1"}
+{"t":5.7,"agent":"legal","type":"claim","memoryId":"legal/vendor-onboarding","run":"contract-run1"}
+{"t":6.3,"agent":"legal","type":"visit","memoryId":"legal/vendor-onboarding","verdict":"verified","note":"points to Finance for budget and PO route","run":"contract-run1"}
+{"t":6.7,"agent":"legal","type":"move","to":"room-finance-1","run":"contract-run1"}
+{"t":7.3,"agent":"legal","type":"handoff","id":"contract-run1-h1","toAgent":"finance","memoryId":"finance/purchase-order-policy","question":"Does a $40k Gripworks contract need PO approval before signing?","run":"contract-run1"}
+{"t":7.6,"agent":"finance","type":"move","to":"room-finance-1","run":"contract-run1"}
+{"t":8.2,"agent":"finance","type":"claim","memoryId":"finance/purchase-order-policy","run":"contract-run1"}
+{"t":8.8,"agent":"finance","type":"visit","memoryId":"finance/purchase-order-policy","verdict":"verified","run":"contract-run1"}
+{"t":9.1,"agent":"finance","type":"reply","id":"contract-run1-h1","answer":"A PO over $25k needs Raj Patel, but a PO is not a contract signature. Check the budget line.","run":"contract-run1"}
+{"t":9.5,"agent":"legal","type":"handoff","id":"contract-run1-h2","toAgent":"finance","memoryId":"finance/budget-2026-q4","question":"Is Gripworks within Q4 budget?","run":"contract-run1"}
+{"t":9.8,"agent":"finance","type":"claim","memoryId":"finance/budget-2026-q4","run":"contract-run1"}
+{"t":10.4,"agent":"finance","type":"visit","memoryId":"finance/budget-2026-q4","verdict":"verified","run":"contract-run1"}
+{"t":10.7,"agent":"finance","type":"reply","id":"contract-run1-h2","answer":"Yes, $40k of $55k supplier line; $15k already committed.","run":"contract-run1"}
+{"t":11.1,"agent":"legal","type":"move","to":"room-legal-0","run":"contract-run1"}
+{"t":11.7,"agent":"legal","type":"claim","memoryId":"legal/approvals","run":"contract-run1"}
+{"t":12.3,"agent":"legal","type":"visit","memoryId":"legal/approvals","verdict":"verified","run":"contract-run1"}
+{"t":12.7,"agent":"legal","type":"move","to":"room-people-0","run":"contract-run1"}
+{"t":13.3,"agent":"legal","type":"claim","memoryId":"people/signatories","run":"contract-run1"}
+{"t":13.9,"agent":"legal","type":"visit","memoryId":"people/signatories","verdict":"verified","run":"contract-run1"}
+{"t":14.3,"agent":"legal","type":"answer","text":"Yes, this week, if Mara Okafor or Dev Lindqvist signs. Legal approved MSA v3 on Sep 22 and Finance confirmed the $40k fits the Q4 supplier line.","citations":["legal/gripworks-msa","finance/budget-2026-q4","legal/approvals","people/signatories"],"run":"contract-run1"}
