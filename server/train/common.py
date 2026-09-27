@@ -157,12 +157,13 @@ class Palace:
 class StepLogger:
     """Writes train_step PalaceEvents to out/<run>.jsonl and POSTs them to the bridge if it is up."""
 
-    def __init__(self, run: str, post: bool = True):
+    def __init__(self, run: str, post: bool = True, fresh: bool = True):
         self.run = run
         self.t0 = time.time()
         self.path = OUT / f"{run}.jsonl"
         OUT.mkdir(parents=True, exist_ok=True)
-        self.path.write_text("")
+        if fresh or not self.path.exists():
+            self.path.write_text("")
         self.post = post
         self._bridge_ok: bool | None = None
 

@@ -94,7 +94,7 @@ def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float
     base = pick_base_model(client)
     init = None if from_base else load_checkpoints().get(f"sft-{team}", {}).get("training_path")
     run = f"rl-{team}-base" if from_base or not init else f"rl-{team}"
-    log = StepLogger(run)
+    log = StepLogger(run, fresh=False)  # a resumed run keeps its earlier train_step events
     print(f"RL {team} on {base} from {init or 'base weights'}; {len(rows)} tasks")
 
     def on_step(step) -> None:
@@ -103,6 +103,19 @@ def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float
         log.log(team, step.n, float(m.get("reward/mean", 0.0)))
 
     renderer = get_renderer(base)
+    # River docs (rl-checkpoints): after a transient failure, recreate the session and trainer with the
+    # same checkpoint directory and it resumes. Retry a few times on RiverError.
+    for attempt in range(1, 5):
+        try:
+            _real_once(river, rl, client, base, renderer, PalaceEnv, rows, run, init, team, steps, groups_per_step, group_size, lr, use_protocol, log, on_step)
+            return
+        except river.RiverError as e:  # type: ignore[attr-defined]
+            print(json.dumps({"attempt": attempt, "river_error": str(e)[:300], "action": "resume from checkpoint dir"}), flush=True)
+            time.sleep(10 * attempt)
+    raise SystemExit("RL gave up after 4 attempts; see log")
+
+
+def _real_once(river, rl, client, base, renderer, PalaceEnv, rows, run, init, team, steps, groups_per_step, group_size, lr, use_protocol, log, on_step) -> None:
     with client.session(experiment=f"mind-palace-{run}") as session:
         model = session.create_model(base_model=base, tokenizer=renderer.tokenizer, lora=river.LoraConfig(rank=16, seed=0))
         print(json.dumps({"run": run, "model_id": model.model_id}), flush=True)
