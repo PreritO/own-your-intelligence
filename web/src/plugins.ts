@@ -4,5 +4,6 @@ import { mountUI } from "./ui";
 import { mountWalk } from "./walk";
 import { mountPresence } from "./agents";
 import { mountRooms } from "./rooms";
+import { mountFlow } from "./flow";
 
-export const plugins: Plugin[] = [mountUI, mountWalk, mountPresence, mountRooms];
+export const plugins: Plugin[] = [mountUI, mountWalk, mountPresence, mountRooms, mountFlow];
