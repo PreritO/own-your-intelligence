@@ -1,0 +1,11 @@
+{"t": 0.0, "agent": "legal", "type": "task", "text": "Can we sign the Gripworks contract this week?", "run": "flow-bad"}
+{"t": 0.3, "agent": "legal", "type": "route", "routeId": "contract-signoff", "source": "fallback", "stations": ["companies/gripworks", "legal/gripworks-msa", "finance/budget-2026-q4", "legal/approvals", "people/signatories"], "run": "flow-bad"}
+{"t": 0.7, "agent": "legal", "type": "claim", "memoryId": "companies/gripworks", "run": "flow-bad"}
+{"t": 1.2, "agent": "legal", "type": "visit", "memoryId": "companies/gripworks", "verdict": "verified", "run": "flow-bad"}
+{"t": 1.6, "agent": "legal", "type": "claim", "memoryId": "legal/gripworks-msa", "run": "flow-bad"}
+{"t": 2.1, "agent": "legal", "type": "visit", "memoryId": "legal/gripworks-msa", "verdict": "stale", "note": "draft v2 only", "run": "flow-bad"}
+{"t": 2.5, "agent": "legal", "type": "claim", "memoryId": "finance/budget-2026-q4", "run": "flow-bad"}
+{"t": 3.0, "agent": "legal", "type": "visit", "memoryId": "finance/budget-2026-q4", "verdict": "verified", "evidence": "Supplier line $55k", "run": "flow-bad"}
+{"t": 3.4, "agent": "legal", "type": "claim", "memoryId": "legal/approvals", "run": "flow-bad"}
+{"t": 3.9, "agent": "legal", "type": "visit", "memoryId": "legal/approvals", "verdict": "gap", "note": "no approval logged", "run": "flow-bad"}
+{"t": 4.4, "agent": "legal", "type": "answer", "text": "Yes, sign it.", "citations": ["legal/gripworks-msa", "finance/budget-2026-q4", "people/signatories"], "blocked": true, "run": "flow-bad"}
