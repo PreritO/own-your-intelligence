@@ -18,10 +18,18 @@
 import type { QuestHooks } from "./quest";
 import { core, questScope, questTurn } from "../../qm/qm-admin";
 import { PORTS } from "../schema";
+import { loadPalace } from "../routes";
 
 const PROTOCOL_URL = (process.env.PROTOCOL_URL ?? `http://localhost:${PORTS.protocol}`).replace(/\/$/, "");
 const QUEST_MCP = (process.env.QUEST_MCP_URL ?? "http://localhost:8792").replace(/\/$/, "");
-const TEAMS = ["legal", "finance", "eng"];
+// Every palace team agent (8 departments since 15:15), read from palace.json, not hard-coded.
+const TEAMS = (() => {
+  try {
+    return loadPalace().agents.map((a) => a.id);
+  } catch {
+    return ["legal", "finance", "eng"];
+  }
+})();
 
 async function up(): Promise<boolean> {
   try {

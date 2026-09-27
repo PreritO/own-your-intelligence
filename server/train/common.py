@@ -17,7 +17,23 @@ FIXTURES = ROOT / "fixtures"
 TRAIN_DIR = Path(__file__).resolve().parent
 DATA = TRAIN_DIR / "data"
 OUT = TRAIN_DIR / "out"
-TEAMS = ("legal", "finance", "eng")
+
+
+def _palace_teams() -> tuple[str, ...]:
+    """Teams = owners of team rooms plus team agents in fixtures/palace.json (8 departments since 15:15).
+    Order: palace.json agents first (legal, finance, eng, ...), then any other room owner."""
+    try:
+        p = json.loads((FIXTURES / "palace.json").read_text("utf8"))
+    except (OSError, ValueError):
+        return ("legal", "finance", "eng")
+    out: list[str] = []
+    for t in [a.get("team") for a in p.get("agents", [])] + [r.get("owner") for r in p.get("rooms", [])]:
+        if t and t not in ("shared", "people") and t not in out:
+            out.append(t)
+    return tuple(out) or ("legal", "finance", "eng")
+
+
+TEAMS = _palace_teams()
 BRIDGE = os.environ.get("MP_BRIDGE", "http://localhost:8788")
 PROTOCOL = os.environ.get("MP_PROTOCOL", "http://localhost:8790")
 

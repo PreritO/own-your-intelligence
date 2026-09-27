@@ -211,7 +211,7 @@ def make_env_class():
 
             @rl.tool
             async def handoff(memory_id: str, to_agent: str, question: str) -> str:
-                """Ask the owning team's agent (legal | finance | eng) to read a station in its room."""
+                """Ask the owning team's agent (the room's owner, e.g. legal | finance | eng | sales | ops | support | marketing) to read a station in its room."""
                 return env.world.handoff(memory_id, to_agent, question) if env.world else "error: no episode"
 
             @rl.tool

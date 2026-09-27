@@ -19,7 +19,7 @@ import json
 import random
 import time
 
-from .common import DATA, OUT, StepLogger, load_checkpoints, pick_base_model, read_jsonl, river_client, river_key, save_checkpoint
+from .common import DATA, OUT, TEAMS, StepLogger, load_checkpoints, pick_base_model, read_jsonl, river_client, river_key, save_checkpoint
 from .sim import BEHAVIOURS, evaluate, logit, rollout, sigmoid
 from .palace_env import score_world
 
@@ -252,7 +252,7 @@ def _last_reward(path) -> float:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--team", default="legal", choices=["legal", "finance", "eng"])
+    ap.add_argument("--team", default="legal", choices=list(TEAMS))
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--steps", type=int, default=None)
     ap.add_argument("--groups-per-step", type=int, default=8)

@@ -13,7 +13,7 @@
 // (move to room-gym, train_step stream, learned route recorded in fixtures/learned-routes.json) ->
 // phase execute (route source learned, fewer hops) -> artifact (Markdown page, quests/<slug>) ->
 // answer (citations = the stations whose evidence the page used; must pass /grounding) -> phase done.
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { Memory, Palace } from "../schema";
 import { PORTS } from "../schema";
@@ -26,10 +26,27 @@ export const QUEST_DIR = process.env.QUEST_DIR ?? join(dirname(import.meta.path)
 const PACE = Number(process.env.QUEST_PACE ?? 1); // >1 = slower walking
 const WALK_MPS = 5; // avatar BASE_SPEED in web/src/agents/avatar.ts
 const COLORS = ["#ff7eb6", "#2ac3de", "#ff9e64", "#f7768e", "#73daca", "#c0caf5"]; // not a team colour
-const TEAM_LABEL: Record<string, string> = { legal: "Legal", finance: "Finance", eng: "Eng" };
+// Team agents and department labels come from palace.json (8 departments since 15:15), never a hard-coded list.
+function teamLabel(p: Palace, team: string): string {
+  const a = p.agents.find((x) => x.team === team || x.id === team);
+  return a?.label.replace(/\s+agent$/i, "") ?? p.wings.find((w) => w.id === team)?.label ?? team[0]!.toUpperCase() + team.slice(1);
+}
+const departmentsOf = (p: Palace) => p.wings.map((w) => w.id);
+const wingOfRoom = (p: Palace, room: string) => p.rooms.find((r) => r.id === room)?.wing ?? "foyer";
+
+// fixtures/quests.json (seed-v2): the company's cross-department quests. POST /commission {questId}.
+export type QuestDef = { id: string; title: string; prompt: string; departments?: string[]; expectedGaps?: string[] };
+export const QUESTS_FILE = process.env.QUESTS_FILE ?? join(dirname(import.meta.path), "..", "..", "fixtures", "quests.json");
+export function loadQuests(): QuestDef[] {
+  if (!existsSync(QUESTS_FILE)) return [];
+  const raw = JSON.parse(readFileSync(QUESTS_FILE, "utf8"));
+  const list = (Array.isArray(raw) ? raw : raw.quests ?? []) as QuestDef[];
+  return list.filter((q) => q && typeof q.id === "string" && typeof q.prompt === "string");
+}
+export const findQuest = (id: string) => loadQuests().find((q) => q.id === id || `quest-${q.id}` === id) ?? null;
 
 export type QuestHarness = "protocol" | "qm";
-export type QuestInfo = { agent: string; run: string; label: string; task: string; harness: QuestHarness };
+export type QuestInfo = { agent: string; run: string; label: string; task: string; harness: QuestHarness; questId?: string };
 type Subtask = { id: string; title: string; department?: string; stations?: string[] };
 type Plan = { label?: string; subtasks: Subtask[]; maybe: { id: string; subtask: string }[]; source: "claude" | "fallback" };
 type Seen = { id: string; subtask: string; verdict: "verified" | "stale" | "gap"; via: "visit" | "handoff"; text: string; evidence?: string; team?: string; question?: string };
@@ -98,7 +115,7 @@ function departmentsDigest(p: Palace): string {
 
 // ------------------------------------------------------------------------------------ plan
 
-async function plan(task: string, p: Palace): Promise<Plan> {
+async function plan(task: string, p: Palace, quest?: QuestDef | null): Promise<Plan> {
   const ids = new Set(p.memories.map((m) => m.id));
   const system =
     "You are a newly commissioned agent at Acme Robotics. The company's knowledge lives in a memory palace: " +
@@ -107,9 +124,11 @@ async function plan(task: string, p: Palace): Promise<Plan> {
   const user =
     `Task: ${task}\n\nDepartments and stations:\n${departmentsDigest(p)}\n\n` +
     `Return JSON: {"label": "<2-3 word agent name ending in 'agent'>", "subtasks": [{"id": "s1", "title": "<short imperative>", ` +
-    `"department": "people|legal|finance|eng", "stations": ["<station id>", ...]}], "maybe": [{"id": "<station id>", "subtask": "s1"}]}\n` +
-    `Rules: 3-5 subtasks, 1-2 stations each, only ids from the list, cover at least three departments. ` +
-    `"maybe" = 2-3 stations you are unsure help; this first run will check them too.`;
+    `"department": "${departmentsOf(p).join("|")}", "stations": ["<station id>", ...]}], "maybe": [{"id": "<station id>", "subtask": "s1"}]}\n` +
+    `Rules: 3-6 subtasks, 1-2 stations each, only ids from the list, cover at least three departments` +
+    (quest?.departments?.length ? ` (this quest involves ${quest.departments.join(", ")}: cover each of them)` : "") +
+    `. Include a directly relevant station even when its excerpt looks incomplete (e.g. an owner or figure not recorded): ` +
+    `gaps must be surfaced, not avoided. "maybe" = 2-3 stations you are unsure help; this first run will check them too.`;
   let reply: string | null = null;
   let raw: { label?: string; subtasks?: Subtask[]; maybe?: { id: string; subtask: string }[] } | null = null;
   for (let i = 0; i < 2 && !raw?.subtasks?.length; i++) {
@@ -132,20 +151,23 @@ async function plan(task: string, p: Palace): Promise<Plan> {
     .sort((a, b) => b.s - a.s);
   const byDept = new Map<string, string[]>();
   for (const { m } of ranked) {
-    const d = m.id.split("/")[0] === "companies" ? "people" : m.id.split("/")[0]!;
+    const d = wingOfRoom(p, m.room);
+    if (d === "foyer") continue;
     if ((byDept.get(d)?.length ?? 0) < 2) byDept.set(d, [...(byDept.get(d) ?? []), m.id]);
   }
-  const subtasks = [...byDept.entries()].slice(0, 4).map(([d, st], i) => ({ id: `s${i + 1}`, title: `Collect ${d} basics`, department: d, stations: st.slice(0, 1) }));
+  const want = quest?.departments ?? [];
+  const order = [...byDept.keys()].sort((a, b) => Number(!want.includes(a)) - Number(!want.includes(b)));
+  const subtasks = order.map((d) => [d, byDept.get(d)!] as const).slice(0, Math.max(4, want.length)).map(([d, st], i) => ({ id: `s${i + 1}`, title: `Collect ${d} basics`, department: d, stations: st.slice(0, 1) }));
   const maybe = [...byDept.values()].flatMap((st) => st.slice(1)).slice(0, 2).map((id) => ({ id, subtask: "s1" }));
   return { subtasks, maybe, source: "fallback" };
 }
 
 // ------------------------------------------------------------------------------------ team replies
 
-async function teamReply(team: string, task: string, question: string, pageId: string, title: string, verdict: string, content: string): Promise<string> {
-  if (verdict === "gap") return `${title} (${pageId}) is a gap: the page doesn't record this. I can't answer from it; it's on Loose Ends for ${TEAM_LABEL[team] ?? team}.`;
+async function teamReply(p: Palace, team: string, task: string, question: string, pageId: string, title: string, verdict: string, content: string): Promise<string> {
+  if (verdict === "gap") return `${title} (${pageId}) is a gap: the page doesn't record this. I can't answer from it; it's on Loose Ends for ${teamLabel(p, team)}.`;
   const system =
-    `You are the ${TEAM_LABEL[team] ?? team} team agent at Acme Robotics. Another agent asked you a question about a page in your ` +
+    `You are the ${teamLabel(p, team)} team agent at Acme Robotics. Another agent asked you a question about a page in your ` +
     `room. Answer ONLY from the page text below, which you just read. If the page doesn't say, say so. 1-3 short sentences, no preamble.` +
     (verdict === "stale" ? " The page is stale (low freshness): say it needs a refresh before anyone relies on it." : "");
   const user = `Their task: ${task}\nTheir question: ${question}\n\nPage ${pageId} ("${title}", verdict ${verdict}):\n${content.slice(0, 3000)}`;
@@ -216,18 +238,18 @@ function freeFoyerSpot(p: Palace, n: number): [number, number, number] {
 
 export type QuestHooks = { harness?: QuestHarness; onExecute?: (ctx: { info: QuestInfo; route: string[]; replies: Map<string, string> }) => Promise<boolean> };
 
-export async function startQuest(task: string, hooks: QuestHooks = {}): Promise<{ info: QuestInfo; done: Promise<void> }> {
+export async function startQuest(task: string, hooks: QuestHooks = {}, quest: QuestDef | null = null): Promise<{ info: QuestInfo; done: Promise<void> }> {
   if (active) throw new Error(`quest ${active.agent} is still running`);
   const p = loadPalace();
   const n = nextQuestNumber();
   const agent = `quest-${n}`;
   const ts = new Date().toISOString().replace(/[:.]/g, "-").replace("Z", "");
   const run = `${agent}-${ts}`;
-  const info: QuestInfo = { agent, run, label: labelFor(task), task, harness: hooks.harness ?? "protocol" };
+  const info: QuestInfo = { agent, run, label: labelFor(task), task, harness: hooks.harness ?? "protocol", ...(quest ? { questId: quest.id } : {}) };
   const proto = new Proto(run);
   await proto.must("/run", { run }); // fresh protocol run: clean leases/verdicts, one clock for the quest
   active = info;
-  const done = runQuest(info, proto, p, n, hooks)
+  const done = runQuest(info, proto, p, n, hooks, quest)
     .catch(async (e) => {
       console.error(`quest ${agent} failed: ${(e as Error).message}`);
       await proto.post("/phase", { agent, phase: "done", note: `stopped: ${(e as Error).message.slice(0, 160)}` }).catch(() => {});
@@ -238,7 +260,7 @@ export async function startQuest(task: string, hooks: QuestHooks = {}): Promise<
   return { info, done };
 }
 
-async function runQuest(info: QuestInfo, proto: Proto, p: Palace, n: number, hooks: QuestHooks) {
+async function runQuest(info: QuestInfo, proto: Proto, p: Palace, n: number, hooks: QuestHooks, quest: QuestDef | null = null) {
   const { agent, task } = info;
   const mem = new Map(p.memories.map((m) => [m.id, m]));
   const roomOf = (id: string) => mem.get(id)!.room;
@@ -255,7 +277,7 @@ async function runQuest(info: QuestInfo, proto: Proto, p: Palace, n: number, hoo
   await proto.must("/spawn", { agent, label: info.label, color: COLORS[(n - 1) % COLORS.length], home: "foyer", task, harness: info.harness });
   await proto.must("/task", { agent, text: task });
   await sleep(0.8);
-  const planned = await plan(task, p);
+  const planned = await plan(task, p, quest);
   if (planned.label && /agent$/i.test(planned.label) && planned.label.length < 32) info.label = planned.label;
   const depts = [...new Set(planned.subtasks.map((s) => s.department).filter(Boolean))];
   await proto.must("/phase", {
@@ -305,7 +327,7 @@ async function runQuest(info: QuestInfo, proto: Proto, p: Palace, n: number, hoo
     seen.push(entry);
     // The owner answers while the quest agent walks on (replies land out of order, as in real life).
     replies.push(
-      teamReply(team, task, q, id, mem.get(id)!.title, tv.verdict, tv.content ?? "").then(async (answer) => {
+      teamReply(p, team, task, q, id, mem.get(id)!.title, tv.verdict, tv.content ?? "").then(async (answer) => {
         entry.text = answer;
         await proto.must("/reply", { agent: toAgent, id: h.id, answer });
         log(`handoff ${h.id} ${id}: ${tv.verdict} <- ${toAgent}: ${answer.slice(0, 80)}`);
@@ -316,7 +338,7 @@ async function runQuest(info: QuestInfo, proto: Proto, p: Palace, n: number, hoo
   await Promise.all(replies);
 
   // ---- gym: walk to the Gym, reflect on run 1 (while walking), train, record the learned route
-  await proto.must("/phase", { agent, phase: "gym", note: "reviewing run 1 and training on it" });
+  await proto.must("/phase", { agent, phase: "gym", note: `reviewing run 1 and training on it (${process.env.QUEST_GYM === "sim" ? "local sim" : "server.train.quest sim policy"}, not a River job)` });
   const reflection = reflect(task, seen);
   await proto.must("/move", { agent, to: "room-gym" });
   await walkTo("room-gym");
@@ -435,7 +457,7 @@ async function gym(info: QuestInfo, proto: Proto, stations: GymStation[]): Promi
 
 async function gymCli(info: QuestInfo, proto: Proto, stations: GymStation[]): Promise<Record<string, number> | null> {
   const steps = String(process.env.QUEST_GYM_STEPS ?? 24);
-  const p = Bun.spawn(["uv", "run", "--project", "server/train", "python", "-m", "server.train.quest", "--task", info.task, "--steps", steps, "--stations", JSON.stringify(stations)], {
+  const p = Bun.spawn(["uv", "run", "--project", "server/train", "python", "-m", "server.train.quest", "--task", info.task, "--agent", info.agent, "--steps", steps, "--seconds", String(process.env.QUEST_GYM_SECONDS ?? 12), "--stations", JSON.stringify(stations)], {
     stdout: "pipe",
     stderr: "inherit",
   });
@@ -465,8 +487,12 @@ async function gymCli(info: QuestInfo, proto: Proto, stations: GymStation[]): Pr
 }
 
 if (import.meta.main) {
-  const task = process.argv.slice(2).join(" ") || "Create an onboarding page for new engineers";
-  const { info, done } = await startQuest(task);
+  // bun server/commission/quest.ts --quest <id>   (fixtures/quests.json)   |   bun server/commission/quest.ts "<task>"
+  const qi = process.argv.indexOf("--quest");
+  const quest = qi >= 0 ? findQuest(process.argv[qi + 1] ?? "") : null;
+  if (qi >= 0 && !quest) throw new Error(`unknown quest ${process.argv[qi + 1]}; known: ${loadQuests().map((q) => q.id).join(", ")}`);
+  const task = quest?.prompt ?? (process.argv.slice(2).join(" ") || "Create an onboarding page for new engineers");
+  const { info, done } = await startQuest(task, {}, quest);
   console.log(JSON.stringify(info));
   await done;
 }

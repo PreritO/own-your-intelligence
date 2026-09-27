@@ -397,17 +397,33 @@ async function dispatch(req: Request, url: URL): Promise<Response> {
   return json({ ...runInfo(r), events: events.length, speed, seconds: Math.round(duration * 10) / 10, fallback: fellBack || undefined });
 }
 
-// POST /commission {task} -> a live quest (server/commission/quest.ts) driven through the protocol service;
+// POST /commission {task} | {questId} -> a live quest (server/commission/quest.ts) driven through the protocol service;
 // the bridge's upstream follower streams its events. ?replay=<name> streams a canned quest instead.
 const DEFAULT_QUEST_REPLAY = process.env.DEFAULT_QUEST_REPLAY ?? "quest-onboarding";
+// {questId} (or ?quest=<id>) resolves a company quest from fixtures/quests.json: its prompt becomes the task.
+// ?replay=quest-<id> streams its recorded fixture; {questId} + ?replay (or ?replay=1) does the same.
 async function commission(req: Request, url: URL): Promise<Response> {
   let task = url.searchParams.get("task") ?? "";
+  let questId = url.searchParams.get("quest") ?? url.searchParams.get("questId") ?? "";
   if (req.method === "POST") {
-    const body = (await req.json().catch(() => ({}))) as { task?: string };
+    const body = (await req.json().catch(() => ({}))) as { task?: string; questId?: string };
     if (typeof body?.task === "string") task = body.task;
+    if (typeof body?.questId === "string") questId = body.questId;
   }
-  task = task.trim().slice(0, 300);
-  const replay = url.searchParams.get("replay");
+  const { findQuest } = await import("./commission/quest");
+  const quest = questId ? findQuest(questId) : null;
+  if (questId && !quest) return json({ error: `unknown questId ${questId} (fixtures/quests.json)` }, 404);
+  if (quest && !task) task = quest.prompt;
+  task = task.trim().slice(0, 600);
+  let replay = url.searchParams.get("replay");
+  if (quest && replay !== null && (replay === "" || replay === "1" || replay === "true")) replay = `quest-${quest.id}`;
+  if (replay !== null && !replay) replay = null;
+  if (replay) url.searchParams.set("replay", replay);
+  // No live service for a known quest: prefer its own recorded fixture over the default quest replay.
+  if (quest && !replay && !(await protocolUp()) && existsSync(`${REPLAY_DIR}/quest-${quest.id}.jsonl`) && url.searchParams.get("fallback") !== "0") {
+    replay = `quest-${quest.id}`;
+    url.searchParams.set("replay", replay);
+  }
   const live = !replay && task && (await protocolUp());
   if (!live) {
     if (!replay && url.searchParams.get("fallback") === "0") return json({ error: task ? `protocol service down at ${PROTOCOL_URL}` : "task required" }, task ? 503 : 400);
@@ -425,8 +441,8 @@ async function commission(req: Request, url: URL): Promise<Response> {
   const harness = url.searchParams.get("harness") === "qm" ? "qm" : "protocol";
   try {
     const hooks = harness === "qm" ? await import("./commission/qm").then((m) => m.qmHooks()).catch(() => ({})) : {};
-    const { info } = await startQuest(task, hooks);
-    return json({ agent: info.agent, run: info.run, label: info.label, task: info.task, harness: info.harness, mode: "live" });
+    const { info } = await startQuest(task, hooks, quest);
+    return json({ agent: info.agent, run: info.run, label: info.label, task: info.task, harness: info.harness, questId: info.questId, mode: "live" });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
@@ -478,6 +494,11 @@ const server = Bun.serve({
         const b = (await req.json().catch(() => ({}))) as { task?: string; stations?: string[]; routeId?: string };
         if (!b.task || !Array.isArray(b.stations) || !b.stations.length) return json({ error: "task and stations required" }, 400);
         return json(await recordRoute(b.task, b.stations, b.routeId));
+      }
+      case "/quests": {
+        // fixtures/quests.json + whether each has a recorded replay (fixtures/replays/quest-<id>.jsonl)
+        const { loadQuests } = await import("./commission/quest");
+        return json(loadQuests().map((q) => ({ ...q, replay: existsSync(`${REPLAY_DIR}/quest-${q.id}.jsonl`) ? `quest-${q.id}` : null })));
       }
       case "/runs":
         return json(existsSync(REPLAY_DIR) ? readdirSync(REPLAY_DIR).filter((f) => f.endsWith(".jsonl")).sort() : []);

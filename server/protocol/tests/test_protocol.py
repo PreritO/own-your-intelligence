@@ -256,3 +256,26 @@ def test_http_dispatch_runs_demo_tasks(tmp_path):
         assert route["source"] == "learned" and route["stations"] == ["eng/soc2-renewal", "eng/soc2-owner"]
     finally:
         httpd.shutdown()
+
+
+# ---- 8 departments: a new outer-wing team is a first-class owner (no hard-coded team list)
+
+
+def test_new_department_owns_its_room_and_answers_handoffs(proto):
+    assert "sales" in proto.teams()
+    with pytest.raises(ProtocolError) as e:
+        proto.claim("legal", "sales/pipeline")
+    assert e.value.status == 403 and e.value.payload["owner"] == "sales" and e.value.payload["handoffTo"] == "sales"
+    # The sales agent may read its own room, and only its own room (plus shared).
+    assert proto.visit("sales", "sales/pipeline")["verdict"] == "verified"
+    with pytest.raises(ProtocolError):
+        proto.visit("sales", "finance/budget-2026-q4")
+    proto.start_run("s", log=False)
+    proto.spawn("quest-9", "Renewal agent", "#ff7eb6", run_id="s")
+    h = proto.handoff("quest-9", "sales/pipeline", "What is the Gripworks renewal worth?", run_id="s")
+    assert h["toAgent"] == "sales" and proto.inbox("sales", "s")[0]["id"] == h["id"]
+    proto.visit("sales", "sales/pipeline", "s")
+    assert proto.reply("sales", h["id"], "$120k, in the Q4 pipeline.", "s")["verdict"] == "verified"
+    assert not proto.answer("quest-9", "Renewal is $120k.", ["sales/pipeline"], "s")["blocked"]
+    proto.train_step("quest-9", 1, 0.4, "sim", team="sales", run_id="s")
+    assert proto.runs["s"].events[-1]["team"] == "sales"
