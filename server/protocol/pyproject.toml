@@ -1,0 +1,16 @@
+[project]
+name = "mindpalace-protocol"
+version = "0.1.0"
+description = "Loci protocol service for Mind Palace (HTTP :8790)"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.uv]
+package = false
