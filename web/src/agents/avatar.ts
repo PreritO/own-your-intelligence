@@ -24,6 +24,7 @@ export class Avatar {
   private pulse = 0;
   private time = Math.random() * 10;
   private base = new THREE.Color();
+  private cruise = BASE_SPEED;
   waiting = false;
 
   constructor(
@@ -85,6 +86,15 @@ export class Avatar {
   /** Append waypoints to the walk. */
   walk(path: THREE.Vector3[]) {
     this.queue.push(...path.map((p) => p.clone()));
+    // cruise speed: finish the whole backlog in ~CATCH_UP s (never exponential, so it always lands)
+    this.cruise = Math.max(BASE_SPEED, this.remaining() / CATCH_UP);
+  }
+
+  private remaining() {
+    let len = 0;
+    let prev = this.pos;
+    for (const p of this.queue) (len += prev.distanceTo(p)), (prev = p);
+    return len;
   }
 
   /** Where the avatar will be once its queue drains (plan new paths from here). */
@@ -113,12 +123,10 @@ export class Avatar {
 
   update(dt: number, speed: number) {
     this.time += dt;
-    // adaptive speed: walk the whole backlog in ~CATCH_UP seconds, never slower than BASE_SPEED
     if (this.queue.length) {
-      let remaining = 0;
-      let prev = this.pos;
-      for (const p of this.queue) (remaining += prev.distanceTo(p)), (prev = p);
-      let step = Math.max(BASE_SPEED, remaining / CATCH_UP) * speed * dt;
+      // cruise, then ease into the final stop over the last couple of meters
+      const v = Math.min(this.cruise, Math.max(BASE_SPEED * 0.6, this.remaining() * 3));
+      let step = v * speed * dt;
       while (step > 0 && this.queue.length) {
         const next = this.queue[0];
         const d = this.pos.distanceTo(next);
