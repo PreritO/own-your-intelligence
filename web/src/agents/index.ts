@@ -383,7 +383,7 @@ export const mountPresence: Plugin = (rt) => {
     if (k === "t") dispatch();
     else if (k === "r") runAgain();
     else if (k >= "1" && k <= "9" && party()[Number(k) - 1]) setMode(party()[Number(k) - 1]);
-    else if (k === "0" || k === "o" || k === "f" || k === "h" || (k === "escape" && mode !== "overview")) {
+    else if (k === "0" || k === "o" || k === "f" || k === "h" || k === "escape") {
       if (mode === "overview") window.dispatchEvent(new CustomEvent(CAMERA_EVENTS.home));
       else setMode("overview");
     }
