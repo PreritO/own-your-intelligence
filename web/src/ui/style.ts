@@ -60,21 +60,24 @@ export const CSS = /* css */ `
 .mp-chip.stale { border-color: rgba(201,162,74,0.7); color: #f0d59a; background: rgba(201,162,74,0.16); }
 
 /* ---- party bar (bottom centre) */
-.mp-party { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 8px; align-items: stretch; padding: 8px; }
-.mp-slot { pointer-events: auto; cursor: pointer; position: relative; width: 168px; display: grid; grid-template-columns: 40px 1fr; gap: 8px; align-items: center;
-  padding: 6px 8px; background: var(--ink-2); border: 3px solid; border-color: rgba(255,255,255,0.18) rgba(0,0,0,0.6) rgba(0,0,0,0.6) rgba(255,255,255,0.18); color: var(--text); text-align: left; }
+.mp-party { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; align-items: stretch; padding: 6px; max-width: calc(100vw - 20px); }
+.mp-slot { pointer-events: auto; cursor: pointer; position: relative; width: 112px; display: grid; grid-template-columns: 28px 1fr; gap: 6px; align-items: center;
+  padding: 4px 6px; background: var(--ink-2); border: 3px solid; border-color: rgba(255,255,255,0.18) rgba(0,0,0,0.6) rgba(0,0,0,0.6) rgba(255,255,255,0.18); color: var(--text); text-align: left; }
 .mp-slot:hover { background: rgba(55, 50, 72, 0.95); }
 .mp-slot > div { min-width: 0; }
 .mp-slot.on { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255,211,90,0.35), 0 0 18px rgba(255,211,90,0.25); }
 .mp-slot .key { position: absolute; top: -9px; left: -7px; min-width: 20px; padding: 0 5px; font-size: 13px; font-weight: 700; text-align: center;
   background: #1a1722; color: var(--gold); border: 2px solid #4b465c; }
-.mp-slot .mp-face { width: 40px; height: 40px; font-size: 22px; }
-.mp-slot .nm { font-weight: 700; font-size: 16px; color: var(--c); }
-.mp-slot .doing { font-size: 13.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-slot .mp-face { width: 28px; height: 28px; font-size: 16px; }
+.mp-slot .nm { font-weight: 700; font-size: 14px; color: var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-slot .doing { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mp-slot .doing.warn { color: var(--amber); }
 .mp-slot .doing.ok { color: var(--ok); }
+.mp-slot.quest { width: 176px; grid-template-columns: 36px 1fr; border-color: var(--c) rgba(0,0,0,0.6) rgba(0,0,0,0.6) var(--c); }
+.mp-slot.quest .mp-face { width: 36px; height: 36px; font-size: 20px; }
+.mp-slot.quest .nm { font-size: 15px; }
 .mp-slot.map { width: auto; grid-template-columns: auto; padding: 6px 14px; font-weight: 700; place-items: center; white-space: nowrap; }
-.mp-keys { align-self: center; color: var(--muted); font-size: 13.5px; padding: 0 6px 0 4px; line-height: 1.5; white-space: nowrap; }
+.mp-keys { align-self: center; color: var(--muted); font-size: 12.5px; padding: 0 6px 0 4px; line-height: 1.5; white-space: nowrap; }
 .mp-keys b { color: var(--text); }
 
 /* ---- right column: memory panel + route checklist */
@@ -143,8 +146,8 @@ export const CSS = /* css */ `
 .mp-walk .hop { color: var(--gold); font-size: 15px; }
 
 
-/* ---- New quest (top centre, the centrepiece) */
-.mp-top { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: min(640px, calc(100vw - 780px)); min-width: 420px; padding: 10px 12px 10px; display: grid; grid-template-columns: 1fr; gap: 6px; }
+/* ---- Quest board (top centre, the centrepiece) */
+.mp-top { position: absolute; top: 14px; left: calc(50% + 20px); transform: translateX(-50%); width: min(760px, calc(100vw - 800px)); min-width: 460px; padding: 10px 12px 10px; display: grid; grid-template-columns: 1fr; gap: 6px; }
 .mp-top .lbl { font-size: 15px; font-weight: 700; color: var(--gold); }
 .mp-newquest { display: flex; gap: 8px; }
 .mp-newquest input { flex: 1; min-width: 0; font: inherit; font-size: 18px; color: #fff; padding: 9px 11px; background: rgba(0,0,0,0.45);
@@ -152,7 +155,25 @@ export const CSS = /* css */ `
 .mp-newquest input::placeholder { color: #8d877b; }
 .mp-newquest input:focus { border-color: var(--gold); }
 .mp-newquest .go { flex: none; }
-.mp-top .sub { color: var(--muted); font-size: 14px; }
+.mp-top .sub { color: var(--muted); font-size: 13.5px; }
+.mp-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+@media (min-width: 1900px) { .mp-top { width: min(1080px, calc(100vw - 820px)); } .mp-board { grid-template-columns: repeat(6, 1fr); } }
+.mp-qcard { pointer-events: auto; cursor: pointer; text-align: left; color: var(--text); background: var(--ink-2); padding: 5px 7px 6px;
+  border: 2px solid rgba(255,255,255,0.1); border-top: 4px solid var(--c); border-radius: 3px; display: grid; gap: 3px; min-width: 0; }
+.mp-qcard:hover { background: rgba(60, 54, 80, 0.95); border-color: rgba(255,255,255,0.3); border-top-color: var(--c); }
+.mp-qcard:focus-visible { outline: 3px solid var(--gold); outline-offset: 1px; }
+.mp-qcard .t { font-weight: 700; font-size: 15px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-qcard .deps { display: flex; flex-wrap: wrap; gap: 3px; }
+.mp-qcard .dep { font-size: 11.5px; line-height: 1; padding: 2px 4px 3px; color: #120f18; background: var(--c); border-radius: 2px; }
+.mp-qcard .why { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 11.5px; color: var(--muted); line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* hero copy (top of the quest log) */
+.mp-hero { display: grid; gap: 4px; padding-bottom: 8px; border-bottom: 2px solid rgba(255,255,255,0.08); }
+.mp-hero .brand { font-size: 28px; font-weight: 700; color: var(--gold); text-shadow: 0 3px 0 rgba(0,0,0,.6); line-height: 1; }
+.mp-hero .pitch { font-size: 15.5px; line-height: 1.3; }
+.mp-hero .claims { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12.5px; color: var(--muted); }
+.mp-hero .claims li::before { content: "■ "; color: var(--gold); font-size: 9px; vertical-align: 2px; }
+.mp-hero .claims b { color: var(--text); font-weight: 600; }
 .mp-top .mp-actions { justify-content: flex-start; }
 .mp-empty { color: var(--muted); font-size: 15px; line-height: 1.4; padding: 4px 2px; }
 
@@ -181,7 +202,8 @@ export const CSS = /* css */ `
 
 @keyframes mp-blink { 50% { filter: brightness(1.45); } }
 @media (prefers-reduced-motion: reduce) { .mp-bar i.cur, .mp-stop.cur .n { animation: none; } }
-@media (max-width: 1100px) { .mp-keys { display: none; } .mp-slot { width: 140px; } }
+@media (max-width: 1500px) { .mp-keys { display: none; } }
+@media (max-width: 1250px) { .mp-slot { width: auto; grid-template-columns: 28px; } .mp-slot > div { display: none; } .mp-slot.quest { width: 150px; grid-template-columns: 36px 1fr; } .mp-slot.quest > div { display: block; } }
 @media (max-width: 800px) { .mp-log-panel { width: calc(100vw - 28px); max-height: 40vh; } .mp-right { display: none; } .mp-party { bottom: 8px; } .mp-slot { width: auto; grid-template-columns: 32px; } .mp-slot > div:not(.mp-face) { display: none; } }
 
 /* The overview replaces the scene's first-person minimap and its "Click to walk" hint (both scene-owned DOM). */

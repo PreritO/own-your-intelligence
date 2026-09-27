@@ -396,7 +396,7 @@ export const mountPresence: Plugin = (rt) => {
 
   // ---- commission a quest: live → bridge; ?demo or bridge down → the recorded quest replay
   let commissioning = false;
-  async function commission(task: string) {
+  async function commission(task: string, questId?: string) {
     if (commissioning) return;
     commissioning = true;
     const status = (text: string, tone = "info") =>
@@ -409,7 +409,7 @@ export const mountPresence: Plugin = (rt) => {
           const res = await fetch(`http://localhost:${PORTS.bridge}/commission`, {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ task }),
+            body: JSON.stringify(questId ? { questId, task } : { task }),
             signal: ctl.signal,
           });
           clearTimeout(timer);
@@ -421,15 +421,22 @@ export const mountPresence: Plugin = (rt) => {
         }
       }
       reset();
-      lastReplay = "quest-onboarding";
-      if (await playReplay(rt, "quest-onboarding", 30)) {
-        if (rt.events.mode === "demo") status("Quest commissioned (recorded run)");
+      // a quest card plays its own recording (quest-<id>) when there is one, else the onboarding quest
+      const names = questId && questId !== "onboarding" ? [`quest-${questId}`, "quest-onboarding"] : ["quest-onboarding"];
+      let played = "";
+      for (const n of names) if (await playReplay(rt, n, 30)) { played = n; break; }
+      if (played) {
+        lastReplay = played;
+        if (rt.events.mode === "demo") status(played === names[0] ? "Quest commissioned (recorded run)" : "Quest commissioned (recorded onboarding run)");
       } else status("No recorded quest yet (fixtures/replays/quest-onboarding.jsonl). Try the department demo.", "warn");
     } finally {
       commissioning = false;
     }
   }
-  const onCommission = (ev: Event) => commission(String((ev as CustomEvent).detail?.task ?? "").trim() || "Create an onboarding page for new engineers");
+  const onCommission = (ev: Event) => {
+    const d = (ev as CustomEvent).detail ?? {};
+    void commission(String(d.task ?? "").trim() || "Create an onboarding page for new engineers", d.questId ? String(d.questId) : undefined);
+  };
   const onReplay = (ev: Event) => {
     const name = String((ev as CustomEvent).detail?.name ?? lastReplay);
     reset();
