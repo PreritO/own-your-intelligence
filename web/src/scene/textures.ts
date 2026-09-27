@@ -104,35 +104,3 @@ export function labelTexture(title: string, caption: string, color: string): { t
   tex.anisotropy = 4;
   return { tex, aspect: W / H };
 }
-
-/** Big letter-spaced wing name for the ground outside a wing (seen from overhead). */
-export function wingNameTexture(name: string, color: string): { tex: THREE.CanvasTexture; aspect: number } {
-  const text = name.toUpperCase().split("").join(String.fromCharCode(8202)); // hair spaces
-  const font = "700 150px ui-sans-serif, system-ui, -apple-system, sans-serif";
-  const m = document.createElement("canvas").getContext("2d")!;
-  m.font = font;
-  (m as CanvasRenderingContext2D & { letterSpacing?: string }).letterSpacing = "28px";
-  const W = Math.ceil(m.measureText(text).width + 140);
-  const H = 220;
-  const c = document.createElement("canvas");
-  c.width = W;
-  c.height = H;
-  const g = c.getContext("2d")! as CanvasRenderingContext2D & { letterSpacing?: string };
-  g.font = font;
-  g.letterSpacing = "28px";
-  g.textAlign = "center";
-  g.textBaseline = "middle";
-  g.shadowColor = color;
-  g.shadowBlur = 34;
-  g.fillStyle = color;
-  g.fillText(text, W / 2, H / 2 + 6);
-  g.shadowBlur = 0;
-  g.globalAlpha = 0.9;
-  g.fillStyle = "#fff6e6";
-  g.globalAlpha = 0.35;
-  g.fillText(text, W / 2, H / 2 + 6);
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
-  return { tex, aspect: W / H };
-}

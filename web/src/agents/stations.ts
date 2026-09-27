@@ -25,7 +25,13 @@ const RING_R = 0.62;
 export class Stations {
   private map = new Map<string, Station>();
   private time = 0;
+  /** Polish: station labels show only on the followed agent's route (gap notes always show). */
+  focus: Set<string> | null = null;
   constructor(private rt: PalaceRuntime) {}
+
+  private labelAllowed(s: Station) {
+    return s.state === "gap" || (!!this.focus && this.focus.has(s.id));
+  }
 
   private get(id: string): Station | null {
     const hit = this.map.get(id);
@@ -77,7 +83,7 @@ export class Stations {
     s.ring.material.opacity = 0;
     s.column.material.opacity = 0;
     s.glow.material.opacity = 0;
-    s.label.sprite.visible = true;
+    s.label.sprite.visible = this.labelAllowed(s);
     s.label.set(text, { color, border: color, bg: "rgba(12,14,20,0.82)" });
   }
 
@@ -92,7 +98,7 @@ export class Stations {
     s.flare.material.color.set(c);
     s.glow.material.color.set(c);
     s.column.material.color.set(c);
-    s.label.sprite.visible = true;
+    s.label.sprite.visible = this.labelAllowed(s);
     if (verdict === "gap") {
       // the loudest thing on screen: bigger, constant-size note
       s.label.dispose();
@@ -125,9 +131,10 @@ export class Stations {
         s.flare.material.opacity = (1 - k) * 0.9;
       } else s.flare.material.opacity = 0;
 
+      if (s.state === "claimed" || s.state === "stale") s.label.sprite.visible = this.labelAllowed(s);
       switch (s.state) {
         case "verified":
-          s.label.sprite.visible = f < 3;
+          s.label.sprite.visible = f < 3 && this.labelAllowed(s);
           s.ring.material.opacity = f < 1.2 ? 0.4 + 0.6 * (f / 1.2) : 0.85;
           s.column.material.opacity = f < 1.2 ? 0.35 * (1 - f / 1.2) : 0;
           s.glow.material.opacity = 0;
