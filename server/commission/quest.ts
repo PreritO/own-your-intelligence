@@ -166,8 +166,9 @@ async function reflect(task: string, seen: Seen[]): Promise<Map<string, { useful
     `Task: ${task}\n\nWhat you read (station id, verdict, text):\n` +
     readable.map((s) => `### ${s.id} [${s.verdict}] (subtask ${s.subtask})\n${s.text.slice(0, 900)}`).join("\n\n") +
     `\n\nFor each station decide if you will use it in the deliverable. Return {"stations": [{"id": "...", "useful": true|false, ` +
-    `"evidence": "<the exact short snippet (<= 25 words) you will use, or empty>"}]}. Be strict: a page that doesn't add anything the ` +
-    `deliverable needs is not useful.`;
+    `"evidence": "<the exact short snippet (<= 25 words) you will use, or empty>"}]}. A page is useful when the deliverable should ` +
+    `contain a fact from it (including a team agent's answer); it is not useful when it is off-topic for the task. Stale pages can ` +
+    `still be useful: they get listed as needing a refresh.`;
   const raw = parseJson<{ stations?: { id: string; useful: boolean; evidence?: string }[] }>(await claude(system, user, 1200));
   for (const s of raw?.stations ?? []) out.set(s.id, { useful: !!s.useful, evidence: String(s.evidence ?? "").slice(0, 220) });
   for (const s of readable) if (!out.has(s.id)) out.set(s.id, { useful: s.verdict === "verified", evidence: s.evidence ?? "" });

@@ -111,6 +111,10 @@ export async function questScope(): Promise<string | undefined> {
   return projects.find((p) => p.name === "quest")?.scopeId;
 }
 
+export async function questTurn(scopeId: string, agent: string, text: string) {
+  return portal("POST", "/api/turn", { text, threadRef: `web:${ADMIN}:${agent}-${Date.now()}`, scopeId, channelName: "quest" });
+}
+
 const [cmd, ...args] = import.meta.main ? process.argv.slice(2) : ["--imported"];
 if (cmd === "--imported") {
   // imported as a module: no CLI

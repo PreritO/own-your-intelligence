@@ -16,7 +16,7 @@
 // (serverId starts with "loci-") does not apply to it; binding it needs LOCI_SCOPES + a QM restart,
 // which would kill processes this workspace didn't start. Falls back to the protocol walk if QM is down.
 import type { QuestHooks } from "./quest";
-import { core, portal, questScope } from "../../qm/qm-admin";
+import { core, questScope, questTurn } from "../../qm/qm-admin";
 import { PORTS } from "../schema";
 
 const PROTOCOL_URL = (process.env.PROTOCOL_URL ?? `http://localhost:${PORTS.protocol}`).replace(/\/$/, "");
@@ -57,7 +57,7 @@ export async function qmHooks(): Promise<QuestHooks> {
         `For each station use your quest-loci_* tools only: call quest-loci_claim then quest-loci_visit. If a claim is refused ` +
         `(the room is owned by a team), call quest-loci_handoff to the owner named in the refusal (toAgent), with one specific ` +
         `question, and move on. Never skip a station. Do not call quest-loci_answer: when the route is walked, reply "route done".`;
-      const res = await portal("POST", "/api/turn", { text: brief, threadRef: `web:quest:${info.agent}-${Date.now()}`, scopeId, channelName: "quest" });
+      const res = await questTurn(scopeId, info.agent, brief);
       if (res.status >= 300) throw new Error(`QM turn: HTTP ${res.status} ${res.body.slice(0, 160)}`);
       console.log(`  [${info.agent}] QM turn started in ${scopeId}`);
       // Answer handoffs for the team agents while QM walks, until every route station has a verdict.
