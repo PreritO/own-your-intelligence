@@ -144,7 +144,7 @@ function answerHTML(flow: Flow, a: Attempt, L: Lookup): string {
   };
   const bad = a.score.grounded === false;
   return `<div class="fl-answer ${ans.blocked ? "blocked" : bad ? "bad" : ""}" data-answer>
-<div class="k"><span>answer · ${esc(L.agent(ans.agent).label)} · t=${ans.t.toFixed(1)}s</span>${ans.blocked ? "<span>✗ blocked by the grounding check</span>" : bad ? "<span>✗ ungrounded citation</span>" : "<span>✓ grounded</span>"}</div>
+<div class="k"><span>answer · ${esc(ans.agent === flow.agent ? flow.label : L.agent(ans.agent).label)} · t=${ans.t.toFixed(1)}s</span>${ans.blocked ? "<span>✗ blocked by the grounding check</span>" : bad ? "<span>✗ ungrounded citation</span>" : "<span>✓ grounded</span>"}</div>
 <div class="txt">${esc(ans.text)}</div>
 ${a.answerInherited ? `<div class="inh">This run had no answer of its own: judged against the final answer.</div>` : ""}
 <div class="fl-chips"><span class="lbl">cites</span>${ans.citations.map((c) => chip(c, "")).join("") || "<span class='lbl'>none</span>"}
