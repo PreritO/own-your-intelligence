@@ -1,0 +1,14 @@
+{
+ "kind": "relevance",
+ "memoryId": "people/org-chart",
+ "contentHash": "38eaef25ec45c340",
+ "question": "What are the payment terms in the Gripworks MSA?",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "v5",
+ "response": {
+  "evidence": "",
+  "support": "silent",
+  "missing": "payment terms in the Gripworks MSA",
+  "contradiction": ""
+ }
+}

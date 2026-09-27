@@ -1,8 +1,10 @@
 import json
+import os
 from pathlib import Path
 
 import pytest
 
+from judge import Judge
 from loci import Brain, Protocol, SimClock
 
 
@@ -45,6 +47,22 @@ PALACE = {
 }
 
 
+RECORDED = Path(__file__).resolve().parent / "recorded"
+
+
+@pytest.fixture(autouse=True)
+def offline_judge(monkeypatch):
+    """Tests never reach the network by default. Protocols built without an explicit judge use the
+    rules judge; tests of the LLM judge use recorded responses (tests/recorded, `recorded_judge`).
+    Re-record with MP_JUDGE_TEST_MODE=record (needs ANTHROPIC_API_KEY)."""
+    monkeypatch.setenv("MP_JUDGE", "rules")
+
+
+@pytest.fixture
+def recorded_judge():
+    return Judge(mode=os.environ.get("MP_JUDGE_TEST_MODE", "cache"), cache_dir=os.environ.get("MP_JUDGE_TEST_CACHE") or RECORDED)
+
+
 @pytest.fixture
 def clock():
     return SimClock()
@@ -52,10 +70,11 @@ def clock():
 
 @pytest.fixture
 def proto(tmp_path: Path, clock):
+    """Protocol mechanics (ownership, claims, handoffs, citation grounding) on the rules judge."""
     palace = tmp_path / "palace.json"
     palace.write_text(json.dumps(PALACE))
     brain = Brain(brain_dir=tmp_path / "seed-brain", overlay_dir=tmp_path / "overlay")
-    p = Protocol(palace_path=palace, brain=brain, clock=clock, runs_dir=tmp_path / "runs")
+    p = Protocol(palace_path=palace, brain=brain, clock=clock, runs_dir=tmp_path / "runs", judge=Judge(mode="rules"))
     p.start_run("test")
     return p
 

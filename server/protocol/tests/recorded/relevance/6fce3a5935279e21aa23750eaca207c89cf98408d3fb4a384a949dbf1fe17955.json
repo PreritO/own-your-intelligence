@@ -1,0 +1,14 @@
+{
+ "kind": "relevance",
+ "memoryId": "eng/soc2-renewal",
+ "contentHash": "a710b022ae4e4129",
+ "question": "Who owns the SOC 2 renewal, and when does it start?",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "v5",
+ "response": {
+  "evidence": "Owner: see SOC 2 Owner page.",
+  "support": "partial",
+  "missing": "owner name (redirected to another page), start date clarification",
+  "contradiction": ""
+ }
+}

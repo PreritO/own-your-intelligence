@@ -8,8 +8,14 @@ Rules enforced here (see .claude/skills/loci-protocol):
     anything else is refused and the agent must `handoff` to the owning team's agent.
   - claims: a lease (default 30 s). A second agent gets `wait` (heldBy) until it is released/expires.
   - verdicts: gap (page missing / empty / silent) > stale (freshness < 0.3) > verified.
+    With a question, the relevance judge (judge.py, Claude) also asks whether the page *answers* it:
+    silent -> gap ("page doesn't say: ..."), contradicts -> verified with a contradiction note, and
+    the evidence is an exact quote from the page. It can only make a verdict stricter; with no key or
+    past its 2.5 s deadline the rules verdict stands (`judge: "rules"`).
   - grounding: `answer` citations must be stations this agent verified in this run, or stations a
     handoff reply verified for it. Otherwise the answer is emitted with `blocked: true`.
+    Claim level: every claim in the answer text must map to a verbatim quote from one of those
+    stations (`claims` on the answer event); an unsupported claim blocks the answer too.
   - route order: answering before every route station has a verdict is blocked too.
 
 Every accepted call appends one or more PalaceEvent dicts (server/schema.ts) to the run log.
@@ -25,6 +31,8 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
+
+from judge import Judge, quote_on_page
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_PALACE = REPO / "fixtures" / "palace.json"
@@ -152,6 +160,42 @@ def judge(page: dict) -> tuple[str, str | None]:
     return "verified", None
 
 
+_RANK = {"verified": 0, "stale": 1, "gap": 2}
+
+
+def assess(page: dict, memory_id: str, title: str, question: str | None, relevance: Judge | None) -> dict:
+    """Rules verdict, tightened by the relevance judge when there is a question.
+    -> {verdict, note, judge: llm|rules, support?, evidence?}. The LLM can only make it stricter:
+    gap (rules) is final; `silent` turns verified/stale into gap; freshness still decides stale."""
+    verdict, note = judge(page)
+    out: dict[str, Any] = {"verdict": verdict, "note": note, "judge": "rules"}
+    if verdict == "gap" or relevance is None or not question:
+        return out
+    r = relevance.relevance(memory_id, title, page["body"], question)
+    if r is None:
+        return out
+    notes = [note] if note else []
+    if not r["quoteOk"]:
+        # The model's "exact quote" isn't on the page: don't trust its reading. Rules verdict stands.
+        out.update(support="partial", note="; ".join(notes + ["relevance judge quote not on the page; rules verdict"]))
+        return out
+    s = r["support"]
+    out.update(judge="llm", support=s)
+    if s == "silent":
+        out["verdict"] = "gap"
+        notes = [f"page doesn't say: {r['missing'] or question}"] + notes
+    else:
+        out["evidence"] = r["evidence"]
+        if s == "partial":
+            notes.append(f"partial: page doesn't say: {r['missing']}" if r["missing"] else "partial")
+        elif s == "contradicts":
+            notes.append(f"contradicts the question: {r['contradiction']}" if r["contradiction"] else "contradicts the question")
+    if _RANK[out["verdict"]] < _RANK[verdict]:  # never looser than the rules
+        out["verdict"] = verdict
+    out["note"] = "; ".join(notes) or None
+    return out
+
+
 _STOP = set("a an and are as at be by can could did do does for from has have how i in is it its of on or our should the this to was we what when where which who will with would you your new page".split())
 
 
@@ -206,6 +250,10 @@ class Run:
     verdicts: dict[tuple[str, str], tuple[str, str | None]] = field(default_factory=dict)  # (agent, mem) -> (verdict, note)
     handoffs: dict[str, Handoff] = field(default_factory=dict)
     answers: dict[str, dict] = field(default_factory=dict)  # agent -> last answer check
+    answer_sources: dict[str, dict[str, dict]] = field(default_factory=dict)  # agent -> the pages its last answer was checked against
+    # (agent, mem) -> {title, body, verdict, note}: the page as read when the verdict landed. Claim-level
+    # grounding quotes from these; a handoff reply copies the replier's snapshot to the requester.
+    pages: dict[tuple[str, str], dict] = field(default_factory=dict)
     last_t: float = 0.0
     log_path: Path | None = None
 
@@ -218,7 +266,9 @@ class Protocol:
         clock: Callable[[], float] | None = None,
         runs_dir: Path | str | None = None,
         lease_seconds: float = LEASE_SECONDS,
+        judge: Judge | None = None,
     ):
+        self.judge = judge or Judge()
         self.palace_path = Path(palace_path or os.environ.get("MP_PALACE", DEFAULT_PALACE))
         self.brain = brain or Brain()
         self.clock = clock or RealClock()
@@ -411,26 +461,40 @@ class Protocol:
                 self.emit(run, {"agent": agent, "type": "wait", "memoryId": memory_id, "heldBy": lease.agent})
                 return {"ok": False, "wait": True, "heldBy": lease.agent, "expiresIn": round(lease.expires - self.clock(), 2)}
             self._move_to(run, agent, memory_id)
-
             page = self.brain.read(memory)
-            verdict, note = judge(page)
+            title = memory.get("title", memory_id)
+
+        # Judge outside the lock: the relevance call can take up to its deadline, and other agents keep
+        # walking meanwhile. This agent still holds the station's lease, so nobody else reads it.
+        a = assess(page, memory_id, title, question, self.judge)
+
+        with self.lock:
+            verdict, note = a["verdict"], a["note"]
             # Reuse a verdict another agent landed on this station in this run (after a wait).
-            other = next(((a, v) for (a, m), v in run.verdicts.items() if m == memory_id and a != agent), None)
+            other = next(((ag, v) for (ag, m), v in run.verdicts.items() if m == memory_id and ag != agent), None)
             if other and page["source"] != "overlay" and other[1][0] == verdict:
                 note = f"reused {other[0]}'s verdict" + (f"; {note}" if note else "")
             run.verdicts[(agent, memory_id)] = (verdict, note)
-            run.leases.pop(memory_id, None)  # lease released once the verdict lands
+            run.pages[(agent, memory_id)] = {"title": title, "body": page["body"], "verdict": verdict, "note": note}
+            lease = run.leases.get(memory_id)
+            if lease and lease.agent == agent:
+                run.leases.pop(memory_id, None)  # lease released once the verdict lands
             ev = {"agent": agent, "type": "visit", "memoryId": memory_id, "verdict": verdict}
             if note:
                 ev["note"] = note
-            # The snippet the agent used: the caller's, else the page sentence that best answers the
-            # question. A gap has nothing to use, so it carries no evidence.
+            # The snippet the agent used. With the relevance judge: its exact quote. Else the caller's
+            # (only if it really is on the page), else the page sentence that best answers the question.
+            # A gap has nothing to use, so it carries no evidence.
             if verdict != "gap":
-                ev_text = (evidence or "").strip() or best_snippet(page["body"], question or memory.get("title", ""))
+                given = (evidence or "").strip()
+                ev_text = a.get("evidence") or (given if given and quote_on_page(given, page["body"]) else "") or best_snippet(page["body"], question or title)
                 if ev_text:
                     ev["evidence"] = ev_text
             if subtask:
                 ev["subtask"] = subtask
+            if a.get("support"):
+                ev["support"] = a["support"]
+            ev["judge"] = a["judge"]
             ev = self.emit(run, ev)
             if verdict == "gap":
                 self._open_loose_end(run, agent, memory_id, note, question)
@@ -440,6 +504,8 @@ class Protocol:
                 "ok": True,
                 "verdict": verdict,
                 "note": note,
+                "support": a.get("support"),
+                "judge": a["judge"],
                 "freshness": page["freshness"],
                 "source": page["source"],
                 "content": page["body"],
@@ -502,6 +568,11 @@ class Protocol:
             h.answer, h.verdict = answer.strip(), v[0]
             # The requester inherits the replier's verdict for grounding its answer.
             run.verdicts.setdefault((h.from_agent, h.memory_id), (v[0], f"via handoff {hid} from {agent}"))
+            # ...and the page the replier verified, so claim-level grounding can quote it. The truth is
+            # the page, not the reply's paraphrase of it.
+            snap = run.pages.get((agent, h.memory_id))
+            if snap and (h.from_agent, h.memory_id) not in run.pages:
+                run.pages[(h.from_agent, h.memory_id)] = {**snap, "note": f"via handoff {hid} from {agent}"}
             ev = self.emit(run, {"agent": agent, "type": "reply", "id": hid, "answer": h.answer})
             return {"ok": True, "verdict": v[0], "event": ev}
 
@@ -525,23 +596,56 @@ class Protocol:
                 reasons.append("route not finished: " + ", ".join(skipped))
             gaps = sorted({m for m, v in mine.items() if v[0] == "gap"} | {m for m in route if mine.get(m, ("",))[0] == "gap"})
             stale = sorted(m for m, v in mine.items() if v[0] == "stale")
+            sources = self._sources(run, agent)
+
+        # Claim level, outside the lock (a Claude call): every claim must be on a verified page.
+        check = self.judge.claims(text, sources)
+
+        with self.lock:
+            if check:
+                reasons += [f'unsupported claim: "{c}" ({check["reasons"][c]})' for c in check["unsupported"]]
             blocked = bool(reasons)
             ev: dict[str, Any] = {"agent": agent, "type": "answer", "text": text, "citations": list(citations)}
             if gaps:
                 ev["gaps"] = gaps
             if stale:
                 ev["stale"] = stale
+            if check:
+                ev["claims"] = check["claims"]
             if blocked:
                 ev["blocked"] = True
+                ev["reasons"] = reasons
             ev = self.emit(run, ev)
-            res = {"ok": not blocked, "blocked": blocked, "reasons": reasons, "gaps": gaps, "stale": stale, "event": ev}
+            res = {
+                "ok": not blocked,
+                "blocked": blocked,
+                "reasons": reasons,
+                "gaps": gaps,
+                "stale": stale,
+                "claims": check["claims"] if check else None,
+                "grounding": "claims" if check else "citations",  # citations only: no key, rules mode or past the deadline
+                "event": ev,
+            }
             run.answers[agent] = res
+            run.answer_sources[agent] = sources
             return res
+
+    def _sources(self, run: Run, agent: str) -> dict[str, dict]:
+        """Every page this agent has a verdict for in the run (own visits + handoff-inherited)."""
+        out: dict[str, dict] = {}
+        for (a, m), (verdict, note) in run.verdicts.items():
+            if a != agent:
+                continue
+            snap = run.pages.get((a, m)) or {"title": self.memories.get(m, {}).get("title", m), "body": ""}
+            out[m] = {"title": snap.get("title", m), "body": snap.get("body", ""), "verdict": verdict, "note": note}
+        return out
 
     def grounding(self, agent: str, text: str | None = None, run_id: str | None = None) -> dict:
         """Pre-post check for a harness (QM fork): may this agent's message go out?
         ok = its last `answer` in the run passed; annotate = passed but has gaps/stale stations the
-        text must state (we append them); block = blocked, or it never answered through the protocol."""
+        text must state (we append them); block = blocked, or it never answered through the protocol.
+        Uses the answer's own claim check. If the message differs from the answered text, the new text
+        gets the same claim check against the same pages, so a harness can't post claims it never ran."""
         with self.lock:
             self._agent(agent)
             run = self.run(run_id)
@@ -549,14 +653,25 @@ class Protocol:
             if a is None:
                 return {"verdict": "block", "reason": "no answer went through the loci protocol in this run", "run": run.id}
             if a["blocked"]:
-                return {"verdict": "block", "reason": "; ".join(a["reasons"]), "run": run.id}
+                return {"verdict": "block", "reason": "; ".join(a["reasons"]), "run": run.id, "claims": a.get("claims")}
             out = text if text is not None else a["event"]["text"]
+            claims = a.get("claims")
+            sources = run.answer_sources.get(agent, {})
+            recheck = " ".join(out.split()) != " ".join(a["event"]["text"].split())
+        if recheck:
+            check = self.judge.claims(out, sources)
+            if check:
+                claims = check["claims"]
+                if check["unsupported"]:
+                    reason = "; ".join(f'unsupported claim: "{c}" ({check["reasons"][c]})' for c in check["unsupported"])
+                    return {"verdict": "block", "reason": reason, "run": run.id, "claims": claims}
+        with self.lock:
             missing = [m for m in a["gaps"] + a["stale"] if m not in out]
             if missing:
                 title = lambda m: self.memories[m].get("title", m)  # noqa: E731
                 notes = [f"gap: {title(m)} ({m})" for m in a["gaps"] if m in missing] + [f"stale: {title(m)} ({m})" for m in a["stale"] if m in missing]
-                return {"verdict": "annotate", "text": out + "\n\n_" + "; ".join(notes) + "_", "run": run.id, "citations": a["event"]["citations"]}
-            return {"verdict": "ok", "text": out, "run": run.id, "citations": a["event"]["citations"]}
+                return {"verdict": "annotate", "text": out + "\n\n_" + "; ".join(notes) + "_", "run": run.id, "citations": a["event"]["citations"], "claims": claims}
+            return {"verdict": "ok", "text": out, "run": run.id, "citations": a["event"]["citations"], "claims": claims}
 
     # ---- commissioned quests (spawn / move / phase / artifact / train_step)
 

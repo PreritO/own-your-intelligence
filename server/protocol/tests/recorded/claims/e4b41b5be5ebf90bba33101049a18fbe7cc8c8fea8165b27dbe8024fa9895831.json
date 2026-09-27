@@ -1,0 +1,44 @@
+{
+ "kind": "claims",
+ "text": "The Gripworks MSA (draft v3) has Net-45 payment terms, a 12-month term and a liability cap of 1x fees. The contract is worth $40k.",
+ "sources": {
+  "legal/gripworks-msa": {
+   "verdict": "verified",
+   "contentHash": "9f67c5cd48f7c284"
+  }
+ },
+ "model": "claude-sonnet-5",
+ "prompt": "v5",
+ "response": {
+  "claims": [
+   {
+    "text": "The Gripworks MSA (draft v3) has Net-45 payment terms",
+    "status": "supported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "Net-45 payment",
+    "reason": ""
+   },
+   {
+    "text": "The Gripworks MSA (draft v3) has a 12-month term",
+    "status": "supported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "12-month term",
+    "reason": ""
+   },
+   {
+    "text": "The Gripworks MSA (draft v3) has a liability cap of 1x fees",
+    "status": "supported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "liability cap 1x fees",
+    "reason": ""
+   },
+   {
+    "text": "The contract is worth $40k",
+    "status": "supported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "Contract value $40k",
+    "reason": ""
+   }
+  ]
+ }
+}

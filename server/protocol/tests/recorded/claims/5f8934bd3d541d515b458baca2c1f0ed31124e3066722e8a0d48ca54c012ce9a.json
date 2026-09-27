@@ -1,0 +1,41 @@
+{
+ "kind": "claims",
+ "text": "Yes, we can fund Gripworks: the Q4 supplier line has $40k remaining, which covers the $40k contract.",
+ "sources": {
+  "finance/budget-2026-q4": {
+   "verdict": "verified",
+   "contentHash": "0312f15110489329"
+  },
+  "legal/gripworks-msa": {
+   "verdict": "verified",
+   "contentHash": "9f67c5cd48f7c284"
+  }
+ },
+ "model": "claude-sonnet-5",
+ "prompt": "v5",
+ "response": {
+  "claims": [
+   {
+    "text": "the Q4 supplier line has $40k remaining",
+    "status": "supported",
+    "memoryId": "finance/budget-2026-q4",
+    "quote": "Suppliers | $55k | $15k | $40k",
+    "reason": ""
+   },
+   {
+    "text": "this covers the $40k contract",
+    "status": "supported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "Contract value $40k.",
+    "reason": ""
+   },
+   {
+    "text": "we can fund Gripworks",
+    "status": "supported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "The $40k is funded from the Q4 supplier line in the [[finance/budget-2026-q4|Q4 2026 Budget]].",
+    "reason": ""
+   }
+  ]
+ }
+}
