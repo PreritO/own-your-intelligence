@@ -106,7 +106,8 @@ export function mountWorkshop(rt: PalaceRuntime, pl: Placement) {
     }
     if (!best?.length) return null;
     best.sort((x, y) => x.order - y.order);
-    return best.length > 1 ? { task: best[0].task, a: best[0], b: best[best.length - 1] } : { task: best[0].task, a: best[0] };
+    // Previous run vs the latest one (e.g. contract-run1 then contract-run2).
+    return best.length > 1 ? { task: best[0].task, a: best[best.length - 2], b: best[best.length - 1] } : { task: best[0].task, a: best[0] };
   }
 
   function redraw() {
