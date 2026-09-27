@@ -13,7 +13,8 @@ export interface EventStream {
 
 export function createEventStream(): EventStream {
   const subs = new Set<(e: Ev) => void>();
-  const emit = (e: Ev) => subs.forEach((cb) => cb(e));
+  // One plugin throwing must not starve the others of the event.
+  const emit = (e: Ev) => subs.forEach((cb) => { try { cb(e); } catch (err) { console.error("[events] subscriber failed", err); } });
   const params = new URLSearchParams(location.search);
   const demo = params.has("demo");
   let timers: number[] = [];
