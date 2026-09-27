@@ -1,0 +1,21 @@
+{"t":0,"agent":"legal","type":"task","text":"Can we sign the Gripworks contract this week?","run":"contract-run2"}
+{"t":0.3,"agent":"legal","type":"route","routeId":"contract-signoff","stations":["companies/gripworks","legal/gripworks-msa","finance/budget-2026-q4","legal/approvals","people/signatories"],"source":"learned","run":"contract-run2"}
+{"t":0.5,"agent":"legal","type":"move","to":"room-people-0","run":"contract-run2"}
+{"t":1.1,"agent":"legal","type":"claim","memoryId":"companies/gripworks","run":"contract-run2"}
+{"t":1.7,"agent":"legal","type":"visit","memoryId":"companies/gripworks","verdict":"verified","run":"contract-run2"}
+{"t":2.1,"agent":"legal","type":"move","to":"room-legal-0","run":"contract-run2"}
+{"t":2.7,"agent":"legal","type":"claim","memoryId":"legal/gripworks-msa","run":"contract-run2"}
+{"t":3.3,"agent":"legal","type":"visit","memoryId":"legal/gripworks-msa","verdict":"verified","run":"contract-run2"}
+{"t":3.7,"agent":"legal","type":"move","to":"room-finance-1","run":"contract-run2"}
+{"t":4.3,"agent":"legal","type":"handoff","id":"contract-run2-h1","toAgent":"finance","memoryId":"finance/budget-2026-q4","question":"Is Gripworks within Q4 budget?","run":"contract-run2"}
+{"t":4.6,"agent":"finance","type":"move","to":"room-finance-1","run":"contract-run2"}
+{"t":5.2,"agent":"finance","type":"claim","memoryId":"finance/budget-2026-q4","run":"contract-run2"}
+{"t":5.8,"agent":"finance","type":"visit","memoryId":"finance/budget-2026-q4","verdict":"verified","run":"contract-run2"}
+{"t":6.1,"agent":"finance","type":"reply","id":"contract-run2-h1","answer":"Yes, $40k of $55k supplier line; $15k already committed.","run":"contract-run2"}
+{"t":6.5,"agent":"legal","type":"move","to":"room-legal-0","run":"contract-run2"}
+{"t":7.1,"agent":"legal","type":"claim","memoryId":"legal/approvals","run":"contract-run2"}
+{"t":7.7,"agent":"legal","type":"visit","memoryId":"legal/approvals","verdict":"verified","run":"contract-run2"}
+{"t":8.1,"agent":"legal","type":"move","to":"room-people-0","run":"contract-run2"}
+{"t":8.7,"agent":"legal","type":"claim","memoryId":"people/signatories","run":"contract-run2"}
+{"t":9.3,"agent":"legal","type":"visit","memoryId":"people/signatories","verdict":"verified","run":"contract-run2"}
+{"t":9.7,"agent":"legal","type":"answer","text":"Yes, this week, if Mara Okafor or Dev Lindqvist signs. Legal approved MSA v3 on Sep 22 and Finance confirmed the $40k fits the Q4 supplier line.","citations":["legal/gripworks-msa","finance/budget-2026-q4","legal/approvals","people/signatories"],"run":"contract-run2"}

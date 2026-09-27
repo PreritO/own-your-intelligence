@@ -1,0 +1,35 @@
+{
+  "question": "What did we promise Ada in the last board meeting?",
+  "hops": [
+    {
+      "step": 1,
+      "memoryId": "finance/board-2026-q3",
+      "reason": "keyword match: board meeting, Ada",
+      "score": 0.91
+    },
+    {
+      "step": 2,
+      "memoryId": "people/ada-chen",
+      "reason": "graph link: attended",
+      "score": 0.84
+    },
+    {
+      "step": 3,
+      "memoryId": "finance/board-action-items",
+      "reason": "graph link: tracked_in",
+      "score": 0.72
+    },
+    {
+      "step": 4,
+      "memoryId": "finance/gross-margin-plan",
+      "reason": "graph link: committed",
+      "score": 0.67
+    }
+  ],
+  "answerMemoryIds": [
+    "finance/board-2026-q3",
+    "people/ada-chen",
+    "finance/board-action-items"
+  ],
+  "answer": "At the Q3 board meeting (Aug 13) we committed to Ada Chen: a hardware gross-margin plan by Dec 15 and monthly burn updates. The August burn update went out; the margin plan is still an outline (owner Raj Patel)."
+}
