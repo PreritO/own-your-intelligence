@@ -93,7 +93,7 @@ def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float
     client = river_client()
     base = pick_base_model(client)
     init = None if from_base else load_checkpoints().get(f"sft-{team}", {}).get("training_path")
-    run = f"rl-{team}"
+    run = f"rl-{team}-base" if from_base or not init else f"rl-{team}"
     log = StepLogger(run)
     print(f"RL {team} on {base} from {init or 'base weights'}; {len(rows)} tasks")
 
@@ -105,6 +105,7 @@ def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float
     renderer = get_renderer(base)
     with client.session(experiment=f"mind-palace-{run}") as session:
         model = session.create_model(base_model=base, tokenizer=renderer.tokenizer, lora=river.LoraConfig(rank=16, seed=0))
+        print(json.dumps({"run": run, "model_id": model.model_id}), flush=True)
         engine = rl.RolloutEngine(
             model,
             # Local PalaceWorld by default: 64 concurrent rollouts through :8790 would flood the palace's /events.
