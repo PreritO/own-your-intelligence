@@ -85,10 +85,11 @@ Bun.serve({
   port: PORT,
   async fetch(req) {
     const url = new URL(req.url);
-    const m = url.pathname.match(/^\/(\w+)\/mcp\/?$/);
+    const m = url.pathname.match(/^\/([\w-]+)\/mcp\/?$/);
     if (!m) return new Response("POST /<legal|finance|eng>/mcp\n", { status: 404 });
     const agent = m[1]!;
-    if (!AGENTS.has(agent)) return new Response(`unknown agent ${agent}\n`, { status: 404 });
+    // Team agents, plus commissioned quest agents (quest-<n>, server/commission) on their own connector.
+    if (!AGENTS.has(agent) && !/^quest-\d+$/.test(agent)) return new Response(`unknown agent ${agent}\n`, { status: 404 });
     if (req.method !== "POST") return new Response(null, { status: 405 });
     let rpc: Rpc;
     try {

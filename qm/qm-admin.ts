@@ -31,7 +31,7 @@ function coreSecret(): string {
   throw new Error(`CORE_SIGNING_SECRET not set and not found on the core process at ${CORE}`);
 }
 
-async function core(method: string, path: string, body?: unknown) {
+export async function core(method: string, path: string, body?: unknown) {
   const raw = body === undefined ? "" : JSON.stringify(body);
   const ts = Math.floor(Date.now() / 1000);
   const sig = "v0=" + createHmac("sha256", coreSecret()).update(`v0:${ts}:${method}\n${path}\n${raw}`).digest("hex");
@@ -44,7 +44,7 @@ async function core(method: string, path: string, body?: unknown) {
   return { status: res.status, body: text };
 }
 
-async function portal(method: string, path: string, body?: unknown) {
+export async function portal(method: string, path: string, body?: unknown) {
   const res = await fetch(PORTAL + path, {
     method,
     headers: { "content-type": "application/json", origin: PORTAL },
@@ -104,8 +104,32 @@ async function turn(agent: string, text: string) {
   return r.status < 300 ? (JSON.parse(r.body).runId as string | undefined) : undefined;
 }
 
-const [cmd, ...args] = process.argv.slice(2);
-if (cmd === "setup") {
+// Commissioned quests (server/commission/qm.ts): one QM project named "quest" drives quest agents' run 2.
+export async function questScope(): Promise<string | undefined> {
+  const r = await core("GET", `/v1/projects?principalId=${encodeURIComponent(ADMIN)}`);
+  const projects = (JSON.parse(r.body).projects ?? []) as { name: string; scopeId: string }[];
+  return projects.find((p) => p.name === "quest")?.scopeId;
+}
+
+export async function questTurn(scopeId: string, agent: string, text: string) {
+  return portal("POST", "/api/turn", { text, threadRef: `web:${ADMIN}:${agent}-${Date.now()}`, scopeId, channelName: "quest" });
+}
+
+const [cmd, ...args] = import.meta.main ? process.argv.slice(2) : ["--imported"];
+if (cmd === "--imported") {
+  // imported as a module: no CLI
+} else if (cmd === "quest-setup") {
+  if (!(await questScope())) console.log("create project quest:", (await portal("POST", "/api/projects", { name: "quest" })).status);
+  console.log("quest scope:", await questScope());
+  const r = await core("PUT", "/v1/admin/mcp-servers/quest-loci", {
+    name: "Loci protocol (commissioned quest)",
+    url: `${process.env.QUEST_MCP_URL ?? "http://localhost:8792"}/quest-1`,
+    auth: "none",
+    readOnly: false,
+    enabled: true,
+  });
+  console.log(`connector quest-loci: HTTP ${r.status} ${r.status === 200 ? (JSON.parse(r.body).tools ?? []).join(",") : r.body.slice(0, 200)}`);
+} else if (cmd === "setup") {
   const have = await teamScopes();
   for (const a of AGENTS) if (!have[a]) await portal("POST", "/api/projects", { name: a });
   console.log("scopes:", JSON.stringify(await teamScopes()));

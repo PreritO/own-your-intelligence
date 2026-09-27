@@ -1,0 +1,121 @@
+{"t":0.0,"agent":"quest-5","type":"spawn","label":"Onboarding agent","color":"#73daca","home":"foyer","task":"Create an onboarding page for new engineers","harness":"qm","run":"quest-onboarding-qm"}
+{"t":0.0,"agent":"quest-5","type":"task","text":"Create an onboarding page for new engineers","run":"quest-onboarding-qm"}
+{"t":8.38,"agent":"quest-5","type":"phase","phase":"plan","note":"claude-sonnet-5: 5 subtasks across people, legal, eng","subtasks":[{"id":"s1","title":"Compile first-week onboarding checklist","department":"people","stations":["people/onboarding-guide","people/employee-handbook"]},{"id":"s2","title":"Summarize org structure and eng leadership","department":"people","stations":["people/org-chart","people/priya-nand"]},{"id":"s3","title":"Note day-one legal requirements","department":"legal","stations":["legal/ip-assignment"]},{"id":"s4","title":"Cover security policy and access setup","department":"eng","stations":["eng/security-policy","eng/access-review-2026-q2"]},{"id":"s5","title":"Summarize platform and roadmap for context","department":"eng","stations":["eng/arm-controller","eng/roadmap-2026-h2"]}],"run":"quest-onboarding-qm"}
+{"t":9.88,"agent":"quest-5","type":"phase","phase":"explore","note":"run 1: touring 12 stations","run":"quest-onboarding-qm"}
+{"t":9.88,"agent":"quest-5","type":"route","routeId":"explore-onboarding-page-new-engineer","stations":["people/onboarding-guide","people/employee-handbook","people/org-chart","people/priya-nand","legal/ip-assignment","eng/security-policy","eng/access-review-2026-q2","eng/arm-controller","eng/roadmap-2026-h2","eng/oncall-rotation","people/nikhil-brandt","legal/nda-template"],"source":"explore","run":"quest-onboarding-qm"}
+{"t":15.18,"agent":"quest-5","type":"move","to":"room-people-1","run":"quest-onboarding-qm"}
+{"t":15.18,"agent":"quest-5","type":"claim","memoryId":"people/onboarding-guide","run":"quest-onboarding-qm"}
+{"t":15.69,"agent":"quest-5","type":"visit","memoryId":"people/onboarding-guide","verdict":"verified","evidence":"First-week checklist for new hires: accounts, handbook, security training, team intros.","subtask":"s1","run":"quest-onboarding-qm"}
+{"t":16.39,"agent":"quest-5","type":"claim","memoryId":"people/employee-handbook","run":"quest-onboarding-qm"}
+{"t":16.89,"agent":"quest-5","type":"visit","memoryId":"people/employee-handbook","verdict":"stale","note":"freshness 0.00 < 0.3","evidence":"Company handbook: working hours, PTO, expenses, equipment and security basics for every employee.","subtask":"s1","run":"quest-onboarding-qm"}
+{"t":20.9,"agent":"quest-5","type":"move","to":"room-people-0","run":"quest-onboarding-qm"}
+{"t":20.9,"agent":"quest-5","type":"claim","memoryId":"people/org-chart","run":"quest-onboarding-qm"}
+{"t":21.4,"agent":"quest-5","type":"visit","memoryId":"people/org-chart","verdict":"verified","evidence":"Teams: Finance (Raj Patel), Legal (Tomas Reyes), Eng (Priya Nand), People (Lena Vogt).","subtask":"s2","run":"quest-onboarding-qm"}
+{"t":22.1,"agent":"quest-5","type":"claim","memoryId":"people/priya-nand","run":"quest-onboarding-qm"}
+{"t":22.61,"agent":"quest-5","type":"visit","memoryId":"people/priya-nand","verdict":"verified","evidence":"Security work reports into Eng, but Priya has not taken on compliance ownership; see SOC 2 Renewal.","subtask":"s2","run":"quest-onboarding-qm"}
+{"t":27.82,"agent":"quest-5","type":"move","to":"room-legal-1","run":"quest-onboarding-qm"}
+{"t":28.62,"agent":"quest-5","type":"handoff","id":"h1","toAgent":"legal","memoryId":"legal/ip-assignment","question":"For \"Create an onboarding page for new engineers\" (note day-one legal requirements): what does IP Assignment say?","run":"quest-onboarding-qm"}
+{"t":29.33,"agent":"legal","type":"move","to":"room-legal-1","run":"quest-onboarding-qm"}
+{"t":29.33,"agent":"legal","type":"claim","memoryId":"legal/ip-assignment","run":"quest-onboarding-qm"}
+{"t":29.33,"agent":"legal","type":"visit","memoryId":"legal/ip-assignment","verdict":"stale","note":"freshness 0.16 < 0.3","evidence":"Every employee and contractor signs the invention assignment agreement on day one.","subtask":"s3","run":"quest-onboarding-qm"}
+{"t":31.02,"agent":"legal","type":"reply","id":"h1","answer":"IP Assignment requires every employee and contractor to sign the invention assignment agreement on day one; contractor agreements lacking it are void for Engineering work. Note this page is stale, so confirm with Legal before relying on it for the onboarding page.","run":"quest-onboarding-qm"}
+{"t":34.43,"agent":"quest-5","type":"move","to":"room-eng-0","run":"quest-onboarding-qm"}
+{"t":35.24,"agent":"quest-5","type":"handoff","id":"h2","toAgent":"eng","memoryId":"eng/security-policy","question":"For \"Create an onboarding page for new engineers\" (cover security policy and access setup): what does Security Policy say?","run":"quest-onboarding-qm"}
+{"t":35.94,"agent":"eng","type":"claim","memoryId":"eng/security-policy","run":"quest-onboarding-qm"}
+{"t":35.94,"agent":"eng","type":"visit","memoryId":"eng/security-policy","verdict":"stale","note":"freshness 0.00 < 0.3","evidence":"Information security policy, last reviewed March.","subtask":"s4","run":"quest-onboarding-qm"}
+{"t":37.35,"agent":"quest-5","type":"handoff","id":"h3","toAgent":"eng","memoryId":"eng/access-review-2026-q2","question":"For \"Create an onboarding page for new engineers\" (cover security policy and access setup): what does Access Review, Q2 2026 say?","run":"quest-onboarding-qm"}
+{"t":37.99,"agent":"eng","type":"reply","id":"h2","answer":"The Security Policy lists these controls: SSO and MFA everywhere, quarterly access reviews, encrypted laptops, incident response within 24 hours, and annual vendor reviews. Note: it has no current policy owner (the prior contractor's engagement ended in January and wasn't replaced), and the page is stale (last reviewed March, org changes since then not reflected) \u2014 it needs a refresh before you rely on it for onboarding.","run":"quest-onboarding-qm"}
+{"t":38.06,"agent":"eng","type":"claim","memoryId":"eng/access-review-2026-q2","run":"quest-onboarding-qm"}
+{"t":38.06,"agent":"eng","type":"visit","memoryId":"eng/access-review-2026-q2","verdict":"verified","evidence":"Quarterly access review for Q2 2026: 212 accounts reviewed, 9 revoked.","subtask":"s4","run":"quest-onboarding-qm"}
+{"t":39.78,"agent":"eng","type":"reply","id":"h3","answer":"Access Review, Q2 2026 reports that the quarterly access review reviewed 212 accounts and revoked 9, completing Jul 3\u2014two days late\u2014with the Q3 review not yet scheduled. It was required by the Security Policy, its evidence is filed in the SOC 2 Evidence Tracker, and it was performed by the on-call engineer as a stopgap.","run":"quest-onboarding-qm"}
+{"t":41.96,"agent":"quest-5","type":"move","to":"room-eng-1","run":"quest-onboarding-qm"}
+{"t":42.76,"agent":"quest-5","type":"handoff","id":"h4","toAgent":"eng","memoryId":"eng/arm-controller","question":"For \"Create an onboarding page for new engineers\" (summarize platform and roadmap for context): what does Arm Controller say?","run":"quest-onboarding-qm"}
+{"t":43.46,"agent":"eng","type":"move","to":"room-eng-1","run":"quest-onboarding-qm"}
+{"t":43.46,"agent":"eng","type":"claim","memoryId":"eng/arm-controller","run":"quest-onboarding-qm"}
+{"t":43.47,"agent":"eng","type":"visit","memoryId":"eng/arm-controller","verdict":"verified","evidence":"Real-time controller board for the arm: 1 kHz joint loop, safety-rated stop, telemetry uplink to the cloud platform.","subtask":"s5","run":"quest-onboarding-qm"}
+{"t":44.87,"agent":"quest-5","type":"handoff","id":"h5","toAgent":"eng","memoryId":"eng/roadmap-2026-h2","question":"For \"Create an onboarding page for new engineers\" (summarize platform and roadmap for context): what does Eng Roadmap, H2 2026 say?","run":"quest-onboarding-qm"}
+{"t":45.21,"agent":"eng","type":"reply","id":"h4","answer":"The Arm Controller is the real-time controller board for the arm, running a 1 kHz joint loop with a safety-rated stop and telemetry uplink to the cloud platform. Its firmware ships in trains like Firmware 4.2, telemetry feeds into Cloud Infrastructure, and its board cost is listed in the Hardware BOM.","run":"quest-onboarding-qm"}
+{"t":45.57,"agent":"eng","type":"claim","memoryId":"eng/roadmap-2026-h2","run":"quest-onboarding-qm"}
+{"t":45.57,"agent":"eng","type":"visit","memoryId":"eng/roadmap-2026-h2","verdict":"verified","evidence":"H2 priorities: ship Gripper v2 pilot, Firmware 4.2, cut BOM cost 8%, pass SOC 2 renewal.","subtask":"s5","run":"quest-onboarding-qm"}
+{"t":46.98,"agent":"quest-5","type":"handoff","id":"h6","toAgent":"eng","memoryId":"eng/oncall-rotation","question":"For \"Create an onboarding page for new engineers\" (summarize platform and roadmap for context): what does On-call Rotation say?","run":"quest-onboarding-qm"}
+{"t":47.3,"agent":"eng","type":"reply","id":"h5","answer":"The H2 2026 roadmap (owned by Priya Nand) lists four priorities: ship the Gripper v2 pilot, release Firmware 4.2, cut BOM cost by 8%, and pass SOC 2 renewal. Note that compliance ownership is currently listed as \"TBD.\"","run":"quest-onboarding-qm"}
+{"t":47.68,"agent":"eng","type":"claim","memoryId":"eng/oncall-rotation","run":"quest-onboarding-qm"}
+{"t":47.68,"agent":"eng","type":"visit","memoryId":"eng/oncall-rotation","verdict":"verified","evidence":"Weekly on-call rotation across six firmware and cloud engineers.","subtask":"s5","run":"quest-onboarding-qm"}
+{"t":49.21,"agent":"eng","type":"reply","id":"h6","answer":"The On-call Rotation page describes a weekly rotation across six firmware and cloud engineers, with Nikhil Brandt as this week's primary. It follows the Incident Response Plan, and on-call also covers the quarterly access review as a stopgap.","run":"quest-onboarding-qm"}
+{"t":52.79,"agent":"quest-5","type":"move","to":"room-people-0","run":"quest-onboarding-qm"}
+{"t":52.79,"agent":"quest-5","type":"claim","memoryId":"people/nikhil-brandt","run":"quest-onboarding-qm"}
+{"t":53.3,"agent":"quest-5","type":"visit","memoryId":"people/nikhil-brandt","verdict":"verified","evidence":"Nikhil reports to Priya Nand and ships the Firmware 4.2 train.","subtask":"s2","run":"quest-onboarding-qm"}
+{"t":58.5,"agent":"quest-5","type":"move","to":"room-legal-1","run":"quest-onboarding-qm"}
+{"t":59.3,"agent":"quest-5","type":"handoff","id":"h7","toAgent":"legal","memoryId":"legal/nda-template","question":"For \"Create an onboarding page for new engineers\" (note day-one legal requirements): what does NDA Template say?","run":"quest-onboarding-qm"}
+{"t":60.01,"agent":"legal","type":"claim","memoryId":"legal/nda-template","run":"quest-onboarding-qm"}
+{"t":60.01,"agent":"legal","type":"visit","memoryId":"legal/nda-template","verdict":"stale","note":"freshness 0.00 < 0.3","evidence":"Mutual NDA template, two-year term, used for every supplier and customer conversation before pricing is shared.","subtask":"s3","run":"quest-onboarding-qm"}
+{"t":61.76,"agent":"legal","type":"reply","id":"h7","answer":"The NDA Template page describes a mutual NDA with a two-year term, used for every supplier and customer conversation before pricing is shared - it's referenced by the Contract Playbook and required at step one of Vendor Onboarding. Note this page is marked stale, so it needs a refresh before relying on it for the onboarding page.","run":"quest-onboarding-qm"}
+{"t":61.76,"agent":"quest-5","type":"phase","phase":"gym","note":"reviewing run 1 and training on it","run":"quest-onboarding-qm"}
+{"t":61.76,"agent":"quest-5","type":"move","to":"room-gym","run":"quest-onboarding-qm"}
+{"t":67.74,"agent":"quest-5","type":"train_step","step":1,"reward":0.753,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":68.25,"agent":"quest-5","type":"train_step","step":2,"reward":0.732,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":68.75,"agent":"quest-5","type":"train_step","step":3,"reward":0.864,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":69.25,"agent":"quest-5","type":"train_step","step":4,"reward":0.833,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":69.75,"agent":"quest-5","type":"train_step","step":5,"reward":0.849,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":70.26,"agent":"quest-5","type":"train_step","step":6,"reward":0.901,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":70.76,"agent":"quest-5","type":"train_step","step":7,"reward":0.886,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":71.26,"agent":"quest-5","type":"train_step","step":8,"reward":0.92,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":71.77,"agent":"quest-5","type":"train_step","step":9,"reward":0.96,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":72.27,"agent":"quest-5","type":"train_step","step":10,"reward":0.966,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":72.78,"agent":"quest-5","type":"train_step","step":11,"reward":0.974,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":73.28,"agent":"quest-5","type":"train_step","step":12,"reward":0.905,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":73.78,"agent":"quest-5","type":"train_step","step":13,"reward":0.984,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":74.28,"agent":"quest-5","type":"train_step","step":14,"reward":0.998,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":74.79,"agent":"quest-5","type":"train_step","step":15,"reward":0.962,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":75.29,"agent":"quest-5","type":"train_step","step":16,"reward":0.989,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":75.79,"agent":"quest-5","type":"train_step","step":17,"reward":0.982,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":76.29,"agent":"quest-5","type":"train_step","step":18,"reward":0.994,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":76.8,"agent":"quest-5","type":"train_step","step":19,"reward":0.971,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":77.3,"agent":"quest-5","type":"train_step","step":20,"reward":0.997,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":77.8,"agent":"quest-5","type":"train_step","step":21,"reward":0.973,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":78.3,"agent":"quest-5","type":"train_step","step":22,"reward":0.966,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":78.81,"agent":"quest-5","type":"train_step","step":23,"reward":1,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":79.31,"agent":"quest-5","type":"train_step","step":24,"reward":0.989,"checkpoint":"sim","run":"quest-onboarding-qm"}
+{"t":80.62,"agent":"quest-5","type":"phase","phase":"execute","note":"run 2: learned route, 10 stations (run 1: 12)","run":"quest-onboarding-qm"}
+{"t":80.62,"agent":"quest-5","type":"route","routeId":"quest-onboarding-page-new-engineer","stations":["people/org-chart","people/priya-nand","people/nikhil-brandt","people/onboarding-guide","people/employee-handbook","legal/ip-assignment","eng/security-policy","eng/access-review-2026-q2","eng/roadmap-2026-h2","eng/oncall-rotation"],"source":"learned","run":"quest-onboarding-qm"}
+{"t":83.6,"agent":"quest-5","type":"move","to":"room-people-0","run":"quest-onboarding-qm"}
+{"t":83.6,"agent":"quest-5","type":"claim","memoryId":"people/org-chart","run":"quest-onboarding-qm"}
+{"t":85.08,"agent":"quest-5","type":"visit","memoryId":"people/org-chart","verdict":"verified","evidence":"Security and compliance has no named lead on this chart.","run":"quest-onboarding-qm"}
+{"t":86.25,"agent":"quest-5","type":"claim","memoryId":"people/priya-nand","run":"quest-onboarding-qm"}
+{"t":87.7,"agent":"quest-5","type":"visit","memoryId":"people/priya-nand","verdict":"verified","evidence":"Priya owns the H2 2026 roadmap and the Gripper v2 program.","run":"quest-onboarding-qm"}
+{"t":88.91,"agent":"quest-5","type":"claim","memoryId":"people/nikhil-brandt","run":"quest-onboarding-qm"}
+{"t":90.36,"agent":"quest-5","type":"visit","memoryId":"people/nikhil-brandt","verdict":"verified","evidence":"Nikhil reports to Priya Nand and ships the Firmware 4.2 train.","run":"quest-onboarding-qm"}
+{"t":91.78,"agent":"quest-5","type":"move","to":"room-people-1","run":"quest-onboarding-qm"}
+{"t":91.78,"agent":"quest-5","type":"claim","memoryId":"people/onboarding-guide","run":"quest-onboarding-qm"}
+{"t":93.28,"agent":"quest-5","type":"visit","memoryId":"people/onboarding-guide","verdict":"verified","evidence":"First-week checklist for new hires: accounts, handbook, security training, team intros.","run":"quest-onboarding-qm"}
+{"t":94.89,"agent":"quest-5","type":"claim","memoryId":"people/employee-handbook","run":"quest-onboarding-qm"}
+{"t":96.21,"agent":"quest-5","type":"visit","memoryId":"people/employee-handbook","verdict":"stale","note":"freshness 0.00 < 0.3","evidence":"Company handbook: working hours, PTO, expenses, equipment and security basics for every employee.","run":"quest-onboarding-qm"}
+{"t":98.06,"agent":"quest-5","type":"move","to":"room-legal-1","run":"quest-onboarding-qm"}
+{"t":100.84,"agent":"quest-5","type":"handoff","id":"h8","toAgent":"legal","memoryId":"legal/ip-assignment","question":"For a new engineer onboarding page: does the IP assignment agreement need to be signed before the employee's first day, and are there any special clauses new engineers should be aware of?","run":"quest-onboarding-qm"}
+{"t":100.89,"agent":"legal","type":"claim","memoryId":"legal/ip-assignment","run":"quest-onboarding-qm"}
+{"t":100.89,"agent":"legal","type":"visit","memoryId":"legal/ip-assignment","verdict":"stale","note":"reused quest-5's verdict; freshness 0.16 < 0.3","evidence":"Every employee and contractor signs the invention assignment agreement on day one.","run":"quest-onboarding-qm"}
+{"t":100.89,"agent":"legal","type":"reply","id":"h8","answer":"IP Assignment requires every employee and contractor to sign the invention assignment agreement on day one; contractor agreements lacking it are void for Engineering work. Note this page is stale, so confirm with Legal before relying on it for the onboarding page.","run":"quest-onboarding-qm"}
+{"t":102.52,"agent":"quest-5","type":"move","to":"room-eng-0","run":"quest-onboarding-qm"}
+{"t":106.05,"agent":"quest-5","type":"handoff","id":"h9","toAgent":"eng","memoryId":"eng/security-policy","question":"For a new engineer onboarding page: what are the key security policy requirements new engineers must complete/follow in their first week?","run":"quest-onboarding-qm"}
+{"t":106.93,"agent":"eng","type":"move","to":"room-eng-0","run":"quest-onboarding-qm"}
+{"t":106.93,"agent":"eng","type":"claim","memoryId":"eng/security-policy","run":"quest-onboarding-qm"}
+{"t":106.93,"agent":"eng","type":"visit","memoryId":"eng/security-policy","verdict":"stale","note":"reused quest-5's verdict; freshness 0.00 < 0.3","evidence":"Information security policy, last reviewed March.","run":"quest-onboarding-qm"}
+{"t":106.93,"agent":"eng","type":"reply","id":"h9","answer":"The Security Policy lists these controls: SSO and MFA everywhere, quarterly access reviews, encrypted laptops, incident response within 24 hours, and annual vendor reviews. Note: it has no current policy owner (the prior contractor's engagement ended in January and wasn't replaced), and the page is stale (last reviewed March, org changes since then not reflected) \u2014 it needs a refresh before you rely on it for onboarding.","run":"quest-onboarding-qm"}
+{"t":109.22,"agent":"quest-5","type":"handoff","id":"h10","toAgent":"eng","memoryId":"eng/access-review-2026-q2","question":"For a new engineer onboarding page: what access review process/steps should new engineers follow to request system access?","run":"quest-onboarding-qm"}
+{"t":109.95,"agent":"eng","type":"claim","memoryId":"eng/access-review-2026-q2","run":"quest-onboarding-qm"}
+{"t":109.95,"agent":"eng","type":"visit","memoryId":"eng/access-review-2026-q2","verdict":"verified","note":"reused quest-5's verdict","evidence":"Quarterly access review for Q2 2026: 212 accounts reviewed, 9 revoked.","run":"quest-onboarding-qm"}
+{"t":109.95,"agent":"eng","type":"reply","id":"h10","answer":"Access Review, Q2 2026 reports that the quarterly access review reviewed 212 accounts and revoked 9, completing Jul 3\u2014two days late\u2014with the Q3 review not yet scheduled. It was required by the Security Policy, its evidence is filed in the SOC 2 Evidence Tracker, and it was performed by the on-call engineer as a stopgap.","run":"quest-onboarding-qm"}
+{"t":110.32,"agent":"quest-5","type":"move","to":"room-eng-1","run":"quest-onboarding-qm"}
+{"t":112.61,"agent":"quest-5","type":"handoff","id":"h11","toAgent":"eng","memoryId":"eng/roadmap-2026-h2","question":"For a new engineer onboarding page: what's a brief summary of the H2 2026 roadmap new engineers should know about?","run":"quest-onboarding-qm"}
+{"t":112.96,"agent":"eng","type":"move","to":"room-eng-1","run":"quest-onboarding-qm"}
+{"t":112.96,"agent":"eng","type":"claim","memoryId":"eng/roadmap-2026-h2","run":"quest-onboarding-qm"}
+{"t":112.96,"agent":"eng","type":"visit","memoryId":"eng/roadmap-2026-h2","verdict":"verified","note":"reused quest-5's verdict","evidence":"H2 priorities: ship Gripper v2 pilot, Firmware 4.2, cut BOM cost 8%, pass SOC 2 renewal.","run":"quest-onboarding-qm"}
+{"t":112.97,"agent":"eng","type":"reply","id":"h11","answer":"The H2 2026 roadmap (owned by Priya Nand) lists four priorities: ship the Gripper v2 pilot, release Firmware 4.2, cut BOM cost by 8%, and pass SOC 2 renewal. Note that compliance ownership is currently listed as \"TBD.\"","run":"quest-onboarding-qm"}
+{"t":116.69,"agent":"quest-5","type":"handoff","id":"h12","toAgent":"eng","memoryId":"eng/oncall-rotation","question":"For a new engineer onboarding page: how does the on-call rotation work and when do new engineers join it?","run":"quest-onboarding-qm"}
+{"t":116.98,"agent":"eng","type":"claim","memoryId":"eng/oncall-rotation","run":"quest-onboarding-qm"}
+{"t":116.98,"agent":"eng","type":"visit","memoryId":"eng/oncall-rotation","verdict":"verified","note":"reused quest-5's verdict","evidence":"Weekly on-call rotation across six firmware and cloud engineers.","run":"quest-onboarding-qm"}
+{"t":116.98,"agent":"eng","type":"reply","id":"h12","answer":"The On-call Rotation page describes a weekly rotation across six firmware and cloud engineers, with Nikhil Brandt as this week's primary. It follows the Incident Response Plan, and on-call also covers the quarterly access review as a stopgap.","run":"quest-onboarding-qm"}
+{"t":116.98,"agent":"quest-5","type":"move","to":"foyer","run":"quest-onboarding-qm"}
+{"t":121.49,"agent":"quest-5","type":"artifact","memory":{"id":"quests/onboarding-page-new-engineer","title":"Onboarding Guide for New Engineers","type":"artifact","room":"foyer","pos":[-3.23,1.1,-1.34],"freshness":1,"excerpt":"Welcome to Acme Robotics! Your first week follows the standard checklist: set up accounts, review the handbook, complete security training, and meet your team . Getting Started New","path":"quests/onboarding-page-new-engineer.md"},"run":"quest-onboarding-qm"}
+{"t":122.49,"agent":"quest-5","type":"answer","text":"Done: wrote \"Onboarding Guide for New Engineers\" (quests/onboarding-page-new-engineer) from 7 verified stations: people/onboarding-guide, people/org-chart, people/priya-nand, eng/roadmap-2026-h2, people/nikhil-brandt, eng/oncall-rotation, eng/access-review-2026-q2. Stale, needs a refresh before anyone relies on it: people/employee-handbook, legal/ip-assignment, eng/security-policy, legal/nda-template. Run 1 took 12 stations; run 2 took 10.","citations":["people/onboarding-guide","people/org-chart","people/priya-nand","eng/roadmap-2026-h2","people/nikhil-brandt","eng/oncall-rotation","eng/access-review-2026-q2"],"stale":["eng/security-policy","legal/ip-assignment","legal/nda-template","people/employee-handbook"],"run":"quest-onboarding-qm"}
+{"t":123.3,"agent":"quest-5","type":"phase","phase":"done","note":"quests/onboarding-page-new-engineer written; grounding ok","run":"quest-onboarding-qm"}

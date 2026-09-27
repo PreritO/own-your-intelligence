@@ -14,6 +14,13 @@ POST (JSON body; every body may carry "run", default = current run):
   /reply      {agent, id, answer}
   /answer     {agent, text, citations}                -> {blocked, reasons, gaps, stale}
   /writeback  {memoryId, content, by}                 Loose End answered by a human -> page overlay
+  Commissioned quests (server/commission/):
+  /spawn      {agent, label, color, home?, task?, harness?}   register a quest agent (no team: shared rooms only)
+  /move       {agent, to}                             walk to a room (e.g. room-gym)
+  /phase      {agent, phase, note?, subtasks?}        plan | explore | gym | execute | done
+  /artifact   {agent, memory}                         a page the agent wrote (full Memory)
+  /train_step {agent, step, reward, checkpoint?, team?}
+  /visit also takes {subtask?, evidence?}; evidence defaults to the page sentence that best answers `question`.
 GET:
   /events?run=&replay=1   SSE, `data: <PalaceEvent>\\n\\n` (replays the run's events first)
   /events.jsonl?run=      the run's events as JSONL
@@ -163,7 +170,17 @@ def make_handler(proto: Protocol):
                 if p == "/claim":
                     return self._json(200, proto.claim(b["agent"], b["memoryId"], run, b.get("ttl")))
                 if p == "/visit":
-                    return self._json(200, proto.visit(b["agent"], b["memoryId"], run, b.get("question")))
+                    return self._json(200, proto.visit(b["agent"], b["memoryId"], run, b.get("question"), b.get("subtask"), b.get("evidence")))
+                if p == "/spawn":
+                    return self._json(200, proto.spawn(b["agent"], b["label"], b["color"], b.get("home", "foyer"), b.get("task"), b.get("harness"), run))
+                if p == "/move":
+                    return self._json(200, proto.move(b["agent"], b["to"], run))
+                if p == "/phase":
+                    return self._json(200, proto.phase(b["agent"], b["phase"], b.get("note"), b.get("subtasks"), run))
+                if p == "/artifact":
+                    return self._json(200, proto.artifact(b["agent"], b["memory"], run))
+                if p == "/train_step":
+                    return self._json(200, proto.train_step(b["agent"], b["step"], b["reward"], b.get("checkpoint"), b.get("team"), run))
                 if p == "/handoff":
                     return self._json(200, proto.handoff(b["agent"], b["memoryId"], b["question"], b.get("toAgent"), run))
                 if p == "/reply":
