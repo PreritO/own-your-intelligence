@@ -37,10 +37,10 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   pmrem.dispose();
-  const ENV_I = 0.16;
+  const ENV_I = 0.06;
   scene.environmentIntensity = ENV_I;
 
-  const HEMI_I = 0.55, MOON_I = 0.7;
+  const HEMI_I = 0.6, MOON_I = 0.4;
   const hemi = new THREE.HemisphereLight("#8e9cd6", "#0b0a10", HEMI_I);
   const moon = new THREE.DirectionalLight("#a9b8ff", MOON_I);
   moon.position.set(18, 40, 12);
@@ -82,7 +82,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
     geo.translate(r.center[0], r.center[1], r.center[2]);
     worldUV(geo);
     const mat = new THREE.MeshStandardMaterial({
-      map: marble, color: "#8e94a2", roughness: 0.3, metalness: 0.25,
+      map: marble, color: "#8e94a2", roughness: 0.55, metalness: 0.1,
       emissive: roomColor(r.id), emissiveMap: radial, emissiveIntensity: 0.03,
     });
     const floor = new THREE.Mesh(geo, mat);
@@ -114,7 +114,7 @@ export function buildScene(palace: Palace, mount: HTMLElement, hud: HTMLElement,
       new THREE.Quaternion(),
       new THREE.Vector3(b.max[0] - b.min[0] + grow * 2, b.max[1] - b.min[1], b.max[2] - b.min[2] + grow * 2),
     );
-  const wallMat = new THREE.MeshStandardMaterial({ color: "#2a2e3a", roughness: 0.82, metalness: 0.05 });
+  const wallMat = new THREE.MeshStandardMaterial({ color: "#3a4052", emissive: "#0c0e15", roughness: 0.82, metalness: 0.05 });
   const walls = new THREE.InstancedMesh(unitBox, wallMat, layout.walls.length);
   walls.name = "walls";
   layout.walls.forEach((b, i) => walls.setMatrixAt(i, boxMatrix(b)));
