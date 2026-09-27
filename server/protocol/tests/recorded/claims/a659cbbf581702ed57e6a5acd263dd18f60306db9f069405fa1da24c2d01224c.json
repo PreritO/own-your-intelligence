@@ -1,0 +1,23 @@
+{
+ "kind": "claims",
+ "text": "Payment is Net-45.",
+ "sources": {
+  "people/org-chart": {
+   "verdict": "gap",
+   "contentHash": "38eaef25ec45c340"
+  }
+ },
+ "model": "claude-sonnet-5",
+ "prompt": "v3",
+ "response": {
+  "claims": [
+   {
+    "text": "Payment is Net-45.",
+    "status": "unsupported",
+    "memoryId": "",
+    "quote": "",
+    "reason": "no verified page states payment terms"
+   }
+  ]
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "kind": "claims",
+ "text": "The Gripworks MSA has Net-45 payment terms and caps liability at 2x fees.",
+ "sources": {
+  "legal/gripworks-msa": {
+   "verdict": "verified",
+   "contentHash": "9f67c5cd48f7c284"
+  }
+ },
+ "model": "claude-sonnet-5",
+ "prompt": "v3",
+ "response": {
+  "claims": [
+   {
+    "text": "The Gripworks MSA has Net-45 payment terms",
+    "status": "supported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "Net-45 payment",
+    "reason": ""
+   },
+   {
+    "text": "caps liability at 2x fees",
+    "status": "unsupported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "",
+    "reason": "page says liability cap is 1x fees, not 2x"
+   }
+  ]
+ }
+}

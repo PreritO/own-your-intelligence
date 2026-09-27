@@ -1,0 +1,41 @@
+{
+ "kind": "claims",
+ "text": "The SOC 2 Type II renewal window opens Nov 1 with Brightline as auditor. Gap: no SOC 2 owner is recorded.",
+ "sources": {
+  "eng/soc2-owner": {
+   "verdict": "gap",
+   "contentHash": "2c6527c1d0198f9a"
+  },
+  "eng/soc2-renewal": {
+   "verdict": "verified",
+   "contentHash": "a710b022ae4e4129"
+  }
+ },
+ "model": "claude-sonnet-5",
+ "prompt": "v3",
+ "response": {
+  "claims": [
+   {
+    "text": "The SOC 2 Type II renewal window opens Nov 1",
+    "status": "supported",
+    "memoryId": "eng/soc2-renewal",
+    "quote": "SOC 2 Type II renewal window opens Nov 1.",
+    "reason": ""
+   },
+   {
+    "text": "Brightline is the auditor",
+    "status": "supported",
+    "memoryId": "eng/soc2-renewal",
+    "quote": "Auditor: Brightline.",
+    "reason": ""
+   },
+   {
+    "text": "Gap: no SOC 2 owner is recorded",
+    "status": "gap",
+    "memoryId": "eng/soc2-owner",
+    "quote": "no owner recorded",
+    "reason": ""
+   }
+  ]
+ }
+}

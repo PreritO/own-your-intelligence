@@ -1,0 +1,14 @@
+{
+ "kind": "relevance",
+ "memoryId": "legal/gripworks-msa",
+ "contentHash": "9f67c5cd48f7c284",
+ "question": "What are the payment terms in the Gripworks MSA?",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "v3",
+ "response": {
+  "evidence": "Payment | Net-45",
+  "support": "answers",
+  "missing": "",
+  "contradiction": ""
+ }
+}
