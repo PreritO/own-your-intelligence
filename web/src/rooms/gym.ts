@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { PalaceEvent } from "../../../server/schema";
 import type { PalaceRuntime } from "../api";
-import { buildShell, fetchTextOptional, framePose, makeBoard, mountOnFarWall, roundRect, teamColor, textSprite, type Placement } from "./layout";
+import { buildShell, signAbove, fetchTextOptional, framePose, makeBoard, mountOnFarWall, roundRect, teamColor, textSprite, type Placement } from "./layout";
 
 type TrainStep = Extract<PalaceEvent, { type: "train_step" }>;
 interface TeamStats { team: string; points: { step: number; reward: number }[]; checkpoints: string[]; best: number; last?: TrainStep; run?: string }
@@ -20,6 +20,7 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
   const board = makeBoard(9, 5, 2048);
   mountOnFarWall(pl, board.mesh, 3.4, 0.36);
   g.add(board.mesh);
+  signAbove(g, board.mesh, 5);
 
   // ---------- weight rack: one post per team, a plate per saved checkpoint ----------
   const racks = new Map<string, THREE.Group>();
@@ -31,9 +32,10 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
     const base = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.12, 1.1), new THREE.MeshStandardMaterial({ color: "#20242f" }));
     const label = textSprite(team[0].toUpperCase() + team.slice(1), color, 40);
     label.position.y = 3.1;
+    label.scale.multiplyScalar(0.6);
     rack.add(post, base, label);
-    // Rack line runs along the room's inner-x side.
-    rack.position.set(-sx * (pl.size[0] / 2 - 1.2), 0, -sz * 3 + i * sz * 3);
+    // Weight rack runs along the far-x wall, beside the scoreboard.
+    rack.position.set(sx * (pl.size[0] / 2 - 1.1), 0, sz * (-5.2 + i * 2.1));
     g.add(rack);
     racks.set(team, rack);
   });
@@ -134,7 +136,7 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
       const run = [...stats.values()].find((s) => s.run)?.run;
       ctx.font = "400 32px ui-sans-serif, system-ui, sans-serif";
       ctx.fillStyle = "#9aa0b4";
-      ctx.fillText(any ? `River RL · reward/mean per step${run ? ` · run ${run}` : ""}` : "waiting for train_step events from server/train…", 56, 116);
+      ctx.fillText(any ? `${run?.includes("dryrun") ? "dry-run (local sim, same env + reward)" : "River RL"} · reward/mean per step${run ? ` · ${run}` : ""}` : "waiting for train_step events from server/train…", 56, 116);
 
       const rowH = (H - 200) / TEAMS.length;
       TEAMS.forEach((team, i) => {
@@ -216,7 +218,12 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
 
   return {
     group: g,
-    pose: () => framePose(pl, board.mesh, 10, 1.2),
+    pose: () => {
+      // Higher and further back than the other boards so the lanes and racks are in frame.
+      const { eye, target } = framePose(pl, board.mesh, 15, 5.5);
+      target.lerp(pl.center.clone().setY(1), 0.45);
+      return { eye, target };
+    },
     dispose() { offFrame(); offEvents(); timers.forEach(clearTimeout); rt.scene.remove(g); },
   };
 }

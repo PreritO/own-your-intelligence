@@ -2,7 +2,7 @@
 // lands on a board as a glowing card, grouped by the memory's owning team, live from rt.events.
 import type { PalaceEvent } from "../../../server/schema";
 import type { PalaceRuntime } from "../api";
-import { buildShell, framePose, makeBoard, memoryOwner, mountOnFarWall, roundRect, teamColor, wrapText, type Placement } from "./layout";
+import { buildShell, signAbove,framePose, makeBoard, memoryOwner, mountOnFarWall, roundRect, teamColor, wrapText, type Placement } from "./layout";
 
 export interface LooseEnd {
   memoryId: string;
@@ -27,6 +27,7 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
   const board = makeBoard(10, 5.6, 2048);
   mountOnFarWall(pl, board.mesh, 3.2);
   g.add(board.mesh);
+  signAbove(g, board.mesh, 5.6);
 
   const cards = new Map<string, LooseEnd>();
   const listeners = new Set<(n: number) => void>();

@@ -65,6 +65,7 @@ export function buildShell(rt: PalaceRuntime, pl: Placement, label: string, colo
   const sign = textSprite(label, color, 64);
   sign.position.set(0, 7.5, 0);
   sign.scale.multiplyScalar(1.4);
+  sign.name = "room-sign";
   g.add(sign);
   rt.scene.add(g);
   return g;
@@ -117,6 +118,12 @@ export function mountOnFarWall(pl: Placement, obj: THREE.Object3D, y: number, de
   obj.position.set(sx * pl.size[0] * depth, y, sz * pl.size[1] * depth);
   const wx = pl.center.x + obj.position.x, wz = pl.center.z + obj.position.z;
   obj.rotation.set(0, Math.atan2(-wx, -wz), 0);
+}
+
+/** Hang the room's sign just above a board mounted with mountOnFarWall. */
+export function signAbove(g: THREE.Group, board: THREE.Object3D, height: number) {
+  const sign = g.getObjectByName("room-sign");
+  if (sign) sign.position.set(board.position.x, board.position.y + height / 2 + 1.1, board.position.z);
 }
 
 /** Camera pose that frames an object mounted with mountOnFarWall, from the foyer side. */

@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import type { PalaceEvent } from "../../../server/schema";
 import type { PalaceRuntime } from "../api";
-import { buildShell, fetchJsonOptional, fetchTextOptional, framePose, makeBoard, memoryOwner, mountOnFarWall, roundRect, teamColor, wrapText, type Placement } from "./layout";
+import { buildShell, signAbove,fetchJsonOptional, fetchTextOptional, framePose, makeBoard, memoryOwner, mountOnFarWall, roundRect, teamColor, wrapText, type Placement } from "./layout";
 
 /** fixtures/learned-routes.json (seed / qm-fork routes.ts), same shape as Memorable workflows. */
 export interface LearnedRoute { routeId: string; task: string; stations: string[]; uses: number }
@@ -17,6 +17,7 @@ export function mountWorkshop(rt: PalaceRuntime, pl: Placement) {
   const board = makeBoard(10, 5.6, 2048);
   mountOnFarWall(pl, board.mesh, 3.2);
   g.add(board.mesh);
+  signAbove(g, board.mesh, 5.6);
 
   let routes: LearnedRoute[] = [];
   let routesSource: "learned" | "fallback" = "fallback";
