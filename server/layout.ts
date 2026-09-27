@@ -52,6 +52,12 @@ const cmpStr = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 const byId = (a: { id: string }, b: { id: string }) => cmpStr(a.id, b.id);
 export const roomId = (wing: string, i: number) => `room-${wing}-${i}`;
 
+export const COMMONS: readonly { id: string; label: string; center: Vec3; from: string; fromDoor: Vec3; door: Vec3 }[] = [
+  { id: "room-gym", label: "The Gym", center: [24, 0, 24], from: "room-finance-0", fromDoor: [6, 0, 20], door: [17, 0, 20] },
+  { id: "room-workshop", label: "The Workshop", center: [24, 0, -24], from: "room-legal-0", fromDoor: [20, 0, -6], door: [20, 0, -17] },
+  { id: "room-loose-ends", label: "Loose Ends", center: [-24, 0, -24], from: "room-eng-0", fromDoor: [-20, 0, -6], door: [-20, 0, -17] },
+];
+
 export function layout(pagesIn: LayoutPage[], opts: LayoutOptions = {}): LayoutResult {
   const warnings: string[] = [];
   const pins = opts.pins ?? new Map<string, string>();
@@ -140,6 +146,18 @@ export function layout(pagesIn: LayoutPage[], opts: LayoutOptions = {}): LayoutR
     wings.push({
       id: w.id, label: w.label, color: w.color, owner: w.owner,
       origin: rooms.find((x) => x.id === ids[0])!.center, rooms: ids,
+    });
+  }
+
+  // Commons: special rooms in the diagonal corners, each joined to a first wing room
+  // by a straight corridor so agents can walk there (Gym, Workshop, Loose Ends).
+  for (const c of COMMONS) {
+    const from = rooms.find((x) => x.id === c.from);
+    if (!from) continue;
+    from.doors.push({ to: c.id, pos: c.fromDoor });
+    rooms.push({
+      id: c.id, wing: "commons", owner: "shared", label: c.label,
+      center: c.center, size: [14, 4, 14], doors: [{ to: c.from, pos: c.door }],
     });
   }
 

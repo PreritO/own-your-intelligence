@@ -27,7 +27,8 @@ Ports: web 5173 · ask 8787 · bridge `/events` 8788 · protocol service 8790 (`
 - `server/schema.ts` is the single source of truth for `palace.json`, `trace.json` and the `/events` line format.
 - `memory.id` = GBrain page slug. Nothing else is a key.
 - Positions in meters, y-up; rooms are axis-aligned boxes; doors are gaps in walls, corridors join door pairs.
-- Event types: `task route move claim wait visit handoff reply answer train_step`.
+- Event types: `task route move claim wait visit handoff reply answer train_step spawn phase artifact`.
+- **Commissioned quests (main demo flow, 14:45):** the user types a task → a new agent `spawn`s → `phase` plan/explore (tours departments, handoffs to team agents) → gym (`train_step`) → execute (learned route) → `artifact` (new page) → done (`answer`). Commons rooms `room-gym`, `room-workshop`, `room-loose-ends` are real rooms in palace.json.
 - `web/src/api.ts` (`PalaceRuntime`, `Plugin`, `UI_EVENTS`) is the seam between web workspaces.
   Scene builds the runtime; ui/walk/presence/rooms are plugins registered in `web/src/plugins.ts`.
 - Never change a schema or `api.ts`. Propose changes in `NOTES-<workspace>.md` and ping the integrator.
@@ -36,13 +37,14 @@ Ports: web 5173 · ask 8787 · bridge `/events` 8788 · protocol service 8790 (`
 | Workspace | Owns (only edits these) |
 | --- | --- |
 | `seed` | `fixtures/` (+ `scripts/make-fixtures.ts`) |
-| `export` | `server/export.ts`, `server/layout.ts`, `server/ask.ts` |
-| `scene` | `web/src/scene/`, `web/src/controls.ts`, `web/src/main.ts`, `web/index.html` |
-| `ufo-ext` | `server/protocol/`, `ufo_ext_mindpalace/` |
-| `qm-fork` | `qm/`, `server/bridge.ts`, `server/routes.ts` |
-| `presence` | `web/src/agents/`, `web/src/walk.ts`, `web/src/ui/`, `web/src/nav.ts` |
+| `export` (done) | `server/ask.ts` |
+| `ufo-ext` (done) | `ufo_ext_mindpalace/` |
+| `commission` (was qm-fork, ufo-ext) | `qm/`, `server/bridge.ts`, `server/routes.ts`, `server/protocol/`, `server/commission/` |
+| `ui` (was presence/polish) | `web/src/main.ts`, `web/src/controls.ts`, `web/src/agents/` (not avatar.ts), `web/src/walk.ts`, `web/src/ui/`, `web/src/nav.ts`, `web/index.html` |
+| `humans` | `web/src/agents/avatar.ts`, `web/src/agents/human/` |
+| `voxel` | `web/src/scene/` |
 | `training` | `server/train/`, `web/src/rooms/` |
-| integrator | `CLAUDE.md`, `docs/`, `server/schema.ts`, `server/validate.ts`, `web/src/api.ts`, `web/src/events.ts`, `web/src/plugins.ts`, `package.json`, `.claude/` |
+| integrator | `server/layout.ts`, `server/export.ts`, `CLAUDE.md`, `docs/`, `server/schema.ts`, `server/validate.ts`, `web/src/api.ts`, `web/src/events.ts`, `web/src/plugins.ts`, `package.json`, `.claude/` |
 
 Everyone may create `NOTES-<workspace>.md` and `.claude/skills/<workspace>-lessons/SKILL.md`.
 Need a dependency? Add it in your notes file; the integrator adds it to `package.json`.
