@@ -235,13 +235,13 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
     ctx.fill();
     // badge + title on one row
     const badge = resolved ? "RESOLVED" : c.resolvedAt ? "CLOSED" : c.verdict.toUpperCase();
-    ctx.font = `900 40px ui-sans-serif, system-ui, sans-serif`;
+    ctx.font = `900 ${badge.length > 6 ? 30 : 40}px ui-sans-serif, system-ui, sans-serif`;
     const bw = ctx.measureText(badge).width + 36;
     ctx.fillStyle = vc;
     roundRect(ctx, x + 40, y + 22, bw, 58, 12);
     ctx.fill();
     ctx.fillStyle = "#11131a";
-    ctx.fillText(badge, x + 58, y + 32);
+    ctx.fillText(badge, x + 58, y + (badge.length > 6 ? 37 : 32));
     ctx.fillStyle = "#f2f3f7";
     ctx.font = "800 44px ui-sans-serif, system-ui, sans-serif";
     ctx.fillText(wrapText(ctx, c.title, w - bw - 100, 1)[0] ?? "", x + 60 + bw, y + 30);
@@ -559,6 +559,16 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
     cards,
     /** QA / other plugins: open the answer form for a card (same path as clicking it). */
     open(memoryId: string) { const c = cards.get(memoryId); if (c) open(c); return !!c; },
+    /** QA: a card's centre in client pixels (so a headless test can click the real card). */
+    cardScreen(memoryId: string) {
+      const h = hits.find((b) => b.id === memoryId);
+      if (!h) return null;
+      const u = (h.x + h.w / 2) / board.canvas.width, v = (h.y + h.h / 2) / board.canvas.height;
+      board.mesh.updateWorldMatrix(true, false);
+      const p = board.mesh.localToWorld(new THREE.Vector3((u - 0.5) * 8, (0.5 - v) * 4.5, 0)).project(rt.camera);
+      const r = dom.getBoundingClientRect();
+      return { x: r.left + ((p.x + 1) / 2) * r.width, y: r.top + ((1 - p.y) / 2) * r.height };
+    },
     get server() { return server; },
     onCount(cb: (n: number) => void) { listeners.add(cb); cb([...cards.values()].filter((c) => c.status === "open" && !c.resolvedAt).length); },
     pose: () => framePose(pl, board.mesh, 9.5),
