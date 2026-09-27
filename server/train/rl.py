@@ -107,8 +107,10 @@ def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float
     # River docs (rl-checkpoints): after a transient failure, recreate the session and trainer with the
     # same checkpoint directory and it resumes. Retry a few times on RiverError.
     for attempt in range(1, 5):
+        # River refuses init_checkpoint together with automatic resume: only init a fresh run dir.
+        resuming = (OUT.parent / "runs" / run / "trainer.json").exists()
         try:
-            _real_once(river, rl, client, base, renderer, PalaceEnv, rows, run, init, team, steps, groups_per_step, group_size, lr, use_protocol, log, on_step)
+            _real_once(river, rl, client, base, renderer, PalaceEnv, rows, run, None if resuming else init, team, steps, groups_per_step, group_size, lr, use_protocol, log, on_step)
             return
         except river.RiverError as e:  # type: ignore[attr-defined]
             print(json.dumps({"attempt": attempt, "river_error": str(e)[:300], "action": "resume from checkpoint dir"}), flush=True)
@@ -151,6 +153,83 @@ def _real_once(river, rl, client, base, renderer, PalaceEnv, rows, run, init, te
         print(json.dumps({"checkpoint": ck.path}))
 
 
+def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: float, from_base: bool) -> None:
+    """GRPO with River primitives (docs.river.ai/guides/rl-primitives), no AsyncTrainer.
+
+    The policy writes the SFT plan JSON (route, handoffs, citations, gaps, answer). The plan is executed
+    through PalaceWorld's tools and scored with the Gym reward (score_plan). Group-centred advantages
+    are broadcast over each response's tokens; CISPO forward_backward; one optim_step per batch.
+    """
+    import river_client as river  # type: ignore
+
+    from .palace_env import parse_plan, score_plan
+    from .sft import load_tok
+
+    rows = [r for r in rows_for(team, "train") if len(r["stations"]) > 1 or r["expected"]["gaps"] or r["expected"]["handoffs"]]
+    held = rows_for(team, "heldout")
+    client = river_client()
+    base = pick_base_model(client)
+    sft = load_checkpoints().get(f"sft-{team}", {})
+    init = None if from_base else sft.get("training_path")
+    run = f"rl-{team}-simple" + ("-base" if not init else "")
+    log = StepLogger(run)
+    tok = load_tok(base)
+    rng = random.Random(0)
+
+    def prompt_ids(row: dict) -> list[int]:
+        try:
+            text = tok.apply_chat_template(row["messages"][:2], tokenize=False, add_generation_prompt=True, enable_thinking=False)
+        except TypeError:
+            text = tok.apply_chat_template(row["messages"][:2], tokenize=False, add_generation_prompt=True)
+        return tok(text, add_special_tokens=False)["input_ids"]
+
+    print(f"RL(simple) {team} on {base} from {init or 'base weights'}; {len(rows)} tasks, {groups_per_step}x{group_size}/step", flush=True)
+    with client.session(project=f"mind-palace-{run}") as session:
+        model = session.create_model(base_model=base, lora=river.LoraConfig(rank=16))
+        if init:
+            model.load_weights(init, load_optimizer=False)
+        print(json.dumps({"run": run, "model_id": model.model_id}), flush=True)
+        for step in range(1, steps + 1):
+            t0 = time.time()
+            batch_rows = rng.sample(rows, groups_per_step)
+            pids = [prompt_ids(r) for r in batch_rows]
+            groups = model.sample(prompt_token_ids=pids, num_samples=group_size, max_tokens=512, temperature=1.0, top_p=1.0, top_k=-1, seed=step)
+            batch, rewards, tokens, zero_var = [], [], 0, 0
+            for row, pid, group in zip(batch_rows, pids, groups):
+                rs = [score_plan(row, parse_plan(s.text))["reward"] for s in group]
+                rewards += rs
+                mean = sum(rs) / len(rs)
+                if max(rs) == min(rs):
+                    zero_var += 1
+                    continue
+                for s, r in zip(group, rs):
+                    if not s.tokens or len(s.tokens) != len(s.logprobs):
+                        continue
+                    a = r - mean
+                    ids = pid + list(s.tokens)
+                    batch.append({
+                        "input_ids": ids,
+                        "attention_mask": [1] * len(ids),
+                        "old_logprobs": [0.0] * (len(pid) - 1) + list(s.logprobs) + [0.0],
+                        "advantages": [0.0] * (len(pid) - 1) + [a] * len(s.tokens) + [0.0],
+                    })
+                    tokens += len(s.tokens)
+            updated = False
+            if batch:
+                for start in range(0, len(batch), 8):
+                    model.forward_backward(batch[start : start + 8], loss_fn="cispo", eps_max=6.0, zero_out=(start == 0))
+                model.optim_step(lr=lr, beta1=0.9, beta2=0.95, eps=1e-8, weight_decay=0.0, grad_clip_norm=1.0, gradient_scale=1.0 / max(tokens, 1))
+                updated = True
+            mean_r = sum(rewards) / max(len(rewards), 1)
+            ckpt = None
+            if step % 5 == 0 or step == steps:
+                ckpt = model.save_weights(f"{run}-step{step:03d}", mode="inference").path
+                save_checkpoint(run, {"team": team, "kind": "rl", "base_model": base, "inference_path": ckpt, "step": step})
+            print(json.dumps({"batch": step, "model_step": model.step, "reward/mean": round(mean_r, 4), "reward/zero_variance_group_frac": round(zero_var / groups_per_step, 3), "train/updated": updated, "train/tokens": tokens, "secs": round(time.time() - t0, 1), **({"checkpoint": ckpt} if ckpt else {})}), flush=True)
+            log.log(team, step, mean_r, ckpt)
+    print(f"held-out check: python -m server.train.eval --team {team} --limit 10 --skip-base", flush=True)
+
+
 def _last_reward(path) -> float:
     lines = [l for l in path.read_text().splitlines() if l.strip()]
     return json.loads(lines[-1])["reward"] if lines else 0.0
@@ -169,11 +248,14 @@ def main() -> None:
     ap.add_argument("--protocol", action="store_true", help="real mode: route tool calls through the protocol service (:8790)")
     ap.add_argument("--from-base", action="store_true", help="real mode: ignore the SFT checkpoint and start from base weights")
     ap.add_argument("--thinking", action="store_true", help="real mode: enable the model's thinking mode in rollouts")
+    ap.add_argument("--simple", action="store_true", help="real mode: single-turn plan GRPO on River primitives (no AsyncTrainer)")
     a = ap.parse_args()
     if a.dry_run or not river_key():
         if not a.dry_run:
             print("RIVER_API_KEY not set: running --dry-run.")
         dry_run(a.team, a.steps or 30, a.groups_per_step, a.group_size, a.lr or 0.6, a.pace, a.seed)
+    elif a.simple:
+        simple(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 2e-5, a.from_base)
     else:
         real(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 1e-5, a.protocol, a.from_base, a.thinking)
 
