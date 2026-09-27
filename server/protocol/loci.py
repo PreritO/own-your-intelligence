@@ -152,6 +152,26 @@ def judge(page: dict) -> tuple[str, str | None]:
     return "verified", None
 
 
+_STOP = set("a an and are as at be by can could did do does for from has have how i in is it its of on or our should the this to was we what when where which who will with would you your new page".split())
+
+
+def _toks(text: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z0-9]+", text.lower()) if len(w) > 2 and w not in _STOP}
+
+
+def best_snippet(body: str, question: str, limit: int = 180) -> str:
+    """The sentence of a page that best answers `question` (token overlap; ties -> earliest).
+    Used as a visit's `evidence` when the harness doesn't say which snippet it used."""
+    text = "\n".join(l for l in body.splitlines() if not l.lstrip().startswith(("#", "---", "|--")))
+    parts = [p.strip(" -*|\t") for p in re.split(r"(?<=[.!?])\s+|\n+", text)]
+    parts = [p for p in parts if len(p) > 12]
+    if not parts:
+        return ""
+    q = _toks(question)
+    best = max(enumerate(parts), key=lambda ip: (len(q & _toks(ip[1])), -ip[0]))[1]
+    return best if len(best) <= limit else best[: limit - 1].rstrip() + "…"
+
+
 # ---------------------------------------------------------------- run state
 
 
@@ -207,6 +227,9 @@ class Protocol:
         self.current: str | None = None
         self.loose_ends: dict[str, dict] = {}  # memoryId -> loose end
         self.listeners: list[Callable[[dict], None]] = []
+        # Commissioned (quest) agents: spawned at runtime, not in palace.json. They have no team, so
+        # they may only enter `shared` rooms and must hand off everywhere else.
+        self.spawned: dict[str, dict] = {}
         self.load_palace()
 
     # ---- palace
@@ -217,6 +240,7 @@ class Protocol:
         self.rooms = {r["id"]: r for r in palace["rooms"]}
         self.memories = {m["id"]: m for m in palace["memories"]}
         self.agents = {a["id"]: a for a in palace.get("agents", [])}
+        self.agents.update(getattr(self, "spawned", {}))
         self.routes = {r["id"]: r for r in palace.get("routes", [])}
 
     def owner_of(self, memory_id: str) -> str:
@@ -224,13 +248,13 @@ class Protocol:
 
     def agent_for_team(self, team: str) -> str | None:
         for a in self.agents.values():
-            if a["team"] == team:
+            if a.get("team") == team:
                 return a["id"]
         return None
 
     def can_enter(self, agent: str, memory_id: str) -> bool:
         owner = self.owner_of(memory_id)
-        return owner == "shared" or self.agents[agent]["team"] == owner
+        return owner == "shared" or self.agents[agent].get("team") == owner
 
     # ---- runs + events
 
@@ -359,7 +383,7 @@ class Protocol:
             ev = self.emit(run, {"agent": agent, "type": "claim", "memoryId": memory_id})
             return {"ok": True, "event": ev, "leaseSeconds": ttl or self.lease_seconds}
 
-    def visit(self, agent: str, memory_id: str, run_id: str | None = None, question: str | None = None) -> dict:
+    def visit(self, agent: str, memory_id: str, run_id: str | None = None, question: str | None = None, subtask: str | None = None, evidence: str | None = None) -> dict:
         with self.lock:
             self._agent(agent)
             memory = self._memory(memory_id)
@@ -390,6 +414,14 @@ class Protocol:
             ev = {"agent": agent, "type": "visit", "memoryId": memory_id, "verdict": verdict}
             if note:
                 ev["note"] = note
+            # The snippet the agent used: the caller's, else the page sentence that best answers the
+            # question. A gap has nothing to use, so it carries no evidence.
+            if verdict != "gap":
+                ev_text = (evidence or "").strip() or best_snippet(page["body"], question or memory.get("title", ""))
+                if ev_text:
+                    ev["evidence"] = ev_text
+            if subtask:
+                ev["subtask"] = subtask
             ev = self.emit(run, ev)
             if verdict == "gap":
                 self._open_loose_end(run, agent, memory_id, note, question)
@@ -403,6 +435,7 @@ class Protocol:
                 "source": page["source"],
                 "content": page["body"],
                 "title": memory.get("title"),
+                "evidence": ev.get("evidence"),
                 "event": ev,
             }
 
@@ -415,7 +448,7 @@ class Protocol:
             to_agent = to_agent or self.agent_for_team(owner)
             if to_agent is None or to_agent not in self.agents:
                 raise ProtocolError(400, f"no agent owns {owner}")
-            if owner != "shared" and self.agents[to_agent]["team"] != owner:
+            if owner != "shared" and self.agents[to_agent].get("team") != owner:
                 raise ProtocolError(403, f"{to_agent} does not own {memory_id} (owner {owner}); hand off to {self.agent_for_team(owner)}")
             if to_agent == agent:
                 raise ProtocolError(400, "cannot hand off to yourself; visit the station")
@@ -515,6 +548,87 @@ class Protocol:
                 notes = [f"gap: {title(m)} ({m})" for m in a["gaps"] if m in missing] + [f"stale: {title(m)} ({m})" for m in a["stale"] if m in missing]
                 return {"verdict": "annotate", "text": out + "\n\n_" + "; ".join(notes) + "_", "run": run.id, "citations": a["event"]["citations"]}
             return {"verdict": "ok", "text": out, "run": run.id, "citations": a["event"]["citations"]}
+
+    # ---- commissioned quests (spawn / move / phase / artifact / train_step)
+
+    def spawn(self, agent: str, label: str, color: str, home: str = "foyer", task: str | None = None, harness: str | None = None, run_id: str | None = None) -> dict:
+        """Register a commissioned agent (not in palace.json). It has no team: shared rooms only."""
+        with self.lock:
+            if agent in self.palace_agent_ids():
+                raise ProtocolError(400, f"{agent} is a palace team agent; spawn a new id")
+            if home not in self.rooms:
+                raise ProtocolError(400, f"unknown home room {home!r}")
+            a = {"id": agent, "label": label, "team": None, "color": color, "home": home}
+            self.spawned[agent] = a
+            self.agents[agent] = a
+            run = self.run(run_id)
+            run.location[agent] = home
+            ev: dict[str, Any] = {"agent": agent, "type": "spawn", "label": label, "color": color, "home": home}
+            if task:
+                ev["task"] = task
+            if harness in ("qm", "ufo", "protocol"):
+                ev["harness"] = harness
+            return {"ok": True, "event": self.emit(run, ev)}
+
+    def palace_agent_ids(self) -> set[str]:
+        return {a["id"] for a in self.palace.get("agents", [])}
+
+    def move(self, agent: str, to: str, run_id: str | None = None) -> dict:
+        """Walk to a room. Moving is free (doors are open); claiming/visiting inside is what ownership guards."""
+        with self.lock:
+            self._agent(agent)
+            if to not in self.rooms:
+                raise ProtocolError(404, f"unknown room {to!r}")
+            run = self.run(run_id)
+            if run.location.get(agent) == to:
+                return {"ok": True, "moved": False}
+            run.location[agent] = to
+            return {"ok": True, "moved": True, "event": self.emit(run, {"agent": agent, "type": "move", "to": to})}
+
+    def phase(self, agent: str, phase: str, note: str | None = None, subtasks: list[dict] | None = None, run_id: str | None = None) -> dict:
+        with self.lock:
+            self._agent(agent)
+            if phase not in ("plan", "explore", "gym", "execute", "done"):
+                raise ProtocolError(400, "phase must be plan | explore | gym | execute | done")
+            run = self.run(run_id)
+            ev: dict[str, Any] = {"agent": agent, "type": "phase", "phase": phase}
+            if note:
+                ev["note"] = note
+            if subtasks:
+                clean = []
+                for st in subtasks:
+                    item: dict[str, Any] = {"id": str(st["id"]), "title": str(st["title"])}
+                    if st.get("department"):
+                        item["department"] = str(st["department"])
+                    if st.get("stations"):
+                        item["stations"] = [s for s in st["stations"] if s in self.memories]
+                    clean.append(item)
+                ev["subtasks"] = clean
+            return {"ok": True, "event": self.emit(run, ev)}
+
+    def artifact(self, agent: str, memory: dict, run_id: str | None = None) -> dict:
+        with self.lock:
+            self._agent(agent)
+            need = ("id", "title", "type", "room", "pos", "freshness", "excerpt", "path")
+            missing = [k for k in need if k not in memory]
+            if missing:
+                raise ProtocolError(400, f"artifact memory missing {missing}")
+            if memory["room"] not in self.rooms:
+                raise ProtocolError(400, f"unknown room {memory['room']!r}")
+            run = self.run(run_id)
+            m = {k: memory[k] for k in need}
+            return {"ok": True, "event": self.emit(run, {"agent": agent, "type": "artifact", "memory": m})}
+
+    def train_step(self, agent: str, step: float, reward: float, checkpoint: str | None = None, team: str | None = None, run_id: str | None = None) -> dict:
+        with self.lock:
+            self._agent(agent)
+            run = self.run(run_id)
+            ev: dict[str, Any] = {"agent": agent, "type": "train_step", "step": step, "reward": reward}
+            if checkpoint:
+                ev["checkpoint"] = checkpoint
+            if team in ("finance", "legal", "eng", "people"):
+                ev["team"] = team
+            return {"ok": True, "event": self.emit(run, ev)}
 
     # ---- Loose Ends loop
 
