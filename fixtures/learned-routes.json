@@ -65,5 +65,22 @@
       "ops/quality-rma-log"
     ],
     "uses": 1
+  },
+  {
+    "routeId": "quest-answer-northwind-logistic-security-questionnaire",
+    "task": "Answer Northwind Logistics' security questionnaire",
+    "stations": [
+      "sales/security-questionnaire-northwind",
+      "sales/northwind-logistics",
+      "eng/security-policy",
+      "eng/incident-response",
+      "eng/soc2-2025-report",
+      "eng/soc2-evidence-tracker",
+      "legal/harbor-cloud-dpa",
+      "legal/privacy-policy",
+      "support/sla-policy",
+      "support/escalation-process"
+    ],
+    "uses": 1
   }
 ]

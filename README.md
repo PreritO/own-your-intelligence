@@ -6,7 +6,7 @@ Mind Palace turns a company's shared brain into a walkable, block-built building
 
 Built in one afternoon at the YC "Own Your Intelligence" hackathon (September 27, 2026).
 
-**▶ Demo video:** _Loom link coming_ · **Judges:** [`docs/SUBMISSION.md`](docs/SUBMISSION.md) has the per-sponsor evidence, and [`docs/DEMO-SCRIPT.md`](docs/DEMO-SCRIPT.md) the walkthrough.
+**▶ Demo video:** _Loom link coming_ · **Judges:** [`docs/SUBMISSION.md`](docs/SUBMISSION.md) has the per-sponsor evidence.
 
 ## Why it's useful
 
@@ -116,7 +116,6 @@ scripted ───┘           (ownership, claims, verdicts,
 ```
 docs/SPEC.md          original build spec
 docs/SUBMISSION.md    per-sponsor evidence and honest limits
-docs/DEMO-SCRIPT.md   timed walkthrough script
 docs/DEMO-PLAN.md     demo plan and build list
 docs/NOTES-*.md       each build agent's notes and lessons
 DEMO.md               stage runbook
