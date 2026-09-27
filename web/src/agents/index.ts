@@ -3,13 +3,16 @@
 // speed ends in the same state (markers are set by events; avatars always drain their walk queue).
 import * as THREE from "three";
 import { PORTS, type PalaceEvent } from "../../../server/schema";
-import type { Plugin, PalaceRuntime } from "../api";
+import { emitUI, UI_EVENTS, type Plugin } from "../api";
 import { pathBetween, roomAt, roomById } from "../nav";
 import { Avatar, AVATAR_Y } from "./avatar";
 import { Beams } from "./beams";
 import { director } from "./camera";
-import { names, PRESENCE_EVENTS, subscribeRuns } from "./run";
+import { names, playReplay, PRESENCE_EVENTS, registerSpawn, subscribeRuns } from "./run";
+import { additive } from "./fx";
 import { Stations } from "./stations";
+import { RouteView, type StationLook } from "./route";
+import { CAMERA_EVENTS } from "../controls";
 
 export const DEMO_TASKS = [
   { agent: "legal", text: "Can we sign the Gripworks contract this week?" },
@@ -17,7 +20,7 @@ export const DEMO_TASKS = [
   { agent: "eng", text: "Who owns the SOC 2 renewal?" },
 ];
 
-type CamMode = "free" | "overhead" | string; // string = agent id to follow
+type CamMode = "overview" | string; // string = agent id to follow
 
 export const mountPresence: Plugin = (rt) => {
   const N = names(rt.palace);
@@ -26,6 +29,8 @@ export const mountPresence: Plugin = (rt) => {
   const avatars = new Map<string, Avatar>();
   const routes = new Map<string, string[]>();
   const agentIds = rt.palace.agents.map((a) => a.id);
+  const spawned: string[] = []; // commissioned agents this run, first in the party order
+  const party = () => [...spawned, ...agentIds];
 
   const slot = (agentId: string) => {
     const i = agentIds.indexOf(agentId);
@@ -37,9 +42,20 @@ export const mountPresence: Plugin = (rt) => {
   };
 
   function homePos(agentId: string) {
-    const room = roomById(rt.palace, N.agents.get(agentId)?.home ?? "") ?? roomById(rt.palace, "foyer") ?? rt.palace.rooms[0];
+    // Everyone starts in the foyer so dispatch reads as three agents fanning out to their wings.
+    const room = roomById(rt.palace, "foyer") ?? roomById(rt.palace, N.agents.get(agentId)?.home ?? "") ?? rt.palace.rooms[0];
     const c = room ? new THREE.Vector3(room.center[0], AVATAR_Y, room.center[2]) : new THREE.Vector3(0, AVATAR_Y, 0);
-    return c.add(slotOffset(agentId));
+    return c.add(slotOffset(agentId, 2.6)); // spread out so the idle name tags don't overlap
+  }
+
+  // spawn flourish: an expanding ring + column of light in the agent's colour
+  const bursts: { mesh: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>; t: number }[] = [];
+  function burst(at: THREE.Vector3, color: string) {
+    const mesh = new THREE.Mesh(new THREE.RingGeometry(0.6, 0.95, 48), additive(color, 0.9));
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.copy(at).setY(0.08);
+    rt.scene.add(mesh);
+    bursts.push({ mesh, t: 0 });
   }
 
   function avatar(agentId: string): Avatar {
@@ -73,6 +89,15 @@ export const mountPresence: Plugin = (rt) => {
     a.walk(pathBetween(rt.palace, a.end(), target, { y: AVATAR_Y }));
   }
 
+  function standAt(agentId: string, memId: string) {
+    const p = stationPoint(memId, agentId);
+    if (!p) return null;
+    const room = roomById(rt.palace, p.room);
+    const team = N.agents.get(agentId)?.team;
+    const foreign = !!room && !!team && room.owner !== "shared" && room.owner !== team;
+    return { ...p, foreign };
+  }
+
   function goRoom(agentId: string, roomId: string) {
     const a = avatar(agentId);
     const room = roomById(rt.palace, roomId);
@@ -92,15 +117,39 @@ export const mountPresence: Plugin = (rt) => {
     return i >= 0 ? `${i + 1}/${r!.length}  ${N.memory(memId)}` : N.memory(memId);
   }
 
+  const covered = new Set<string>(); // "agent|memoryId" stations answered for the asker by a handoff reply
+  const handoffOf = new Map<string, { agent: string; memoryId: string }>();
   function reset() {
     stations.reset();
     beams.reset();
     routes.clear();
+    covered.clear();
+    handoffOf.clear();
+    for (const id of spawned) {
+      avatars.get(id)?.dispose();
+      avatars.delete(id);
+    }
+    spawned.length = 0;
+    if (mode !== "overview" && !avatars.has(mode)) setMode("overview");
     for (const a of avatars.values()) a.teleport(homePos(a.id));
+    refreshFollow(true);
   }
 
   function handle(e: PalaceEvent) {
     if (e.type === "train_step") return;
+    if (e.type === "spawn") {
+      registerSpawn(N, e);
+      const room = roomById(rt.palace, e.home) ?? roomById(rt.palace, "foyer");
+      const at = room ? new THREE.Vector3(room.center[0], AVATAR_Y, room.center[2]) : new THREE.Vector3(0, AVATAR_Y, 0);
+      avatars.get(e.agent)?.dispose();
+      const av = new Avatar(rt.scene, e.agent, N.agent(e.agent), e.color, at);
+      avatars.set(e.agent, av);
+      if (!spawned.includes(e.agent)) spawned.unshift(e.agent);
+      av.ping();
+      burst(at, e.color);
+      setMode(e.agent); // auto-follow the new agent
+      return;
+    }
     const a = avatar(e.agent);
     switch (e.type) {
       case "task":
@@ -109,6 +158,7 @@ export const mountPresence: Plugin = (rt) => {
         break;
       case "route":
         routes.set(e.agent, e.stations);
+        if (mode === e.agent) refreshFollow(true);
         break;
       case "move":
         a.setWaiting(false);
@@ -139,9 +189,21 @@ export const mountPresence: Plugin = (rt) => {
       }
       case "handoff":
         beams.open(e.id, a, avatar(e.toAgent), e.question);
+        handoffOf.set(e.id, { agent: e.agent, memoryId: e.memoryId });
         break;
-      case "reply":
+      case "reply": {
         beams.reply(e.id, e.answer);
+        const h = handoffOf.get(e.id);
+        if (h) covered.add(`${h.agent}|${h.memoryId}`);
+        break;
+      }
+      case "phase":
+        if (e.phase === "done") a.ping();
+        break;
+      case "artifact":
+        N.mems.set(e.memory.id, e.memory);
+        rt.addMemory?.(e.memory);
+        a.ping();
         break;
       case "answer":
         a.setWaiting(false);
@@ -151,7 +213,10 @@ export const mountPresence: Plugin = (rt) => {
     }
   }
 
-  const unsub = subscribeRuns(rt, reset, handle);
+  const unsub = subscribeRuns(rt, reset, (e) => {
+    handle(e);
+    if (mode !== "overview") refreshFollow(false);
+  });
 
   // ---- per-frame
   const offFrame = rt.onFrame((dt) => {
@@ -159,42 +224,133 @@ export const mountPresence: Plugin = (rt) => {
     for (const a of avatars.values()) a.update(dt, s);
     stations.update(dt * Math.max(1, s));
     beams.update(dt * Math.max(1, s));
+    route.update(dt);
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const b = bursts[i];
+      b.t += dt;
+      const k = b.t / 1.4;
+      b.mesh.scale.setScalar(1 + k * 5);
+      b.mesh.material.opacity = 0.9 * (1 - k);
+      if (k >= 1) {
+        b.mesh.geometry.dispose();
+        b.mesh.material.dispose();
+        b.mesh.removeFromParent();
+        bursts.splice(i, 1);
+      }
+    }
   });
 
-  // ---- camera modes: free walk (default), follow agent (1-3), overhead (0 / O)
+  // ---- camera: overview (map controls, default) or follow one agent (1-3, click avatar/card)
   const cam = director(rt);
-  let mode: CamMode = "free";
-  let overhead = overheadPose(rt);
+  const route = new RouteView(rt.scene, rt.palace, (id) => rt.memoryPosition(id), (id) => N.memory(id));
+  let mode: CamMode = "overview";
+  const FOLLOW_DIR = new THREE.Vector3(-0.3, 1.05, 0.95).normalize(); // high third person, same side as overview
+
+  /** How a station on the followed route should look right now. */
+  function lookOf(agentId: string, memId: string, i: number, list: string[]): StationLook {
+    const st = stations.state(memId);
+    if (st === "gap") return "gap";
+    if (st === "stale") return "stale";
+    if (st === "verified" || covered.has(`${agentId}|${memId}`)) return "done";
+    const firstOpen = list.findIndex((m) => {
+      const x = stations.state(m);
+      return !(x === "verified" || x === "gap" || x === "stale" || covered.has(`${agentId}|${m}`));
+    });
+    return i === firstOpen ? "current" : "upcoming";
+  }
+
+  function routeRooms(list: string[]) {
+    const rooms = new Set<string>(["foyer"]);
+    for (const m of list) {
+      const r = N.mems.get(m)?.room;
+      if (r) rooms.add(r);
+    }
+    return [...rooms];
+  }
+
+  function refreshFollow(rebuild: boolean) {
+    if (mode === "overview") return;
+    const list = routes.get(mode) ?? [];
+    const av = avatars.get(mode);
+    if (!av) return;
+    if (rebuild) {
+      route.show(av.color, homePos(mode), list, (m) => standAt(mode, m));
+      stations.focus = new Set(); // the route markers carry the labels now; gap notes still show
+      rt.focusRooms?.(list.length ? routeRooms(list) : null);
+    }
+    route.setLooks((m, i) => lookOf(mode, m, i, list));
+  }
+
   function setMode(next: CamMode) {
-    if (next !== "free" && next !== "overhead" && !avatars.has(next)) return;
-    if (next === mode && next !== "free") next = "free"; // pressing the same key again toggles back
+    if (next !== "overview" && !avatars.has(next)) return;
+    if (next === mode && next !== "overview") next = "overview"; // same key again = back to overview
     mode = next;
-    if (mode === "overhead") overhead = overheadPose(rt);
-    if (mode === "free") cam.drop("presence");
-    else
+    route.clear();
+    if (mode === "overview") {
+      cam.drop("presence");
+      stations.focus = null;
+      rt.focusRooms?.(null);
+      rt.setPalaceDim(1);
+      rt.setLayerVisible?.("roomLabels", true);
+    } else {
+      rt.setPalaceDim(0.55);
+      rt.setLayerVisible?.("roomLabels", false);
+      refreshFollow(true);
       cam.hold("presence", 1, () => {
-        if (mode === "overhead") return overhead;
         const av = avatars.get(mode);
         if (!av) return null;
-        const p = av.group.position;
-        return { pos: p.clone().add(new THREE.Vector3(0, 7.5, 8.5)), look: p.clone(), rate: 8 };
+        const p = av.group.position.clone().setY(0);
+        return { pos: p.clone().addScaledVector(FOLLOW_DIR, 19), look: p, rate: 5 };
       });
-    const label = mode === "free" ? "Free walk" : mode === "overhead" ? "Overhead" : `Following ${N.agent(mode)}`;
+    }
+    const label = mode === "overview" ? "Overview" : `Following ${N.agent(mode)}`;
     window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.mode, { detail: { mode, label } }));
   }
+
+  // click an avatar to follow it (ignore drags: the overview pans on drag)
+  const ray = new THREE.Raycaster();
+  let down = { x: 0, y: 0 };
+  const onDown = (e: PointerEvent) => (down = { x: e.clientX, y: e.clientY });
+  const onClick = (e: MouseEvent) => {
+    if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+    ray.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), rt.camera);
+    let best: { id: string; d: number } | null = null;
+    for (const a of avatars.values()) {
+      // generous hit: distance from the click ray to the avatar centre
+      const d = ray.ray.distanceToPoint(a.group.position);
+      if (d < 1.2 && (!best || d < best.d)) best = { id: a.id, d };
+    }
+    if (best) return setMode(best.id);
+    // Memory picking for the overview: the scene's own picker has a short ray (built for first person),
+    // so from the map camera we pick the orb nearest the click ray ourselves. Rooms are roofless, so no
+    // occlusion test is needed; a duplicate select from the scene is harmless (same id).
+    let hit: { id: string; along: number } | null = null;
+    for (const m of N.mems.values()) {
+      const p = rt.memoryPosition(m.id);
+      if (!p) continue;
+      const along = ray.ray.origin.distanceTo(p);
+      const tol = Math.max(0.45, along * 0.011);
+      if (ray.ray.distanceToPoint(p) < tol && (!hit || along < hit.along)) hit = { id: m.id, along };
+    }
+    if (hit) emitUI(UI_EVENTS.select, { memoryId: hit.id });
+  };
+  rt.renderer.domElement.addEventListener("pointerdown", onDown);
+  rt.renderer.domElement.addEventListener("click", onClick);
 
   // ---- T: dispatch the three demo tasks
   let dispatching = false;
   async function dispatch() {
     if (dispatching) return;
     dispatching = true;
+    if (mode !== "overview") setMode("overview");
     const status = (text: string, tone = "info") =>
       window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.status, { detail: { text, tone } }));
     try {
       if (rt.events.mode === "demo") {
         reset();
-        await rt.events.restart();
-        status("Dispatched 3 tasks (replay)");
+        lastReplay = "demo-1";
+        await playReplay(rt, "demo-1");
+        status("Dispatched 3 department tasks");
         return;
       }
       try {
@@ -212,7 +368,7 @@ export const mountPresence: Plugin = (rt) => {
       } catch {
         status("Bridge offline, replaying demo-1 instead", "warn");
         reset();
-        await rt.events.restart("demo-1");
+        await playReplay(rt, "demo-1");
       }
     } finally {
       dispatching = false;
@@ -225,17 +381,81 @@ export const mountPresence: Plugin = (rt) => {
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
     const k = ev.key.toLowerCase();
     if (k === "t") dispatch();
-    else if (k >= "1" && k <= "9" && agentIds[Number(k) - 1]) setMode(agentIds[Number(k) - 1]);
-    else if (k === "0" || k === "o") setMode("overhead");
-    else if (k === "f" || (k === "escape" && mode !== "free")) setMode("free");
+    else if (k === "r") runAgain();
+    else if (k >= "1" && k <= "9" && party()[Number(k) - 1]) setMode(party()[Number(k) - 1]);
+    else if (k === "0" || k === "o" || k === "f" || k === "h" || k === "escape") {
+      if (mode === "overview") window.dispatchEvent(new CustomEvent(CAMERA_EVENTS.home));
+      else setMode("overview");
+    }
   };
-  const onCam = (ev: Event) => setMode((ev as CustomEvent).detail?.mode ?? "free");
+  const onCam = (ev: Event) => {
+    const m = (ev as CustomEvent).detail?.mode ?? "overview";
+    setMode(m === "free" || m === "overhead" ? "overview" : m);
+  };
   const onDispatch = () => dispatch();
+
+  // ---- commission a quest: live → bridge; ?demo or bridge down → the recorded quest replay
+  let commissioning = false;
+  async function commission(task: string) {
+    if (commissioning) return;
+    commissioning = true;
+    const status = (text: string, tone = "info") =>
+      window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.status, { detail: { text, tone } }));
+    try {
+      if (rt.events.mode === "live") {
+        try {
+          const ctl = new AbortController();
+          const timer = setTimeout(() => ctl.abort(), 4000);
+          const res = await fetch(`http://localhost:${PORTS.bridge}/commission`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ task }),
+            signal: ctl.signal,
+          });
+          clearTimeout(timer);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          status("Quest commissioned. A new agent is on its way.");
+          return;
+        } catch {
+          status("Bridge offline, playing the recorded quest", "warn");
+        }
+      }
+      reset();
+      lastReplay = "quest-onboarding";
+      if (await playReplay(rt, "quest-onboarding", 30)) {
+        if (rt.events.mode === "demo") status("Quest commissioned (recorded run)");
+      } else status("No recorded quest yet (fixtures/replays/quest-onboarding.jsonl). Try the department demo.", "warn");
+    } finally {
+      commissioning = false;
+    }
+  }
+  const onCommission = (ev: Event) => commission(String((ev as CustomEvent).detail?.task ?? "").trim() || "Create an onboarding page for new engineers");
+  const onReplay = (ev: Event) => {
+    const name = String((ev as CustomEvent).detail?.name ?? lastReplay);
+    reset();
+    lastReplay = name;
+    const speed = Number((ev as CustomEvent).detail?.speed) || undefined;
+    void playReplay(rt, name, 20, speed);
+  };
+  // R = "run it again" (extended cut): contract-run1 (exploring), then contract-run2 (learned route)
+  let lastReplay = new URLSearchParams(location.search).get("demo") || "demo-1";
+  function runAgain() {
+    const next = lastReplay === "contract-run1" ? "contract-run2" : "contract-run1";
+    // same pace for both runs, so the learned route visibly finishes sooner
+    window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.replay, { detail: { name: next, speed: 0.7 } }));
+    window.dispatchEvent(
+      new CustomEvent(PRESENCE_EVENTS.status, {
+        detail: { text: next === "contract-run1" ? "Contract task, run 1: no learned route yet" : "Contract task, run 2: walking the learned route" },
+      }),
+    );
+  }
   addEventListener("keydown", onKey);
   addEventListener(PRESENCE_EVENTS.camera, onCam);
   addEventListener(PRESENCE_EVENTS.dispatch, onDispatch);
+  addEventListener(PRESENCE_EVENTS.commission, onCommission);
+  addEventListener(PRESENCE_EVENTS.replay, onReplay);
 
-  (window as any).presence = { avatars, stations, beams, setMode, dispatch, reset }; // browser QA
+  (window as any).presence = { avatars, stations, beams, setMode, dispatch, commission, reset, party, mode: () => mode }; // browser QA
 
   return () => {
     unsub();
@@ -243,28 +463,13 @@ export const mountPresence: Plugin = (rt) => {
     removeEventListener("keydown", onKey);
     removeEventListener(PRESENCE_EVENTS.camera, onCam);
     removeEventListener(PRESENCE_EVENTS.dispatch, onDispatch);
+    removeEventListener(PRESENCE_EVENTS.commission, onCommission);
+    removeEventListener(PRESENCE_EVENTS.replay, onReplay);
     cam.drop("presence");
+    rt.renderer.domElement.removeEventListener("pointerdown", onDown);
+    rt.renderer.domElement.removeEventListener("click", onClick);
+    route.dispose();
     reset();
     for (const a of avatars.values()) a.dispose();
   };
 };
-
-function overheadPose(rt: PalaceRuntime) {
-  const box = new THREE.Box3();
-  for (const r of rt.palace.rooms) {
-    box.expandByPoint(new THREE.Vector3(r.center[0] - r.size[0] / 2, 0, r.center[2] - r.size[2] / 2));
-    box.expandByPoint(new THREE.Vector3(r.center[0] + r.size[0] / 2, 0, r.center[2] + r.size[2] / 2));
-  }
-  const c = box.getCenter(new THREE.Vector3());
-  const size = box.getSize(new THREE.Vector3());
-  const vfov = (rt.camera.fov * Math.PI) / 180;
-  const aspect = Math.max(0.5, rt.camera.aspect);
-  const tan = Math.tan(vfov / 2);
-  // the ui's right column (~372 px) covers part of the screen: frame the palace in the visible part
-  const f = innerWidth > 900 ? Math.max(0.5, (innerWidth - 390) / innerWidth) : 1;
-  const needZ = size.z / 2 / tan;
-  const needX = size.x / 2 / (tan * aspect * f);
-  const h = Math.max(needZ, needX) * 1.06 + 4;
-  c.x += (1 - f) * h * tan * aspect;
-  return { pos: new THREE.Vector3(c.x, h, c.z + h * 0.18), look: c.clone(), rate: 2.5 };
-}
