@@ -52,7 +52,7 @@ export function registerSpawn(N: Names, e: Extract<PalaceEvent, { type: "spawn" 
 }
 
 /** Stage pacing: play a replay so it lasts ~TARGET s unless ?speed is given. Returns false if missing. */
-export async function playReplay(rt: PalaceRuntime, name: string, target = 20): Promise<boolean> {
+export async function playReplay(rt: PalaceRuntime, name: string, target = 20, fixedSpeed?: number): Promise<boolean> {
   let text = "";
   try {
     const res = await fetch(`/replays/${name}.jsonl`, { cache: "no-store" });
@@ -66,7 +66,8 @@ export async function playReplay(rt: PalaceRuntime, name: string, target = 20): 
   if (!lines.length) return false;
   let last = 0;
   try { last = JSON.parse(lines[lines.length - 1]).t ?? 0; } catch { /* keep 0 */ }
-  if (!new URLSearchParams(location.search).has("speed") && last > 0) {
+  if (fixedSpeed && !new URLSearchParams(location.search).has("speed")) rt.events.speed = fixedSpeed;
+  else if (!new URLSearchParams(location.search).has("speed") && last > 0) {
     rt.events.speed = Math.min(4, Math.max(0.5, Math.round((last / target) * 20) / 20));
   }
   await rt.events.restart(name);

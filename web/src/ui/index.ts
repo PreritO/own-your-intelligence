@@ -84,7 +84,10 @@ export const mountUI: Plugin = (rt) => {
   const demoBtn = h("button", "mp-btn small", "▶ Demo: 3 department tasks");
   demoBtn.onclick = () => window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.dispatch));
   demoBtn.title = "Legal, Finance and Eng each get a task (T)";
-  actions.append(demoBtn);
+  const replayBtn = h("button", "mp-btn small", "↻ Replay");
+  replayBtn.title = "Play the last run again from the start";
+  replayBtn.onclick = () => window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.replay, { detail: {} }));
+  actions.append(demoBtn, replayBtn);
   const quests = h("div", "mp-quests");
   const empty = h("div", "mp-empty", "No quests yet. Type one above and press Commission, or run the department demo.");
   quests.appendChild(empty);
@@ -106,7 +109,7 @@ export const mountUI: Plugin = (rt) => {
   mapSlot.title = "Back to the overview (Esc)";
   mapSlot.onclick = () => follow("overview");
   const keysEl = h("div", "mp-keys");
-  keysEl.innerHTML = `<b>1-4</b> follow<br><b>Esc</b> map · <b>WASD</b> pan`;
+  keysEl.innerHTML = `<b>1-4</b> follow · <b>T</b> demo<br><b>Esc</b> map · <b>WASD</b> pan`;
   const slotStatus = new Map<string, { text: string; tone: Tone }>();
   const spawned: string[] = [];
   let following = "overview";

@@ -348,6 +348,7 @@ export const mountPresence: Plugin = (rt) => {
     try {
       if (rt.events.mode === "demo") {
         reset();
+        lastReplay = "demo-1";
         await playReplay(rt, "demo-1");
         status("Dispatched 3 department tasks");
         return;
@@ -380,6 +381,7 @@ export const mountPresence: Plugin = (rt) => {
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
     const k = ev.key.toLowerCase();
     if (k === "t") dispatch();
+    else if (k === "r") runAgain();
     else if (k >= "1" && k <= "9" && party()[Number(k) - 1]) setMode(party()[Number(k) - 1]);
     else if (k === "0" || k === "o" || k === "f" || k === "h" || (k === "escape" && mode !== "overview")) {
       if (mode === "overview") window.dispatchEvent(new CustomEvent(CAMERA_EVENTS.home));
@@ -419,6 +421,7 @@ export const mountPresence: Plugin = (rt) => {
         }
       }
       reset();
+      lastReplay = "quest-onboarding";
       if (await playReplay(rt, "quest-onboarding", 30)) {
         if (rt.events.mode === "demo") status("Quest commissioned (recorded run)");
       } else status("No recorded quest yet (fixtures/replays/quest-onboarding.jsonl). Try the department demo.", "warn");
@@ -428,10 +431,24 @@ export const mountPresence: Plugin = (rt) => {
   }
   const onCommission = (ev: Event) => commission(String((ev as CustomEvent).detail?.task ?? "").trim() || "Create an onboarding page for new engineers");
   const onReplay = (ev: Event) => {
-    const name = String((ev as CustomEvent).detail?.name ?? "demo-1");
+    const name = String((ev as CustomEvent).detail?.name ?? lastReplay);
     reset();
-    void playReplay(rt, name);
+    lastReplay = name;
+    const speed = Number((ev as CustomEvent).detail?.speed) || undefined;
+    void playReplay(rt, name, 20, speed);
   };
+  // R = "run it again" (extended cut): contract-run1 (exploring), then contract-run2 (learned route)
+  let lastReplay = new URLSearchParams(location.search).get("demo") || "demo-1";
+  function runAgain() {
+    const next = lastReplay === "contract-run1" ? "contract-run2" : "contract-run1";
+    // same pace for both runs, so the learned route visibly finishes sooner
+    window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.replay, { detail: { name: next, speed: 0.7 } }));
+    window.dispatchEvent(
+      new CustomEvent(PRESENCE_EVENTS.status, {
+        detail: { text: next === "contract-run1" ? "Contract task, run 1: no learned route yet" : "Contract task, run 2: walking the learned route" },
+      }),
+    );
+  }
   addEventListener("keydown", onKey);
   addEventListener(PRESENCE_EVENTS.camera, onCam);
   addEventListener(PRESENCE_EVENTS.dispatch, onDispatch);
