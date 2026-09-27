@@ -153,7 +153,7 @@ def _real_once(river, rl, client, base, renderer, PalaceEnv, rows, run, init, te
         print(json.dumps({"checkpoint": ck.path}))
 
 
-def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: float, from_base: bool, loss: str = "importance_sampling") -> None:
+def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: float, from_base: bool, loss: str = "importance_sampling", tag: str = "", eval_every: int = 0) -> None:
     """GRPO with River primitives (docs.river.ai/guides/rl-primitives), no AsyncTrainer.
 
     The policy writes the SFT plan JSON (route, handoffs, citations, gaps, answer). The plan is executed
@@ -171,7 +171,7 @@ def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: flo
     base = pick_base_model(client)
     sft = load_checkpoints().get(f"sft-{team}", {})
     init = None if from_base else sft.get("training_path")
-    run = f"rl-{team}-simple" + ("-base" if not init else "")
+    run = f"rl-{team}-simple" + ("-base" if not init else "") + (f"-{tag}" if tag else "")
     log = StepLogger(run)
     tok = load_tok(base)
     rng = random.Random(0)
@@ -189,6 +189,15 @@ def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: flo
         if init:
             model.load_weights(init, load_optimizer=False)
         print(json.dumps({"run": run, "model_id": model.model_id}), flush=True)
+        held_ids = [prompt_ids(r) for r in held[:16]]
+
+        def heldout_eval(step: int) -> None:
+            outs = model.sample(prompt_token_ids=held_ids, num_samples=1, max_tokens=512, temperature=0.0, seed=0)
+            rs = [score_plan(r, parse_plan(o[0].text)) for r, o in zip(held, outs)]
+            print(json.dumps({"eval": step, "heldout_reward": round(sum(s["reward"] for s in rs) / len(rs), 4), "correct": round(sum(s["correct"] for s in rs) / len(rs), 3), "compliant": round(sum(s["compliant"] for s in rs) / len(rs), 3)}), flush=True)
+
+        if eval_every:
+            heldout_eval(0)
         for step in range(1, steps + 1):
             t0 = time.time()
             batch_rows = rng.sample(rows, groups_per_step)
@@ -231,6 +240,8 @@ def simple(team: str, steps: int, groups_per_step: int, group_size: int, lr: flo
                 save_checkpoint(run, {"team": team, "kind": "rl", "base_model": base, "inference_path": ckpt, "step": step})
             print(json.dumps({"batch": step, "model_step": model.step, "reward/mean": round(mean_r, 4), "reward/zero_variance_group_frac": round(zero_var / groups_per_step, 3), "train/updated": updated, "train/tokens": tokens, "secs": round(time.time() - t0, 1), **({"checkpoint": ckpt} if ckpt else {})}), flush=True)
             log.log(team, step, mean_r, ckpt)
+            if eval_every and (step % eval_every == 0 or step == steps):
+                heldout_eval(step)
     print(f"held-out check: python -m server.train.eval --team {team} --limit 10 --skip-base", flush=True)
 
 
@@ -254,13 +265,15 @@ def main() -> None:
     ap.add_argument("--thinking", action="store_true", help="real mode: enable the model's thinking mode in rollouts")
     ap.add_argument("--simple", action="store_true", help="real mode: single-turn plan GRPO on River primitives (no AsyncTrainer)")
     ap.add_argument("--loss", default="importance_sampling", help="--simple: River loss_fn (importance_sampling | cispo | ppo)")
+    ap.add_argument("--tag", default="", help="--simple: suffix for the run name / log files")
+    ap.add_argument("--eval-every", type=int, default=0, help="--simple: greedy held-out eval (16 tasks) every N steps")
     a = ap.parse_args()
     if a.dry_run or not river_key():
         if not a.dry_run:
             print("RIVER_API_KEY not set: running --dry-run.")
         dry_run(a.team, a.steps or 30, a.groups_per_step, a.group_size, a.lr or 0.6, a.pace, a.seed)
     elif a.simple:
-        simple(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 2e-5, a.from_base, a.loss)
+        simple(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 2e-5, a.from_base, a.loss, a.tag, a.eval_every)
     else:
         real(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 1e-5, a.protocol, a.from_base, a.thinking)
 
