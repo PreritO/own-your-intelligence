@@ -92,7 +92,12 @@ export const PalaceEvent = z.discriminatedUnion("type", [
   z.object({ ...base, type: z.literal("handoff"), id: z.string(), toAgent: z.string(), memoryId: z.string(), question: z.string() }),
   z.object({ ...base, type: z.literal("reply"), id: z.string(), answer: z.string() }),
   z.object({ ...base, type: z.literal("answer"), text: z.string(), citations: z.array(z.string()), gaps: z.array(z.string()).optional(), stale: z.array(z.string()).optional(), blocked: z.boolean().optional() }),
-  z.object({ ...base, type: z.literal("train_step"), team: Team, step: z.number(), reward: z.number(), checkpoint: z.string().optional() }),
+  z.object({ ...base, type: z.literal("train_step"), team: Team.optional(), step: z.number(), reward: z.number(), checkpoint: z.string().optional() }),
+  // Commissioned agents: a user-specified task spawns a new agent that tours departments,
+  // trains in the Gym, returns to execute, and reports completion.
+  z.object({ ...base, type: z.literal("spawn"), label: z.string(), color: z.string(), home: z.string(), task: z.string().optional(), harness: z.enum(["qm", "ufo", "protocol"]).optional() }),
+  z.object({ ...base, type: z.literal("phase"), phase: z.enum(["plan", "explore", "gym", "execute", "done"]), note: z.string().optional() }),
+  z.object({ ...base, type: z.literal("artifact"), memory: Memory }), // a page the agent wrote; renderer adds a lectern
 ]);
 
 export type Vec3 = z.infer<typeof Vec3>;

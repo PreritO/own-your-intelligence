@@ -32,6 +32,8 @@ export interface PalaceRuntime {
   setLayerVisible?(layer: SceneLayer, visible: boolean): void;
   /** Optional: dim everything except these rooms (follow mode); null clears. */
   focusRooms?(roomIds: string[] | null): void;
+  /** Optional: place a newly written page (artifact event) on a new lectern, with a flourish. */
+  addMemory?(memory: import("../../server/schema").Memory): void;
 }
 
 export type Plugin = (rt: PalaceRuntime) => void | (() => void);
