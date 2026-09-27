@@ -470,7 +470,7 @@
       "id": "room-marketing-0",
       "wing": "marketing",
       "owner": "marketing",
-      "label": "Marketing",
+      "label": "Brand & Strategy",
       "center": [
         0,
         0,
@@ -1421,14 +1421,112 @@
       "path": "legal/voltcell-supply-agreement.md"
     },
     {
+      "id": "marketing/brand-guidelines",
+      "title": "Brand Guidelines",
+      "type": "policy",
+      "room": "room-marketing-0",
+      "pos": [
+        -2.79,
+        1.1,
+        -45.42
+      ],
+      "freshness": 0,
+      "excerpt": "Voice: plain, confident, no hype. Never claim certifications we don't currently hold; security claims must be checked against Security Policy and the current SOC 2 status. Customer names need written…",
+      "path": "marketing/brand-guidelines.md"
+    },
+    {
+      "id": "marketing/competitor-notes",
+      "title": "Competitor Notes",
+      "type": "research",
+      "room": "room-marketing-0",
+      "pos": [
+        -3.76,
+        1.1,
+        -47.43
+      ],
+      "freshness": 0.69,
+      "excerpt": "Main competitor: Halden Automation, rigid-finger grippers at roughly 20% lower list price, weaker on delicate items. We lost two deals to Halden on price in 2026 (see Win/Loss 2026). Halden publishes…",
+      "path": "marketing/competitor-notes.md"
+    },
+    {
+      "id": "marketing/content-calendar",
+      "title": "Content Calendar",
+      "type": "plan",
+      "room": "room-marketing-0",
+      "pos": [
+        -3.42,
+        1.1,
+        -49.65
+      ],
+      "freshness": 0,
+      "excerpt": "Q2 content calendar: two customer stories, one webinar, a monthly newsletter. Not updated since March; the Gripper v2 launch in Gripper v2 Launch Plan is not on it. The case study slot was filled by…",
+      "path": "marketing/content-calendar.md"
+    },
+    {
+      "id": "marketing/gripper-v2-launch-plan",
+      "title": "Gripper v2 Launch Plan",
+      "type": "plan",
+      "room": "room-marketing-0",
+      "pos": [
+        1.9,
+        1.1,
+        -51.29
+      ],
+      "freshness": 0.99,
+      "excerpt": "Draft launch plan for Gripper v2. Launch date: TBD, blocked on Ops confirming pilot-volume output in Gripper v2 Production Plan. Launch tiers: upgrade offer to existing Gripper v1 accounts first…",
+      "path": "marketing/gripper-v2-launch-plan.md"
+    },
+    {
+      "id": "marketing/kestrel-case-study",
+      "title": "Kestrel Case Study",
+      "type": "case-study",
+      "room": "room-marketing-0",
+      "pos": [
+        3.42,
+        1.1,
+        -49.65
+      ],
+      "freshness": 0.44,
+      "excerpt": "Published case study: Kestrel Foods runs 42 Acme arms across three plants and cut dropped-product waste by 31% after moving to soft grippers. Quote approved by Kestrel's VP Operations. Uptime figures…",
+      "path": "marketing/kestrel-case-study.md"
+    },
+    {
+      "id": "marketing/positioning",
+      "title": "Positioning",
+      "type": "strategy",
+      "room": "room-marketing-0",
+      "pos": [
+        3.76,
+        1.1,
+        -47.43
+      ],
+      "freshness": 0.91,
+      "excerpt": "Acme Robotics sells pick-and-place arms for food and pharma packing lines. One-line positioning: \"the arm that grips anything soft, and keeps gripping.\" Our wedge is soft gripping (Gripper v2) plus…",
+      "path": "marketing/positioning.md"
+    },
+    {
+      "id": "marketing/website",
+      "title": "Website",
+      "type": "channel",
+      "room": "room-marketing-0",
+      "pos": [
+        2.79,
+        1.1,
+        -45.42
+      ],
+      "freshness": 0.07,
+      "excerpt": "acme-robotics.example product pages for the arm and Gripper v1, a security page, and a contact form that routes to Sales. The security page still says \"SOC 2 Type II report available on request\"…",
+      "path": "marketing/website.md"
+    },
+    {
       "id": "ops/castellan-circuits",
       "title": "Castellan Circuits",
       "type": "supplier",
       "room": "room-ops-0",
       "pos": [
-        -2.91,
+        -2.79,
         1.1,
-        50.44
+        50.58
       ],
       "freshness": 0.98,
       "excerpt": "Contract manufacturer that assembles the arm controller board. No quality agreement is on record, and no supply agreement: Acme buys on individual purchase orders only. Castellan builds boards in…",
@@ -1440,13 +1538,27 @@
       "type": "reference",
       "room": "room-ops-0",
       "pos": [
-        -3.8,
+        -3.76,
         1.1,
-        48
+        48.57
       ],
       "freshness": 0.95,
       "excerpt": "Gripper v2 bill of materials: $1,040 per gripper at pilot volume, down from $1,200 for Gripper v1. Gripworks pads and actuators are $600 of it. Design and program: Gripper v2. The arm-level BOM is…",
       "path": "ops/gripper-v2-bom.md"
+    },
+    {
+      "id": "ops/gripper-v2-production-plan",
+      "title": "Gripper v2 Production Plan",
+      "type": "plan",
+      "room": "room-ops-0",
+      "pos": [
+        -3.42,
+        1.1,
+        46.35
+      ],
+      "freshness": 0.96,
+      "excerpt": "Pilot build of 120 Gripper v2 units in November at 30 units/week, using the Gripper v2 BOM. Pads and actuators come from Gripworks under the Gripworks MSA. Full-volume date is not set: it depends on…",
+      "path": "ops/gripper-v2-production-plan.md"
     },
     {
       "id": "ops/inventory-2026-09",
@@ -1454,9 +1566,9 @@
       "type": "ledger",
       "room": "room-ops-0",
       "pos": [
-        -2.91,
+        1.9,
         1.1,
-        45.56
+        44.71
       ],
       "freshness": 0.98,
       "excerpt": "On hand Sep 22: 14 finished arms, 38 controller boards (22 of them lot CB-2607, quarantined), 25 battery packs, 120 Gripper v1 pad sets, 0 Gripper v2 parts. Replacing every CB-2607 board in the field…",
@@ -1468,9 +1580,9 @@
       "type": "plan",
       "room": "room-ops-0",
       "pos": [
-        2.91,
+        3.42,
         1.1,
-        45.56
+        46.35
       ],
       "freshness": 0.92,
       "excerpt": "Final assembly line: 22 arms per month on one shift, 36 on two shifts. Q4 demand plan is 58 arms. Gripper v2 needs a second bench at 30 grippers per month from January. Capacity assumes the 86%…",
@@ -1482,9 +1594,9 @@
       "type": "log",
       "room": "room-ops-0",
       "pos": [
-        3.8,
+        3.76,
         1.1,
-        48
+        48.57
       ],
       "freshness": 0.99,
       "excerpt": "Q3 returns: 17 RMAs. 11 controller boards (9 from Castellan lot CB-2607, all fault E-47), 4 Gripper v1 pad tears inside 90 days, 2 battery packs. Controller RMA rate is 3x Q2. Failure analysis of…",
@@ -1496,9 +1608,9 @@
       "type": "reference",
       "room": "room-ops-0",
       "pos": [
-        2.91,
+        2.79,
         1.1,
-        50.44
+        50.58
       ],
       "freshness": 0.91,
       "excerpt": "Approved production suppliers: Ferro Castings (housings), Voltcell (battery packs), Castellan Circuits (controller boards), Gripworks (Gripper v2 pads and actuators, pending MSA). Owner: Kenji Sato…",
@@ -2843,6 +2955,126 @@
       "kind": "signed_by"
     },
     {
+      "from": "marketing/brand-guidelines",
+      "to": "eng/security-policy",
+      "kind": "voice"
+    },
+    {
+      "from": "marketing/brand-guidelines",
+      "to": "marketing/kestrel-case-study",
+      "kind": "governs"
+    },
+    {
+      "from": "marketing/competitor-notes",
+      "to": "eng/soc2-renewal",
+      "kind": "compares"
+    },
+    {
+      "from": "marketing/competitor-notes",
+      "to": "marketing/positioning",
+      "kind": "informs"
+    },
+    {
+      "from": "marketing/competitor-notes",
+      "to": "sales/win-loss-2026",
+      "kind": "main_competitor"
+    },
+    {
+      "from": "marketing/content-calendar",
+      "to": "marketing/gripper-v2-launch-plan",
+      "kind": "q2_content_calendar"
+    },
+    {
+      "from": "marketing/content-calendar",
+      "to": "marketing/kestrel-case-study",
+      "kind": "includes"
+    },
+    {
+      "from": "marketing/gripper-v2-launch-plan",
+      "to": "eng/gripper-v2",
+      "kind": "launches"
+    },
+    {
+      "from": "marketing/gripper-v2-launch-plan",
+      "to": "marketing/website",
+      "kind": "mentions"
+    },
+    {
+      "from": "marketing/gripper-v2-launch-plan",
+      "to": "ops/gripper-v2-production-plan",
+      "kind": "depends_on"
+    },
+    {
+      "from": "marketing/gripper-v2-launch-plan",
+      "to": "sales/kestrel-foods",
+      "kind": "launch_tiers"
+    },
+    {
+      "from": "marketing/gripper-v2-launch-plan",
+      "to": "sales/pricing-sheet",
+      "kind": "priced_by"
+    },
+    {
+      "from": "marketing/gripper-v2-launch-plan",
+      "to": "support/warranty-terms",
+      "kind": "blocked_by"
+    },
+    {
+      "from": "marketing/kestrel-case-study",
+      "to": "marketing/positioning",
+      "kind": "supports"
+    },
+    {
+      "from": "marketing/kestrel-case-study",
+      "to": "sales/kestrel-foods",
+      "kind": "published_case_study"
+    },
+    {
+      "from": "marketing/kestrel-case-study",
+      "to": "support/customer-health-scorecard",
+      "kind": "uses"
+    },
+    {
+      "from": "marketing/positioning",
+      "to": "eng/gripper-v2",
+      "kind": "mentions"
+    },
+    {
+      "from": "marketing/positioning",
+      "to": "marketing/competitor-notes",
+      "kind": "contrasts"
+    },
+    {
+      "from": "marketing/positioning",
+      "to": "marketing/gripper-v2-launch-plan",
+      "kind": "informs"
+    },
+    {
+      "from": "marketing/positioning",
+      "to": "marketing/kestrel-case-study",
+      "kind": "primary_buyer"
+    },
+    {
+      "from": "marketing/positioning",
+      "to": "support/sla-policy",
+      "kind": "mentions"
+    },
+    {
+      "from": "marketing/website",
+      "to": "eng/soc2-2025-report",
+      "kind": "references"
+    },
+    {
+      "from": "marketing/website",
+      "to": "marketing/gripper-v2-launch-plan",
+      "kind": "planned_in"
+    },
+    {
+      "from": "marketing/website",
+      "to": "sales/pipeline-2026-q4",
+      "kind": "routes_to"
+    },
+    {
       "from": "ops/castellan-circuits",
       "to": "eng/arm-controller",
       "kind": "assembles"
@@ -2893,6 +3125,31 @@
       "kind": "priced_under"
     },
     {
+      "from": "ops/gripper-v2-production-plan",
+      "to": "companies/gripworks",
+      "kind": "sourced_from"
+    },
+    {
+      "from": "ops/gripper-v2-production-plan",
+      "to": "eng/manufacturing-yield",
+      "kind": "measured_by"
+    },
+    {
+      "from": "ops/gripper-v2-production-plan",
+      "to": "legal/gripworks-msa",
+      "kind": "mentions"
+    },
+    {
+      "from": "ops/gripper-v2-production-plan",
+      "to": "ops/gripper-v2-bom",
+      "kind": "uses"
+    },
+    {
+      "from": "ops/gripper-v2-production-plan",
+      "to": "ops/manufacturing-capacity",
+      "kind": "depends_on"
+    },
+    {
       "from": "ops/inventory-2026-09",
       "to": "companies/ferro-castings",
       "kind": "supplier"
@@ -2926,6 +3183,11 @@
       "from": "ops/manufacturing-capacity",
       "to": "finance/operating-plan-2026",
       "kind": "demand_from"
+    },
+    {
+      "from": "ops/manufacturing-capacity",
+      "to": "ops/gripper-v2-production-plan",
+      "kind": "ramp"
     },
     {
       "from": "ops/manufacturing-capacity",
@@ -3279,6 +3541,11 @@
     },
     {
       "from": "sales/kestrel-foods",
+      "to": "marketing/kestrel-case-study",
+      "kind": "featured_in"
+    },
+    {
+      "from": "sales/kestrel-foods",
       "to": "sales/kestrel-order-form",
       "kind": "contract"
     },
@@ -3499,6 +3766,11 @@
     },
     {
       "from": "sales/security-questionnaire-northwind",
+      "to": "marketing/website",
+      "kind": "must_match"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
       "to": "sales/northwind-dpa-request",
       "kind": "blocked_by"
     },
@@ -3516,6 +3788,11 @@
       "from": "sales/win-loss-2026",
       "to": "eng/soc2-renewal",
       "kind": "lost_on"
+    },
+    {
+      "from": "sales/win-loss-2026",
+      "to": "marketing/competitor-notes",
+      "kind": "detail_in"
     },
     {
       "from": "sales/win-loss-2026",
@@ -3857,6 +4134,19 @@
         "finance/burn-report-2026-08",
         "finance/runway-forecast",
         "finance/venture-debt-facility"
+      ]
+    },
+    {
+      "id": "quest-onboarding-page-new-engineer",
+      "label": "Create an onboarding page for new engineers",
+      "stations": [
+        "people/org-chart",
+        "people/priya-nand",
+        "people/onboarding-guide",
+        "people/employee-handbook",
+        "legal/ip-assignment",
+        "eng/security-policy",
+        "eng/oncall-rotation"
       ]
     },
     {
