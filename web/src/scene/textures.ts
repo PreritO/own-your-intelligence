@@ -369,3 +369,78 @@ export function labelAtlas(titles: string[]): { tex: THREE.CanvasTexture; rows: 
   tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
   return { tex, rows };
 }
+
+// ---------------------------------------------------------------- outer-wing blocks (ui-v2)
+
+/** Terracotta (marketing): smooth fired clay with faint horizontal streaks. */
+export function terracotta(base: RGB, seed = 101) {
+  return paint(16, 16, seed, (p) => {
+    for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+      let c = noisy(p, mul(base, 0.96 + 0.05 * Math.sin(y * 1.3 + x * 0.2)), 0.05);
+      if (p.r() < 0.05) c = mul(base, 0.84);
+      p.set(x, y, c);
+    }
+  });
+}
+
+/** Coloured wool (tinted directly), used for marketing floors and support cushions. */
+export function woolTint(base: RGB, seed = 102) {
+  return paint(16, 16, seed, (p) => {
+    for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+      const w = ((x + (y >> 1)) & 3) === 0 ? 0.86 : 1;
+      p.set(x, y, noisy(p, mul(base, w), 0.05));
+    }
+  });
+}
+
+/** Cushion (support caps): soft wool tile with a tufted button in the middle and puffed edges. */
+export function cushion(base: RGB, seed = 103) {
+  return paint(16, 16, seed, (p) => {
+    for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+      const d = Math.max(Math.abs(x - 7.5), Math.abs(y - 7.5));
+      let c = noisy(p, mul(base, 1.08 - d * 0.03), 0.04);
+      if (d > 6.5) c = mul(base, 0.72);
+      if ((x === 7 || x === 8) && (y === 7 || y === 8)) c = mul(base, 0.6);
+      p.set(x, y, c);
+    }
+  });
+}
+
+/** Prismarine (sales): mottled cyan-teal stone with shifting tone. */
+export function prismarine(base: RGB, seed = 104) {
+  return paint(16, 16, seed, (p) => {
+    for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+      const k = 0.85 + 0.2 * Math.sin(x * 0.9 + p.r() * 0.6) * Math.cos(y * 0.7);
+      let c = noisy(p, mix(mul(base, k), [150, 230, 220], p.r() < 0.12 ? 0.35 : 0), 0.06);
+      if (x === 0 || y === 0) c = mul(base, 1.12);
+      if (x === 15 || y === 15) c = mul(base, 0.68);
+      p.set(x, y, c);
+    }
+  });
+}
+
+/** Glass pane: pale frame, light interior with a diagonal glint (opaque; the world mesh has no transparency). */
+export function glass(base: RGB, seed = 105) {
+  return paint(16, 16, seed, (p) => {
+    for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+      let c: RGB = mul(base, 0.95 + p.r() * 0.04);
+      if (x === 0 || y === 0 || x === 15 || y === 15) c = mul(base, 0.62);
+      else if (x - y === 3 || x - y === 5 || x - y === -6) c = mix(base, [250, 255, 255], 0.55);
+      p.set(x, y, c);
+    }
+  });
+}
+
+/** Iron plate (ops factory): riveted steel with a hazard stripe along the bottom. */
+export function ironPlate(base: RGB, seed = 106, hazard = false) {
+  return paint(16, 16, seed, (p) => {
+    for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+      let c = noisy(p, base, 0.05);
+      if (x === 0 || y === 0) c = mul(base, 1.18);
+      if (x === 15 || y === 15) c = mul(base, 0.64);
+      if ((x === 2 || x === 13) && (y === 2 || y === 13)) c = mul(base, 0.55);
+      if (hazard && y >= 12 && y <= 14) c = (((x + y) >> 1) & 1) ? [236, 176, 40] : [40, 36, 34];
+      p.set(x, y, c);
+    }
+  });
+}

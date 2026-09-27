@@ -3,17 +3,17 @@
 import * as THREE from "three";
 import { PalaceEvent } from "../../../server/schema";
 import type { PalaceRuntime } from "../api";
-import { buildShell, signAbove, fetchTextOptional, framePose, makeBoard, mountOnFarWall, roundRect, teamColor, textSprite, type Placement } from "./layout";
+import { buildShell, departments, signAbove, fetchTextOptional, framePose, makeBoard, mountOnFarWall, roundRect, teamColor, teamLabel, textSprite, type Placement } from "./layout";
 
 type TrainStep = Extract<PalaceEvent, { type: "train_step" }>;
 interface TeamStats { team: string; points: { step: number; reward: number }[]; checkpoints: string[]; best: number; last?: TrainStep; run?: string }
 
-const TEAMS = ["legal", "finance", "eng"];
 const LANES = 8; // River group size: 8 attempts per task
 const MAX_PLATES = 8;
 
 export function mountGym(rt: PalaceRuntime, pl: Placement) {
   const g = buildShell(rt, pl, "The Gym", "#9ece6a");
+  const TEAMS = departments(rt.palace); // every department in palace.json (7 with the outer wings)
   const sx = Math.sign(pl.center.x) || 1, sz = Math.sign(pl.center.z) || 1;
 
   // ---------- scoreboard ----------
@@ -29,13 +29,14 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
     const color = teamColor(rt.palace, team);
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.6, 8), new THREE.MeshStandardMaterial({ color: "#8a90a6", metalness: 0.8, roughness: 0.3 }));
     post.position.y = 1.3;
-    const base = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.12, 1.1), new THREE.MeshStandardMaterial({ color: "#20242f" }));
-    const label = textSprite(team[0].toUpperCase() + team.slice(1), color, 40);
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.12, 0.7), new THREE.MeshStandardMaterial({ color: "#20242f" }));
+    const label = textSprite(teamLabel(rt.palace, team), color, 40);
     label.position.y = 3.1;
     label.scale.multiplyScalar(0.6);
     rack.add(post, base, label);
     // Weight rack along the near-x wall (clear of the tilted scoreboard and the door).
-    rack.position.set(-sx * (pl.size[0] / 2 - 1.1), 0, sz * (0.8 + i * 1.5));
+    const step = Math.min(1.5, 5 / Math.max(1, TEAMS.length - 1));
+    rack.position.set(-sx * (pl.size[0] / 2 - 1.1), 0, sz * (0.4 + i * step));
     g.add(rack);
     racks.set(team, rack);
   });
@@ -62,12 +63,12 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
   const stats = new Map<string, TeamStats>(TEAMS.map((t) => [t, { team: t, points: [], checkpoints: [], best: -Infinity }]));
   const agentColor = new Map<string, string>(rt.palace.agents.map((a) => [a.id, a.color]));
   const agentLabel = new Map<string, string>(rt.palace.agents.map((a) => [a.id, a.label]));
-  let activeKey = "legal";
+  let activeKey = TEAMS[0] ?? "legal";
   let lastStepAt = 0;
   /** Team specialists train under their team; any other agent (quest-N) gets its own row and colour. */
   const keyOf = (e: TrainStep) => (e.team && (e.agent === e.team || !e.agent.startsWith("quest")) ? e.team : e.agent);
   const colorOf = (k: string) => (TEAMS.includes(k) ? teamColor(rt.palace, k) : agentColor.get(k) ?? "#7dcfff");
-  const labelOf = (k: string) => (TEAMS.includes(k) ? k[0].toUpperCase() + k.slice(1) : agentLabel.get(k) ?? k);
+  const labelOf = (k: string) => (TEAMS.includes(k) ? teamLabel(rt.palace, k) : agentLabel.get(k) ?? k);
 
   function ingest(e: TrainStep) {
     const k = keyOf(e);
@@ -166,9 +167,13 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
       const sim = !!run?.includes("dryrun") || !!act?.last?.checkpoint?.startsWith("sim-") || !!act?.last?.checkpoint?.startsWith("river-dryrun");
       ctx.fillText(any ? `${sim ? "local RL sim (same palace env + reward)" : "River RL"} · reward/mean per step · ${act?.run ?? run ?? ""}` : "waiting for train_step events from server/train…", 56, 116);
 
-      // Commissioned agents (most recent first) above the three team specialists; at most 4 rows.
+      // Commissioned agent (most recent) first, then the teams that have trained, padded with the rest
+      // in wing order; at most 4 rows so the numbers stay readable with 7 departments.
       const others = [...stats.keys()].filter((k) => !TEAMS.includes(k)).sort((a, b) => (b === activeKey ? 1 : 0) - (a === activeKey ? 1 : 0));
-      const keys = [...others.slice(0, 1), ...TEAMS];
+      const trained = TEAMS.filter((t) => stats.get(t)!.points.length).sort((a, b) => (b === activeKey ? 1 : 0) - (a === activeKey ? 1 : 0));
+      const keys = [...others.slice(0, 1), ...trained];
+      for (const t of TEAMS) if (keys.length < 4 && !keys.includes(t)) keys.push(t);
+      keys.length = Math.min(keys.length, 4);
       const rowH = (H - 200) / keys.length;
       keys.forEach((key, i) => {
         const s = stats.get(key)!;

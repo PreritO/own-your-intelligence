@@ -25,7 +25,7 @@ export const PRESENCE_EVENTS = {
   mode: "presence:mode", // detail: { mode, label }  (presence → ui, for the HUD)
   dispatch: "presence:dispatch", // detail: {}  (ui button → presence)
   status: "presence:status", // detail: { text, tone }  (toast line)
-  commission: "presence:commission", // detail: { task }  (quest box → presence)
+  commission: "presence:commission", // detail: { task, questId? }  (quest box / quest card → presence)
   replay: "presence:replay", // detail: { name }  (ui → presence: play a canned replay at stage speed)
 } as const;
 

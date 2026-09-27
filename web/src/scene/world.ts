@@ -7,7 +7,7 @@ export type RGB = [number, number, number];
 export interface Solid { x: number; y: number; z: number; tile: number; room: number; tint?: RGB }
 export interface Flat { x: number; y: number; z: number; tile: number; room: number; tint?: RGB }
 
-export const MAX_ROOMS = 16; // uniform array size; the last used slot is "outdoors"
+export const MAX_ROOMS = 32; // uniform array size; the last used slot is "outdoors"
 
 /** Pack 16x16 tile canvases into one atlas (8 columns). */
 export function buildAtlas(tiles: HTMLCanvasElement[]) {

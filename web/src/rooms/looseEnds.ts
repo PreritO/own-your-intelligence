@@ -2,7 +2,7 @@
 // lands on a board as a glowing card, grouped by the memory's owning team, live from rt.events.
 import type { PalaceEvent } from "../../../server/schema";
 import type { PalaceRuntime } from "../api";
-import { buildShell, signAbove,framePose, makeBoard, memoryOwner, mountOnFarWall, roundRect, teamColor, wrapText, type Placement } from "./layout";
+import { buildShell, departments, signAbove, framePose, makeBoard, memoryOwner, mountOnFarWall, roundRect, teamColor, teamLabel, wrapText, type Placement } from "./layout";
 
 export interface LooseEnd {
   memoryId: string;
@@ -17,8 +17,8 @@ export interface LooseEnd {
 }
 
 const VERDICT_COLOR = { gap: "#f7768e", stale: "#e0af68" } as const;
-const TEAM_LABEL: Record<string, string> = { eng: "Eng", legal: "Legal", finance: "Finance", shared: "Shared" };
-const COLUMNS = ["eng", "legal", "finance"];
+const MIN_COLUMNS = 3;
+const MAX_COLUMNS = 5;
 const GLOW_MS = 3500;
 const RESOLVED_MS = 6000;
 
@@ -31,6 +31,10 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
 
   const cards = new Map<string, LooseEnd>();
   const listeners = new Set<(n: number) => void>();
+  // Columns: every department from palace.json that has an open card (wing order), padded to 3 so the
+  // board never looks empty, capped at 5 so cards stay readable. Shared (People/foyer) goes last.
+  const DEPTS = departments(rt.palace);
+  const TEAM_LABEL = (t: string) => (t === "shared" ? "Shared" : teamLabel(rt.palace, t));
   const titleOf = (id: string) => rt.palace.memories.find((m) => m.id === id)?.title ?? id;
 
   function upsert(memoryId: string, verdict: "gap" | "stale", note: string | undefined, e: PalaceEvent) {
@@ -87,15 +91,19 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
       const open = [...cards.values()].filter((c) => !c.resolvedAt);
       ctx.fillText(`what the company doesn't know yet · ${open.length} open`, 56, 116);
 
-      const teams = [...COLUMNS];
-      if ([...cards.values()].some((c) => c.team === "shared")) teams.push("shared");
+      const withCards = new Set([...cards.values()].map((c) => c.team));
+      const teams = DEPTS.filter((d) => withCards.has(d));
+      for (const d of ["eng", "legal", "finance", ...DEPTS]) if (teams.length < MIN_COLUMNS && DEPTS.includes(d) && !teams.includes(d)) teams.push(d);
+      if (withCards.has("shared")) teams.push("shared");
+      if (teams.length > MAX_COLUMNS) teams.splice(0, teams.length, ...teams.filter((t) => withCards.has(t)).slice(0, MAX_COLUMNS));
       const colW = (W - 56 * 2 - 32 * (teams.length - 1)) / teams.length;
       teams.forEach((team, i) => {
         const x = 56 + i * (colW + 32);
         const color = teamColor(rt.palace, team);
         ctx.fillStyle = color;
         ctx.font = "800 60px ui-sans-serif, system-ui, sans-serif";
-        ctx.fillText(TEAM_LABEL[team] ?? team, x, 180);
+        ctx.font = `800 ${teams.length > 3 ? 48 : 60}px ui-sans-serif, system-ui, sans-serif`;
+        ctx.fillText(TEAM_LABEL(team), x, 180);
         ctx.fillRect(x, 252, colW, 8);
         const list = [...cards.values()].filter((c) => c.team === team).sort((a, b) => a.t - b.t);
         let y = 284;
@@ -132,7 +140,7 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
           ctx.fillText(wrapText(ctx, c.title, colW - 70, 1)[0] ?? "", x + 40, y + 112);
           ctx.font = "600 42px ui-sans-serif, system-ui, sans-serif";
           ctx.fillStyle = "#d5d9e4";
-          const lines = wrapText(ctx, `${TEAM_LABEL[c.team] ?? c.team}: ${c.note}`, colW - 70, 2);
+          const lines = wrapText(ctx, `${TEAM_LABEL(c.team)}: ${c.note}`, colW - 70, 2);
           lines.forEach((l, k) => ctx.fillText(l, x + 40, y + 180 + k * 50));
           y += h + 24;
         }

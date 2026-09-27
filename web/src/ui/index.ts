@@ -1,4 +1,4 @@
-// OWNED BY: ui (polish). Game HUD: "New quest" box (the centrepiece), quest log (left), party bar
+// OWNED BY: ui (polish, ui-v2). Game HUD: quest board (the centrepiece: free text + 6 quest cards), quest log (left), party bar
 // (bottom), route checklist + memory page (right), activity drawer (bottom left, closed), toasts.
 // Everything except the memory panel is a pure function of rt.events (same run rules as presence).
 import type { Memory, PalaceEvent, Trace } from "../../../server/schema";
@@ -6,6 +6,7 @@ import { emitUI, UI_EVENTS, type Plugin } from "../api";
 import { names, PRESENCE_EVENTS, registerSpawn, subscribeRuns } from "../agents/run";
 import { CAMERA_EVENTS } from "../controls";
 import { CSS } from "./style";
+import { commissionQuest, mountQuestBoard } from "./questBoard";
 
 function h<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text?: string): HTMLElementTagNameMap[K] {
   const el = document.createElement(tag);
@@ -62,11 +63,18 @@ export const mountUI: Plugin = (rt) => {
   // =====================================================================================================
   // Quest log (left): New quest box, department demo, quest cards
   const logPanel = h("div", "mp-panel mp-log-panel");
+  const hero = h("div", "mp-hero");
+  hero.innerHTML =
+    `<div class="brand">Mind Palace</div>` +
+    `<div class="pitch">Harnesses like QM and UFO run agents. Mind Palace makes sure they can't bluff, and shows you.</div>` +
+    `<ul class="claims"><li><b>Grounded</b> by construction: every answer cites a page it checked</li>` +
+    `<li><b>Multiplayer</b> by design: departments own knowledge, so agents ask the owner</li>` +
+    `<li><b>Gets better</b> with use: each run leaves a learned route</li></ul>`;
   const title = h("h2", "", "Quest log");
-  const sub = h("div", "sub", "A new agent tours the departments, trains in the Gym, then does the job.");
+  const sub = h("div", "sub", "Pick a quest. A new agent asks each department that owns the answer, trains in the Gym, then does the job.");
   const form = h("form", "mp-newquest");
   const input = h("input");
-  input.placeholder = "New quest, e.g. Create an onboarding page for new engineers";
+  input.placeholder = "Give the company a task, e.g. Create an onboarding page for new engineers";
   input.autocomplete = "off";
   input.setAttribute("aria-label", "New quest");
   const go = h("button", "mp-btn go", "▶ Commission");
@@ -74,8 +82,10 @@ export const mountUI: Plugin = (rt) => {
   form.append(input, go);
   form.onsubmit = (ev) => {
     ev.preventDefault();
-    const task = input.value.trim() || input.placeholder.replace(/^.*e\.g\. /, "");
-    window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.commission, { detail: { task } }));
+    const typed = input.value.trim();
+    // an empty box commissions the placeholder, which is the onboarding quest
+    if (typed) commissionQuest(typed);
+    else commissionQuest(input.placeholder.replace(/^.*e\.g\. /, ""), "onboarding");
     input.blur();
   };
   input.addEventListener("keydown", (ev) => ev.stopPropagation()); // typing must not steer the camera
@@ -91,14 +101,16 @@ export const mountUI: Plugin = (rt) => {
   const quests = h("div", "mp-quests");
   const empty = h("div", "mp-empty", "No quests yet. Type one above and press Commission, or run the department demo.");
   quests.appendChild(empty);
-  logPanel.append(title, quests);
+  logPanel.append(hero, title, quests);
   root.appendChild(logPanel);
   // the New quest box is the centrepiece: top centre
   const top = h("div", "mp-panel mp-top");
-  const lbl = h("label", "lbl", "New quest");
+  const lbl = h("label", "lbl", "Quest board");
   lbl.htmlFor = "mp-quest-input";
   input.id = "mp-quest-input";
-  top.append(lbl, form, sub, actions);
+  const board = h("div", "mp-board");
+  void mountQuestBoard(board, rt.palace).then((qs) => ((window as any).quests = qs)); // browser QA
+  top.append(lbl, form, board, sub, actions);
   root.appendChild(top);
 
   // =====================================================================================================
@@ -109,7 +121,7 @@ export const mountUI: Plugin = (rt) => {
   mapSlot.title = "Back to the overview (Esc)";
   mapSlot.onclick = () => follow("overview");
   const keysEl = h("div", "mp-keys");
-  keysEl.innerHTML = `<b>1-4</b> follow · <b>T</b> demo<br><b>Esc</b> map · <b>WASD</b> pan`;
+  keysEl.innerHTML = `<b>1-9</b> follow · <b>G</b> flow<br><b>Esc</b> map · <b>T</b> demo`;
   const slotStatus = new Map<string, { text: string; tone: Tone }>();
   const spawned: string[] = [];
   let following = "overview";
@@ -123,11 +135,12 @@ export const mountUI: Plugin = (rt) => {
     partyEl.replaceChildren(mapSlot);
     mapSlot.classList.toggle("on", following === "overview");
     partyOrder().forEach((id, i) => {
-      const slot = h("button", "mp-slot");
+      const slot = h("button", spawned.includes(id) ? "mp-slot quest" : "mp-slot");
       slot.style.setProperty("--c", N.color(id));
       slot.classList.toggle("on", following === id);
       slot.title = `Follow ${N.agent(id)} (${i + 1})`;
-      const key = h("span", "key", String(i + 1));
+      const key = h("span", "key", i < 9 ? String(i + 1) : "");
+      if (i >= 9) key.hidden = true;
       const mid = h("div");
       const st = slotStatus.get(id) ?? { text: spawned.includes(id) ? "on a quest" : "at their desk", tone: "" as Tone };
       mid.append(h("div", "nm", N.agent(id)), h("div", `doing ${st.tone}`, st.text));

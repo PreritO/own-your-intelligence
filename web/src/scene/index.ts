@@ -22,7 +22,7 @@ const WALK = params.has("walk"); // first-person mode (controls.ts); default is 
 const FOYER_COLOR = "#e8c15a";
 
 // ---------------------------------------------------------------- block palettes (original pixel art)
-type Style = "foyer" | "legal" | "finance" | "eng" | "people" | "gym" | "workshop" | "loose-ends";
+type Style = "foyer" | "legal" | "finance" | "eng" | "people" | "marketing" | "sales" | "ops" | "support" | "gym" | "workshop" | "loose-ends";
 interface Palette { wall: () => HTMLCanvasElement; cap: () => HTMLCanvasElement; floor: () => HTMLCanvasElement; color: string }
 const PALETTES: Record<Style, Palette> = {
   foyer: { wall: () => TX.polished([206, 204, 196], 21), cap: () => TX.polished([236, 232, 220], 22, true), floor: () => TX.checker([236, 232, 220], [128, 128, 134], 23), color: FOYER_COLOR },
@@ -30,6 +30,11 @@ const PALETTES: Record<Style, Palette> = {
   finance: { wall: () => TX.sandstone([222, 204, 152], 41), cap: () => TX.metalBlock([240, 196, 70], 42), floor: () => TX.checker([230, 214, 168], [204, 182, 128], 43), color: "#e0af68" },
   eng: { wall: () => TX.cobble([128, 128, 124], [86, 142, 56], 51), cap: () => TX.cobble([96, 132, 70], [70, 120, 44], 52), floor: () => TX.checker([126, 130, 124], [104, 108, 102], 53), color: "#9ece6a" },
   people: { wall: () => TX.planks([180, 140, 86], 61), cap: () => TX.bark([106, 78, 46], 62), floor: () => TX.planks([120, 86, 54], 63), color: "#7aa2f7" },
+  // outer wings (ui-v2): marketing pink terracotta + wool, sales prismarine + glass, ops orange brick + iron, support teal wool + cushions
+  marketing: { wall: () => TX.terracotta([196, 110, 118], 101), cap: () => TX.woolTint([236, 146, 170], 102), floor: () => TX.woolTint([214, 128, 150], 103), color: "#f7768e" },
+  sales: { wall: () => TX.prismarine([72, 150, 150], 111), cap: () => TX.glass([178, 226, 236], 112), floor: () => TX.checker([96, 176, 184], [64, 128, 140], 113), color: "#2ac3de" },
+  ops: { wall: () => TX.bricks([196, 108, 58], [92, 60, 44], 121), cap: () => TX.ironPlate([150, 152, 158], 122), floor: () => TX.ironPlate([112, 112, 118], 123, true), color: "#ff9e64" },
+  support: { wall: () => TX.woolTint([82, 168, 150], 131), cap: () => TX.cushion([150, 216, 196], 132), floor: () => TX.planks([128, 100, 72], 133), color: "#73daca" },
   gym: { wall: () => TX.metalBlock([204, 208, 214], 71), cap: () => TX.metalBlock([150, 154, 162], 72), floor: () => TX.checker([112, 70, 70], [96, 60, 62], 73), color: "#e06c75" },
   workshop: { wall: () => TX.planks([156, 112, 64], 81), cap: () => TX.polished([92, 92, 98], 82, true), floor: () => TX.planks([104, 74, 46], 83), color: "#d19a66" },
   "loose-ends": { wall: () => TX.cobble([136, 128, 118], null, 91), cap: () => TX.bark([96, 72, 44], 92), floor: () => TX.gravel([132, 124, 112], 93), color: "#56b6c2" },
