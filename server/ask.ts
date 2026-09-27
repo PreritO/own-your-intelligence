@@ -72,8 +72,7 @@ function keywordRank(question: string, docs: Map<string, Doc>): Ranked[] {
     const df = index.filter((x) => matches(t, x.title) || matches(t, x.body)).length;
     return [t, Math.log(1 + index.length / (1 + df))];
   }));
-  const max = q.reduce((s, t) => s + 3 * idf.get(t)!, 0) || 1;
-  return index
+  const raw = index
     .map((x) => {
       let s = 0;
       const hits: string[] = [];
@@ -81,9 +80,13 @@ function keywordRank(question: string, docs: Map<string, Doc>): Ranked[] {
         const w = matches(t, x.title) ? 3 : matches(t, x.body) ? 1 : 0;
         if (w) { s += w * idf.get(t)!; hits.push(t); }
       }
-      return { id: x.id, score: Math.min(1, s / max * 1.6), hits };
+      return { id: x.id, score: s, hits };
     })
-    .filter((r) => r.score > 0)
+    .filter((r) => r.score > 0);
+  // Relative to the best match, so the top hit scores 1 and ties are rare.
+  const top = Math.max(...raw.map((r) => r.score), 1e-9);
+  return raw
+    .map((r) => ({ ...r, score: r.score / top }))
     .sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : 1));
 }
 
@@ -119,16 +122,18 @@ async function gbrainRank(question: string, docs: Map<string, Doc>, ms: number):
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
 
-export function buildHops(question: string, ranked: Ranked[], source: "gbrain" | "keyword", docs: Map<string, Doc>, links: Link[]): Hop[] {
+export function buildHops(
+  question: string, ranked: Ranked[], source: "gbrain" | "keyword",
+  docs: Map<string, Doc>, links: Link[], routes: { id: string; stations: string[] }[] = [],
+): Hop[] {
   if (!ranked.length) return [];
   const best = ranked[0].score;
   const seeds = ranked.filter((r) => r.score >= best * 0.35).slice(0, 3);
-  const q = terms(question);
-  const rel = (id: string) => {
-    const d = docs.get(id)!;
-    const t = new Set(terms(`${d.title} ${d.text}`));
-    return q.filter((x) => matches(x, t)).length / Math.max(1, q.length);
-  };
+  // Neighbour relevance = its idf-weighted keyword score for this question (0..1).
+  const kw = new Map((source === "keyword" ? ranked : keywordRank(question, docs)).map((r) => [r.id, r.score]));
+  const rel = (id: string) => kw.get(id) ?? 0;
+  // Neighbours that share a palace route with the seed (a known station path) get a small boost.
+  const sharedRoute = (a: string, b: string) => routes.find((r) => r.stations.includes(a) && r.stations.includes(b))?.id;
   const hops: Hop[] = [];
   const used = new Set<string>();
   const push = (memoryId: string, reason: string, score: number) => {
@@ -148,19 +153,26 @@ export function buildHops(question: string, ranked: Ranked[], source: "gbrain" |
         const out = l.from === s.id;
         const id = out ? l.to : l.from;
         const r = rel(id);
-        const reason = out ? `graph link: ${l.kind} (from ${title})` : `graph backlink: ${l.kind} (to ${title})`;
-        return { id, r, reason, typed: l.kind !== "mentions", score: s.score * (0.55 + 0.35 * r) };
+        const route = sharedRoute(s.id, id);
+        const reason = (out ? `graph link: ${l.kind} (from ${title})` : `graph backlink: ${l.kind} (to ${title})`) +
+          (route ? `, on route ${route}` : "");
+        const typed = l.kind !== "mentions";
+        // Relevance to the question dominates; typed outgoing edges and shared routes break ties.
+        const boost = (out && typed ? 0.1 : 0) + (route ? 0.15 : 0);
+        return { id, r, out, typed, reason, score: Math.min(1, s.score * (0.4 + 0.35 * r + boost)) };
       })
-      // Relevant neighbours, or typed outgoing edges (a route's next station); never a bare mention.
-      .filter((n) => !used.has(n.id) && (n.r > 0 || (n.typed && n.reason.startsWith("graph link"))))
-      .sort((a, b) => b.r - a.r || b.score - a.score || (a.id < b.id ? -1 : 1));
-    for (const n of nbrs.slice(0, i === 0 ? 2 : 1)) push(n.id, n.reason, n.score);
+      // Relevant neighbours, or typed outgoing edges; never a bare untyped mention.
+      .filter((n) => !used.has(n.id) && (n.r > 0 || (n.typed && n.out)))
+      .sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : 1))
+      .filter((n, k, all) => all.findIndex((x) => x.id === n.id) === k); // link + backlink to the same page
+    for (const n of nbrs.slice(0, i === 0 ? 3 : 1)) push(n.id, n.reason, n.score);
   });
   return hops;
 }
 
-const GAP = /\b(none recorded|not recorded|no owner|unassigned|tbd|unknown|to be determined)\b/i;
-const isGap = (d: Doc) => !d.text.trim() || GAP.test(d.text);
+// A page is a gap when it is empty or its opening says the fact was never recorded.
+const GAP = /\b(none recorded|not recorded|nothing recorded|no owner recorded|never (?:filled|recorded|assigned))\b|\(none\)/i;
+const isGap = (d: Doc) => !d.text.trim() || GAP.test(d.text.slice(0, 240));
 const firstSentence = (s: string) => (/^(.+?[.!?])(\s|$)/.exec(s)?.[1] ?? s).slice(0, 180);
 
 function templateAnswer(hops: Hop[], docs: Map<string, Doc>) {
@@ -216,10 +228,10 @@ async function claudeAnswer(question: string, hops: Hop[], docs: Map<string, Doc
 
 export async function ask(question: string): Promise<{ trace: Trace; source: string }> {
   const t0 = Date.now();
-  const { docs, links } = loadCorpus();
+  const { palace, docs, links } = loadCorpus();
   const g = await gbrainRank(question, docs, 2000);
   const ranked = g ?? keywordRank(question, docs);
-  const hops = buildHops(question, ranked, g ? "gbrain" : "keyword", docs, links);
+  const hops = buildHops(question, ranked, g ? "gbrain" : "keyword", docs, links, palace.routes);
   if (!hops.length) throw new Error("no pages matched");
   const left = BUDGET_MS - (Date.now() - t0) - 500;
   const llm = left > 1000 ? await claudeAnswer(question, hops, docs, left) : null;

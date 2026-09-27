@@ -21,6 +21,7 @@ export interface Page {
   title: string;
   type: string;
   wing: WingId;
+  room: string | null; // optional `room:` frontmatter (room label / cluster)
   date: string | null; // ISO date/time used for freshness
   body: string; // markdown body without frontmatter
   text: string; // plain text (links resolved to titles)
@@ -190,9 +191,15 @@ export function readBrain(dir: string): Brain {
     for (const line of r.body.split(/\r?\n/)) {
       const lead = /^\s*(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|__)?([A-Za-z][A-Za-z0-9 _-]{0,40}?)(?:\*\*|__)?\s*::?(?:\*\*|__)?\s+/.exec(line);
       const lineKind = lead && lead[1].split(/\s+/).length <= 4 ? snake(lead[1]) : "";
+      // "- funded_by: [[a]], [[b]]" types every link; in prose ("Counterparty: [[a]]. Scope: [[b]]")
+      // the label only types the first link, the rest stay plain mentions.
+      const rest = lead ? line.slice(lead[0].length) : "";
+      const listOnly = !!lead && rest.replace(WIKI, "").replace(/[\s,;&]|and/g, "") === "";
+      let first = true;
       for (const m of line.matchAll(WIKI)) {
         let target = m[1];
-        let kind = lineKind;
+        let kind = listOnly || first ? lineKind : "";
+        first = false;
         const typed = /^([a-z][a-z0-9_-]*)::?(.+)$/i.exec(target); // [[kind::slug]] / [[kind:slug]]
         if (typed && !ids.has(target) && resolve(typed[2], r.id)) {
           kind = snake(typed[1]);
@@ -223,6 +230,7 @@ export function readBrain(dir: string): Brain {
       id: r.id, path: r.path, title: titleOf.get(r.id)!,
       type: str(r.fm.type)?.toLowerCase() ?? "page",
       wing: teamToWing(str(r.fm.team), r.id),
+      room: str(r.fm.room),
       date, body: r.body, text, excerpt: excerptOf(text),
       links: [...best].map(([to, kind]) => ({ from: r.id, to, kind })).sort((a, b) => cmp(a.to, b.to)),
     });
@@ -239,7 +247,7 @@ export function plain(md: string, titleFor: (target: string) => string = (t) => 
   return md
     .replace(/```[\s\S]*?```/g, " ")
     .split(/\r?\n/)
-    .filter((l) => !/^\s*#{1,6}\s/.test(l) && !/^\s*(---+|\*\*\*+)\s*$/.test(l))
+    .filter((l) => !/^\s*#{1,6}\s/.test(l) && !/^\s*(---+|\*\*\*+)\s*$/.test(l) && !/^\s*\|/.test(l)) // no headings, rules, tables
     .join("\n")
     .replace(WIKI, (_, t, label) => label ?? titleFor(t))
     .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
@@ -350,7 +358,7 @@ export function buildPalace(opts: ExportOptions) {
   const { pins, minRooms, referenced } = replayPins(opts.replays, brain.byId, warnings);
   for (const id of [...referenced].sort()) if (!brain.byId.has(id)) warnings.push(`replay references ${id}, missing from brain`);
 
-  const lay = layout(brain.pages.map((p) => ({ id: p.id, wing: p.wing, type: p.type })), { pins, minRooms });
+  const lay = layout(brain.pages.map((p) => ({ id: p.id, wing: p.wing, type: p.type, group: p.room ?? undefined })), { pins, minRooms });
   warnings.push(...lay.warnings);
 
   const dated = brain.pages.map((p) => p.date).filter((d): d is string => !!d).sort();

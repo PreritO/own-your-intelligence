@@ -26,6 +26,8 @@ export interface LayoutPage {
   id: string;
   wing: WingId;
   type: string;
+  /** optional room label from the page's `room:` frontmatter; pages sharing it cluster together */
+  group?: string;
 }
 
 export interface LayoutOptions {
@@ -46,7 +48,8 @@ const r2 = (n: number) => {
   const v = Math.round(n * 100) / 100;
   return Object.is(v, -0) ? 0 : v;
 };
-const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+const cmpStr = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+const byId = (a: { id: string }, b: { id: string }) => cmpStr(a.id, b.id);
 export const roomId = (wing: string, i: number) => `room-${wing}-${i}`;
 
 export function layout(pagesIn: LayoutPage[], opts: LayoutOptions = {}): LayoutResult {
@@ -94,8 +97,17 @@ export function layout(pagesIn: LayoutPage[], opts: LayoutOptions = {}): LayoutR
       buckets[i].push(p);
     }
 
-    // Unpinned pages fill rooms in id order, balanced across the wing's rooms.
-    const rest = wingPages.filter((p) => !pinnedIdx.has(p.id));
+    // Unpinned pages fill rooms balanced across the wing's rooms, clustered by `room:` group.
+    // Groups go in the order of the lowest room their pinned members need, then by name.
+    const groupRank = new Map<string, number>();
+    for (const [id, i] of pinnedIdx) {
+      const g = wingPages.find((p) => p.id === id)!.group ?? "";
+      groupRank.set(g, Math.min(groupRank.get(g) ?? Infinity, i));
+    }
+    const gkey = (p: LayoutPage) => groupRank.get(p.group ?? "") ?? Infinity;
+    const rest = wingPages
+      .filter((p) => !pinnedIdx.has(p.id))
+      .sort((a, b) => gkey(a) - gkey(b) || cmpStr(a.group ?? "￿", b.group ?? "￿") || cmpStr(a.id, b.id));
     const cap = Math.min(MAX_PER_ROOM, Math.ceil(n / count));
     let k = 0;
     for (const limit of [cap, MAX_PER_ROOM]) {
@@ -197,9 +209,13 @@ function plural(type: string): string {
   return cap + "s";
 }
 
-/** "Contracts", or "People & Companies" when no single type dominates. */
+/** Majority `room:` label; else "Contracts", or "People & Companies" when no single type dominates. */
 function roomLabel(pages: LayoutPage[], fallback: string): string {
   if (pages.length === 0) return fallback;
+  const groups = new Map<string, number>();
+  for (const p of pages) if (p.group) groups.set(p.group, (groups.get(p.group) ?? 0) + 1);
+  const g = [...groups].sort((a, b) => b[1] - a[1] || cmpStr(a[0], b[0]))[0];
+  if (g) return g[0];
   const counts = new Map<string, number>();
   for (const p of pages) counts.set(p.type, (counts.get(p.type) ?? 0) + 1);
   const ranked = [...counts].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
