@@ -15,7 +15,11 @@
     "qm:mcp": "bun qm/loci-mcp.ts",
     "quest": "bun server/commission/quest.ts",
     "quest:mcp": "LOCI_MCP_PORT=8792 bun qm/loci-mcp.ts",
-    "protocol": "uv run --project server/protocol python server/protocol/service.py"
+    "protocol": "uv run --project server/protocol python server/protocol/service.py",
+    "memorable:demo": "bun server/memorable/demo.ts",
+    "memorable:seed": "bun server/memorable/seed.ts",
+    "gbrain:seed": "bash fixtures/seed-gbrain.sh --fresh",
+    "gbrain:stats": "GBRAIN_HOME=$PWD gbrain stats"
   },
   "dependencies": {
     "three": "^0.186.1",
