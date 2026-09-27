@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "mind-palace",
+      "name": "agent-palace",
       "dependencies": {
         "three": "^0.186.1",
         "zod": "^4.6.5",
