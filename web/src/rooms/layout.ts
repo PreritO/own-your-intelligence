@@ -227,7 +227,20 @@ export function memoryOwner(palace: Palace, memoryId: string): string {
   const r = m && palace.rooms.find((x) => x.id === m.room);
   if (r) return r.owner;
   const prefix = memoryId.split("/")[0];
-  return ["legal", "finance", "eng"].includes(prefix) ? prefix : "shared";
+  return departments(palace).includes(prefix) ? prefix : "shared";
+}
+
+/** Department owners in wing order (legal, finance, eng, marketing, ...), read from palace.json. */
+export function departments(palace: Palace): string[] {
+  const out: string[] = [];
+  for (const w of palace.wings) if (w.owner && w.owner !== "shared" && !out.includes(w.owner)) out.push(w.owner);
+  for (const a of palace.agents) if (a.team && !out.includes(a.team)) out.push(a.team);
+  return out;
+}
+
+export function teamLabel(palace: Palace, team: string): string {
+  const w = palace.wings.find((x) => x.owner === team || x.id === team);
+  return w?.label ?? (team ? team[0].toUpperCase() + team.slice(1) : team);
 }
 
 export function teamColor(palace: Palace, team: string): string {
