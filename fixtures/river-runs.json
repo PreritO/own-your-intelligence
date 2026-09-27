@@ -1,0 +1,108 @@
+{
+  "about": "Real River AI jobs from the training workspace (NOTES-training.md and the server/train/out logs of ws/training). Every number is copied from a log; nothing is estimated. The Gym leaderboard (web/src/rooms/gym.ts) renders this file.",
+  "jobs": [
+    {
+      "jobId": "50692a37-0f22-4aa7-b1f6-903fbd180ffe:model:1",
+      "run": "sft-legal",
+      "team": "legal",
+      "kind": "sft",
+      "base": "Qwen/Qwen3.5-9B",
+      "steps": 30,
+      "metric": {
+        "name": "loss",
+        "values": [134.0936, 168.0737, 116.2832, 93.298, 97.0541, 80.4591, 75.9478, 57.3706, 60.4511, 39.5793, 47.9038, 27.6427, 33.815, 37.409, 27.2951, 35.2716, 18.6752, 17.3798, 16.7479, 12.1937, 10.9033, 11.5197, 10.4448, 12.8023, 13.699, 6.7714, 6.2767, 8.2211, 7.1318, 9.5201]
+      },
+      "start": 134.0936,
+      "end": 9.5201,
+      "heldOut": { "n": 6, "after": { "reward": 0.458, "correct": 0.67 }, "note": "thinking off; with thinking on the replies did not parse and scored -0.075" },
+      "status": "done",
+      "checkpoint": "river://6932ec36-6bda-43e0-b9a9-4f576919f06a/sampler_weights/sft-legal",
+      "note": "LoRA rank 16, batch 16, lr 2e-4, completion-masked cross-entropy, about 70 s/step.",
+      "source": "server/train/out/sft-legal.log"
+    },
+    {
+      "jobId": "55e66b34-5d48-4efc-bbbc-45fcbb7e518e:model:1",
+      "run": "rl-legal-base",
+      "team": "legal",
+      "kind": "rl",
+      "base": "Qwen/Qwen3.5-9B",
+      "steps": 0,
+      "metric": { "name": "reward/mean", "values": [] },
+      "start": null,
+      "end": null,
+      "status": "failed",
+      "failure": "river-backend",
+      "note": "rl.AsyncTrainer from base weights died on the first optim_step: RiverError internal_error: Backend error: River team is investigating.",
+      "source": "server/train/out/rl-legal-base.log"
+    },
+    {
+      "jobId": "7c0916a3-f167-4ca4-93e5-15220567f72c:model:1",
+      "run": "rl-legal",
+      "team": "legal",
+      "kind": "rl",
+      "base": "Qwen/Qwen3.5-9B",
+      "steps": 0,
+      "metric": { "name": "reward/mean", "values": [] },
+      "start": null,
+      "end": null,
+      "status": "failed",
+      "failure": "river-backend",
+      "note": "rl.AsyncTrainer from the SFT checkpoint died on the first optim_step with the same River backend error.",
+      "source": "server/train/out/rl-legal.log"
+    },
+    {
+      "jobId": "558dd019-1c46-4227-bb65-ed75d29a88f3:model:1",
+      "run": "rl-legal (resume)",
+      "team": "legal",
+      "kind": "rl",
+      "base": "Qwen/Qwen3.5-9B",
+      "steps": 0,
+      "metric": { "name": "reward/mean", "values": [] },
+      "start": null,
+      "end": null,
+      "status": "failed",
+      "failure": "resume-rejected",
+      "note": "Automatic resume after the backend error was rejected: init_checkpoint is mutually exclusive with automatic resume.",
+      "source": "server/train/out/rl-legal.log"
+    },
+    {
+      "jobId": "9a6b6518-633f-4ed9-8128-030a23407690:model:1",
+      "run": "rl-legal-simple",
+      "team": "legal",
+      "kind": "rl",
+      "base": "Qwen/Qwen3.5-9B",
+      "steps": 16,
+      "metric": {
+        "name": "reward/mean",
+        "values": [0.5391, 0.0781, 0.8203, 0.3594, 0.0703, 0.4375, 0.0547, 0.5781, 0.2734, 0.5234, 0.4844, 0.3594, 0.1562, 0.5469, 0.6875, 0.1953]
+      },
+      "start": 0.5391,
+      "end": 0.1953,
+      "status": "partial",
+      "checkpoint": "river://547cde84-7593-463b-bd54-94e0220fc2fb/sampler_weights/rl-legal-simple-step015",
+      "note": "rl.py --simple: GRPO on River primitives from the SFT checkpoint, 4 tasks x 8 attempts per step, importance_sampling loss, plain optim_step. It trains, but reward/mean is noisy with no clear trend. The log ends at step 16; the last saved checkpoint is step 15.",
+      "source": "server/train/out/rl-legal-simple.log"
+    },
+    {
+      "jobId": "7e122e16-3542-4efd-bd79-d06b6a1eb2c5:model:1",
+      "run": "rl-legal-simple-lr1e-4",
+      "team": "legal",
+      "kind": "rl",
+      "base": "Qwen/Qwen3.5-9B",
+      "steps": 5,
+      "metric": { "name": "reward/mean", "values": [0.2305, 0.5469, 0.2773, 0.3438, 0.3711] },
+      "start": 0.2305,
+      "end": 0.3711,
+      "heldOut": {
+        "n": 16,
+        "before": { "reward": 0.5938, "correct": 0.75, "compliant": 0.5 },
+        "after": { "reward": 0.6719, "correct": 0.812, "compliant": 0.438 },
+        "note": "greedy held-out eval (16 tasks) at step 0 and step 5; compliance dipped"
+      },
+      "status": "partial",
+      "checkpoint": "river://a3e45a80-9467-4c6f-8679-3df92f446e4f/sampler_weights/rl-legal-simple-lr1e-4-step005",
+      "note": "Second --simple run: lr 1e-4, 8 tasks x 8 attempts per step, from the SFT checkpoint. The log ends after the step-5 held-out eval.",
+      "source": "server/train/out/rl-legal-simple-lr1e-4.log"
+    }
+  ]
+}

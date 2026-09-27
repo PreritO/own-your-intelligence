@@ -1,12 +1,17 @@
-// OWNED BY: training. The Gym (River AI, Tier 2): weight rack (checkpoints per team), treadmill
-// lanes with ghost rollouts, scoreboard with PRs. Pure function of train_step events.
+// OWNED BY: training, ui-v3. The Gym (River AI, Tier 2): weight rack (checkpoints per team), treadmill
+// lanes with ghost rollouts, scoreboard with PRs (pure function of train_step events), and the River
+// leaderboard (web/src/ui/leaderboard.ts), shown while the camera is in or near the Gym or after the HUD's Gym button.
 import * as THREE from "three";
 import { PalaceEvent } from "../../../server/schema";
 import type { PalaceRuntime } from "../api";
-import { buildShell, departments, signAbove, fetchTextOptional, framePose, makeBoard, mountOnFarWall, roundRect, teamColor, teamLabel, textSprite, type Placement } from "./layout";
+import { buildShell, departments, signAbove, fetchTextOptional, flyTo, framePose, makeBoard, mountOnFarWall, roundRect, teamColor, teamLabel, textSprite, type Placement } from "./layout";
+import { GYM_EVENTS, mountLeaderboard } from "../ui/leaderboard";
+import { PRESENCE_EVENTS } from "../agents/run";
 
 type TrainStep = Extract<PalaceEvent, { type: "train_step" }>;
-interface TeamStats { team: string; points: { step: number; reward: number }[]; checkpoints: string[]; best: number; last?: TrainStep; run?: string }
+interface TeamStats { team: string; points: { step: number; reward: number }[]; checkpoints: string[]; best: number; last?: TrainStep; run?: string; sim?: boolean }
+/** Local-sim checkpoints: "sim", "sim-step-N" (server/train/quest.py) and dry-run ids. Everything else is River. */
+const isSimCkpt = (c?: string) => !!c && (c === "sim" || c.startsWith("sim-") || c.startsWith("river-dryrun"));
 
 const LANES = 8; // River group size: 8 attempts per task
 const MAX_PLATES = 8;
@@ -80,6 +85,7 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
     s.best = Math.max(s.best, e.reward);
     s.last = e;
     s.run = e.run;
+    if (isSimCkpt(e.checkpoint) || e.run?.includes("dryrun")) s.sim = true;
     if (e.checkpoint && !s.checkpoints.includes(e.checkpoint)) { s.checkpoints.push(e.checkpoint); addPlate(k, s.checkpoints.length); }
     activeKey = k;
     lastStepAt = performance.now();
@@ -164,8 +170,8 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
       ctx.font = "400 32px ui-sans-serif, system-ui, sans-serif";
       ctx.fillStyle = "#9aa0b4";
       const act = stats.get(activeKey);
-      const sim = !!run?.includes("dryrun") || !!act?.last?.checkpoint?.startsWith("sim-") || !!act?.last?.checkpoint?.startsWith("river-dryrun");
-      ctx.fillText(any ? `${sim ? "local RL sim (same palace env + reward)" : "River RL"} · reward/mean per step · ${act?.run ?? run ?? ""}` : "waiting for train_step events from server/train…", 56, 116);
+      const sim = !!run?.includes("dryrun") || !!act?.sim;
+      ctx.fillText(any ? `${sim ? "local RL sim (same palace env + reward), not River" : "River RL (real, noisy)"} · reward/mean per step · ${act?.run ?? run ?? ""}` : "waiting for train_step events from server/train…", 56, 116);
 
       // Commissioned agent (most recent) first, then the teams that have trained, padded with the rest
       // in wing order; at most 4 rows so the numbers stay readable with 7 departments.
@@ -236,31 +242,72 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
   // In ?demo, also play a canned train_step replay if one has been dropped into fixtures/replays/
   // (server/train writes out/gym-legal.jsonl; ?gym=<name> picks another). Parsed with the frozen schema.
   const params = new URLSearchParams(location.search);
-  const gymName = params.get("gym") || (rt.events.mode === "demo" ? "gym-legal" : "");
+  // Outside ?demo the same real River curve is drawn at once (static board), so the Gym is never empty.
+  const gymName = params.get("gym") || "gym-legal";
+  const animate = rt.events.mode === "demo" || params.has("gym");
   const timers: number[] = [];
   if (gymName) {
     fetchTextOptional(`/replays/${gymName}.jsonl`).then((text) => {
       if (!text) return;
       const delay = Number(params.get("gymDelay") ?? 2);
       for (const line of text.split("\n").filter(Boolean)) {
-        const parsed = PalaceEvent.safeParse(JSON.parse(line));
+        let parsed;
+        try { parsed = PalaceEvent.safeParse(JSON.parse(line)); } catch { continue; }
         if (parsed.success && parsed.data.type === "train_step") {
           const e = parsed.data;
-          timers.push(window.setTimeout(() => ingest(e), ((delay + e.t) * 1000) / (rt.events.speed || 1)));
+          if (animate) timers.push(window.setTimeout(() => ingest(e), ((delay + e.t) * 1000) / (rt.events.speed || 1)));
+          else ingest(e);
         }
       }
     });
   }
 
+  const pose = () => {
+    // Higher and further back than the other boards so the lanes and racks are in frame.
+    const { eye, target } = framePose(pl, board.mesh, 16);
+    target.lerp(pl.center.clone().setY(1), 0.45);
+    return { eye, target };
+  };
+
+  // ---------- River leaderboard (DOM): open near the Gym, or from the HUD's "Gym" button ----------
+  const lb = mountLeaderboard(rt.hud, rt.palace);
+  const gymPoint = pl.center.clone().setY(2);
+  const NEAR = 30, FAR = 38; // metres from the camera; the overview camera sits well beyond FAR
+  let dismissed = false; // closed with ✕: stay closed until the camera leaves the Gym
+  let pinned = false; // opened by the button: stay open until the fly ends or the camera leaves
+  let endFly: (() => void) | null = null;
+  lb.onClose(() => { dismissed = true; pinned = false; });
+  const offNear = rt.onFrame(() => {
+    const d = rt.camera.position.distanceTo(gymPoint);
+    if (d > FAR) { dismissed = false; if (!pinned) lb.hide(); }
+    else if (d < NEAR && !dismissed) lb.show();
+  });
+  const onGo = () => {
+    dismissed = false;
+    pinned = true;
+    const p = pose();
+    endFly = flyTo(rt, p.eye, p.target);
+    lb.show();
+  };
+  // Leaving for the map, an agent, or a new quest ends the Gym cinematic.
+  const onLeave = () => { pinned = false; if (endFly) { const f = endFly; endFly = null; f(); } };
+  const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") { pinned = false; endFly = null; } };
+  addEventListener(GYM_EVENTS.go, onGo);
+  addEventListener(PRESENCE_EVENTS.camera, onLeave);
+  addEventListener(PRESENCE_EVENTS.commission, onLeave);
+  addEventListener("keydown", onEsc);
+
   return {
     group: g,
-    pose: () => {
-      // Higher and further back than the other boards so the lanes and racks are in frame.
-      const { eye, target } = framePose(pl, board.mesh, 16);
-      target.lerp(pl.center.clone().setY(1), 0.45);
-      return { eye, target };
+    pose,
+    dispose() {
+      offFrame(); offEvents(); offNear(); timers.forEach(clearTimeout); rt.scene.remove(g);
+      removeEventListener(GYM_EVENTS.go, onGo);
+      removeEventListener(PRESENCE_EVENTS.camera, onLeave);
+      removeEventListener(PRESENCE_EVENTS.commission, onLeave);
+      removeEventListener("keydown", onEsc);
+      lb.el.parentElement?.remove();
     },
-    dispose() { offFrame(); offEvents(); timers.forEach(clearTimeout); rt.scene.remove(g); },
   };
 }
 
