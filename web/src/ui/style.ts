@@ -58,6 +58,7 @@ export const CSS = /* css */ `
 .mp-link:hover { background: rgba(255,255,255,0.06); }
 .mp-link .k { color: var(--muted); font-size: 11.5px; }
 .mp-verdicts { margin: 0 0 10px; display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
+.mp-verdicts b { color: var(--c); }
 
 /* bottom: hints, mode, toast */
 .mp-bottom { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; gap: 8px; align-items: center; }
