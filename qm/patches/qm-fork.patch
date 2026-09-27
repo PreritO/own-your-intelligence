@@ -1,27 +1,34 @@
 diff --git a/src/harness/agent-tools.ts b/src/harness/agent-tools.ts
-index f6bfc8a..7ee213d 100644
+index f6bfc8a..0931640 100644
 --- a/src/harness/agent-tools.ts
 +++ b/src/harness/agent-tools.ts
-@@ -374,6 +374,18 @@ export function pauseStampAfterToolCall(
+@@ -32,6 +32,7 @@ import {
+ import { SANDBOX_CAPABILITY_TTL_MS } from "../auth/capability-token.ts";
+ import { CRON_FIRE_NOTE_MAX_CHARS } from "../api/control-service.ts";
+ import { utcMinute } from "../util/time.ts";
++import { lociConnectorAllowed, lociScopeAgent } from "../mindpalace/loci-scopes.ts";
+ 
+ function describePublishAudience(a: PublishAudienceDescriptor | undefined): string {
+   if (!a) return "Owned by you.";
+@@ -374,6 +375,8 @@ export function pauseStampAfterToolCall(
    };
  }
  
-+// Mind Palace fork: which team agent (legal | finance | eng) a scope is. LOCI_SCOPES is a JSON map
-+// {"<scopeId>": "<agent>"}; the scope id's own ref (channel:legal) is the fallback.
-+function lociScopeAgent(scope: ScopeId | undefined): string | undefined {
-+  if (!scope) return undefined;
-+  try {
-+    const map = JSON.parse(process.env.LOCI_SCOPES || "{}") as Record<string, string>;
-+    if (map[scope]) return map[scope];
-+  } catch {}
-+  const ref = String(scope).slice(String(scope).indexOf(":") + 1);
-+  return ["legal", "finance", "eng"].includes(ref) ? ref : undefined;
-+}
++// Mind Palace fork: loci connectors are bound to the scope of the agent they serve (src/mindpalace).
 +
  export function createAgentTools(ref: ToolContextRef, opts?: AgentToolsOptions): ToolDefinition[] {
    const processActions = {
      start_process: "start",
-@@ -4039,8 +4051,27 @@ export function createAgentTools(ref: ToolContextRef, opts?: AgentToolsOptions):
+@@ -4026,6 +4029,8 @@ export function createAgentTools(ref: ToolContextRef, opts?: AgentToolsOptions):
+   const mcpDefs = opts?.mcpTools?.() ?? [];
+   const mcpTools = mcpDefs
+     .filter((d) => !opts?.readOnly || d.readOnly)
++    // Mind Palace fork: a scope sees only its own loci connector (others are refused at execute anyway).
++    .filter((d) => !ref.scopeLabel || lociConnectorAllowed(d.serverId, lociScopeAgent(ref.scopeLabel)))
+     .map((d) =>
+       defineTool({
+         name: d.name,
+@@ -4039,8 +4044,27 @@ export function createAgentTools(ref: ToolContextRef, opts?: AgentToolsOptions):
            const tc = ref.current;
            if (!tc) return text("[error] no active tool context");
            await recordCall(callId, { tool: d.name, mcpServer: d.serverId, args: params });
@@ -31,7 +38,7 @@ index f6bfc8a..7ee213d 100644
 +          if (d.serverId.startsWith("loci-")) {
 +            const scopeAgent = lociScopeAgent(ref.scopeLabel);
 +            const connectorAgent = d.serverId.slice("loci-".length);
-+            if (scopeAgent !== connectorAgent) {
++            if (!lociConnectorAllowed(d.serverId, scopeAgent)) {
 +              return recordResult(
 +                callId,
 +                { tool: d.name, mcpServer: d.serverId, failed: true },
