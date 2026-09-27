@@ -164,7 +164,7 @@ export function mountWorkshop(rt: PalaceRuntime, pl: Placement) {
       ctx.font = "400 30px ui-sans-serif, system-ui, sans-serif";
       ctx.fillStyle = "#b7bccb";
       wrapText(ctx, `“${cmp.task}”`, W - x0 - 60, 2).forEach((l, i) => ctx.fillText(l, x0, 252 + i * 38));
-      const learned = cmp.b ? undefined : routes.find((r) => r.routeId === cmp.a.routeId);
+      const learned = cmp.b || routesSource !== "learned" ? undefined : routes.find((r) => r.routeId === cmp.a.routeId || r.task.trim().toLowerCase() === cmp.task.trim().toLowerCase());
       const cols: { label: string; hops: number | string; tools: number | string; sub: string; color: string }[] = [
         { label: "RUN 1", hops: cmp.a.hops, tools: cmp.a.tools, sub: cmp.a.source ?? "…", color: "#f7768e" },
         cmp.b
