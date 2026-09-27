@@ -12,7 +12,10 @@
     "fixtures": "bun scripts/make-fixtures.ts",
     "typecheck": "tsc --noEmit",
     "routes": "bun server/routes.ts",
-    "qm:mcp": "bun qm/loci-mcp.ts"
+    "qm:mcp": "bun qm/loci-mcp.ts",
+    "quest": "bun server/commission/quest.ts",
+    "quest:mcp": "LOCI_MCP_PORT=8792 bun qm/loci-mcp.ts",
+    "protocol": "uv run --project server/protocol python server/protocol/service.py"
   },
   "dependencies": {
     "three": "^0.186.1",
