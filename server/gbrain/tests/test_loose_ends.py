@@ -134,7 +134,8 @@ def test_resolve_writes_the_page_puts_to_isolated_gbrain_and_reverifies(world):
         visits = events(p, "visit")
         assert visits[-1]["memoryId"] == "eng/soc2-owner" and visits[-1]["verdict"] == "verified" and visits[-1]["agent"] == "eng"
         assert r["recheck"]["verdict"] == "verified"
-        item = _get(base, "/loose-ends/eng/soc2-owner")
+        assert visits[-1]["evidence"] == f"Role page for the SOC 2 program owner. Owner: {ANSWER}."  # quotes the page, not the log
+        item =_get(base, "/loose-ends/eng/soc2-owner")
         assert item["status"] == "resolved" and item["verified"] is True and item["answer"] == ANSWER and item["channel"] == "outbox"
         # 5. and so does any later visit, in a fresh run
         p.start_run("r2")

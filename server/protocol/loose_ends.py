@@ -303,7 +303,8 @@ class Inbox:
                 f"a {item['verdict']}: {item.get('note') or 'nothing recorded'}. Asked by {who}. "
                 f"Answer it on the palace Loose Ends board or POST /loose-ends/{item['memoryId']}/resolve."
             )
-        return f"Resolved for {item['teamLabel']}: \"{item['question']}\" answered by {by}: {answer} Written to {where}."
+        a = answer if answer and answer[-1] in ".!?" else f"{answer}."
+        return f"Resolved for {item['teamLabel']}: \"{item['question']}\" answered by {by}: {a} Written to {where}."
 
     def deliver(self, team: str, text: str, kind: str) -> dict:
         """Slack if a webhook is configured and accepts the post; else the team's outbox file. Honest result."""
@@ -396,7 +397,7 @@ class Inbox:
             result: dict[str, Any] = {"pending": "the next visit re-judges the page"}
             if recheck and agent in p.agents and p.can_enter(agent, memory_id):
                 try:
-                    v = p.visit(agent, memory_id, run.id, item["question"])
+                    v = p.visit(agent, memory_id, run.id, item["question"], evidence=_answer_line(write["path"], answer))
                     result = {"agent": agent, "verdict": v.get("verdict") or ("wait" if v.get("wait") else None), "note": v.get("note"), "heldBy": v.get("heldBy")}
                 except ProtocolError as e:
                     result = {"agent": agent, "error": e.payload.get("error")}
@@ -434,6 +435,21 @@ class Inbox:
             self.proto.loose_ends.clear()
             self._save()
         return out
+
+
+def _answer_line(path: str, answer: str, limit: int = 180) -> str | None:
+    """The page line where the answer now lives (not the ## Answers log): the re-check's evidence."""
+    try:
+        _, body = strip_frontmatter(Path(path).read_text("utf8"))
+    except OSError:
+        return None
+    needle = answer.rstrip(".").replace("|", "/")[:40]
+    for part in (body.split("\n## Answers")[0], body):  # prefer the page text, else the answers log
+        for line in part.splitlines():
+            if needle and needle in line:
+                line = line.strip(" |-")
+                return line if len(line) <= limit else line[: limit - 1] + "…"
+    return None
 
 
 def _rel(path: str) -> str:
