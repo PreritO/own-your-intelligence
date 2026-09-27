@@ -12,16 +12,9 @@
   }
  },
  "model": "claude-sonnet-5",
- "prompt": "v3",
+ "prompt": "v5",
  "response": {
   "claims": [
-   {
-    "text": "we can fund Gripworks",
-    "status": "supported",
-    "memoryId": "finance/budget-2026-q4",
-    "quote": "Gripworks ($40k) fits within the line.",
-    "reason": ""
-   },
    {
     "text": "the Q4 supplier line has $40k remaining",
     "status": "supported",
@@ -34,6 +27,13 @@
     "status": "supported",
     "memoryId": "legal/gripworks-msa",
     "quote": "Contract value $40k.",
+    "reason": ""
+   },
+   {
+    "text": "we can fund Gripworks",
+    "status": "supported",
+    "memoryId": "legal/gripworks-msa",
+    "quote": "The $40k is funded from the Q4 supplier line in the [[finance/budget-2026-q4|Q4 2026 Budget]].",
     "reason": ""
    }
   ]

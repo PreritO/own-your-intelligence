@@ -43,7 +43,7 @@ JUDGE_MODEL = "claude-haiku-4-5-20251001"
 GROUND_MODEL = "claude-sonnet-5"
 JUDGE_TIMEOUT = 2.5
 GROUND_TIMEOUT = 10.0
-PROMPT_VERSION = "v3"  # bump when a prompt or schema changes: old cache entries stop matching
+PROMPT_VERSION = "v5"  # bump when a prompt or schema changes: old cache entries stop matching
 
 SUPPORT = ("answers", "partial", "silent", "contradicts")
 CLAIM_STATUS = ("supported", "unsupported", "gap")
@@ -153,7 +153,8 @@ Judge the underlying information need, not the literal wording: a question phras
 support:
 - answers: the page directly states what the question asks for. Judge like a practical colleague: "Net-45" answers "what are the payment terms?" even though the page could say more. Don't demand details the question did not ask for.
 - partial: the page states some of what was asked, or closely relevant facts, but a part the question explicitly asks for is missing.
-- silent: the page does not state it. It is off-topic, or it only says the thing is unknown, blank, "not recorded" or "TBD".
+- silent: nothing on the page helps answer it. The page is about something else, or it only says the thing is unknown, blank, "not recorded" or "TBD". If the page holds facts the asker would use in the answer (a tracker of board follow-ups for "what did we promise the board?", even without repeating every name in the question), it is partial or answers, not silent.
+  silent is a loud verdict: it opens a gap that a human must fill. Use it only when the page clearly holds nothing the asker could use. When in doubt between silent and partial, choose partial.
 - contradicts: the page states something that conflicts with a premise of the question (a different amount, date, owner or term).
 
 evidence: for answers, partial and contradicts, copy ONE contiguous span from the page, character for character: the single most relevant sentence or table row (no paraphrase, no skipped words, no joining of separate sentences; under 200 characters). For silent, "".

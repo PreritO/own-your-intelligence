@@ -8,7 +8,7 @@
   }
  },
  "model": "claude-sonnet-5",
- "prompt": "v3",
+ "prompt": "v5",
  "response": {
   "claims": [
    {
@@ -23,7 +23,7 @@
     "status": "unsupported",
     "memoryId": "legal/gripworks-msa",
     "quote": "",
-    "reason": "page says liability cap is 1x fees, not 2x"
+    "reason": "page says liability cap 1x fees, not 2x"
    }
   ]
  }

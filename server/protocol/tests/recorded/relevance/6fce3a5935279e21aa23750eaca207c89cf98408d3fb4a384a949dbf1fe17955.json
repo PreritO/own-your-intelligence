@@ -4,11 +4,11 @@
  "contentHash": "a710b022ae4e4129",
  "question": "Who owns the SOC 2 renewal, and when does it start?",
  "model": "claude-haiku-4-5-20251001",
- "prompt": "v3",
+ "prompt": "v5",
  "response": {
-  "evidence": "SOC 2 Type II renewal window opens Nov 1. Auditor: Brightline. Owner: see SOC 2 Owner page.",
+  "evidence": "Owner: see SOC 2 Owner page.",
   "support": "partial",
-  "missing": "who specifically owns the renewal (owner is deferred to another page)",
+  "missing": "owner name (redirected to another page), start date clarification",
   "contradiction": ""
  }
 }

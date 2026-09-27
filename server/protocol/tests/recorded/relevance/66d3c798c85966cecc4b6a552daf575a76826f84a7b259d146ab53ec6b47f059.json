@@ -4,7 +4,7 @@
  "contentHash": "0312f15110489329",
  "question": "Is the $40k Gripworks contract within the Q4 supplier budget?",
  "model": "claude-haiku-4-5-20251001",
- "prompt": "v3",
+ "prompt": "v5",
  "response": {
   "evidence": "Supplier line: $55k allocated, $15k committed. Gripworks ($40k) fits within the line.",
   "support": "answers",
