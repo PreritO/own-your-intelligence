@@ -2,16 +2,18 @@
 // No three.js objects here so it stays easy to reason about (and to reuse for the minimap).
 import type { Palace, Room, Vec3 } from "../../../server/schema";
 
-export const DOOR_WIDTH = 2.4;
-export const DOOR_HEIGHT = 2.8;
-export const WALL_T = 0.3;
-export const CORRIDOR_WALL_H = 1.4;
+// Voxel grid: blocks are 1 m cubes centred on integer x/z (so a wall on an integer wall line is one block
+// thick) and spanning integer y. Doors are 3-block gaps, 3 blocks tall; corridor walls are 2 blocks.
+export const DOOR_WIDTH = 3;
+export const DOOR_HEIGHT = 3;
+export const WALL_T = 1;
+export const CORRIDOR_WALL_H = 2;
 
 /** Axis-aligned box: min/max corners, meters. */
 export interface Box {
   min: [number, number, number];
   max: [number, number, number];
-  roomId?: string; // owning room (for trim colour / lighting); undefined for corridors
+  roomId?: string; // owning room (for palette / lighting); corridors: the non-foyer room they lead to
   kind: "wall" | "lintel" | "corridor-wall";
 }
 
@@ -194,6 +196,7 @@ export function buildLayout(palace: Palace): Layout {
           min: [Math.min(ax, bx) - (dx ? 0 : t), 0, Math.min(az, bz) - (dz ? 0 : t)],
           max: [Math.max(ax, bx) + (dx ? 0 : t), CORRIDOR_WALL_H, Math.max(az, bz) + (dz ? 0 : t)],
           kind: "corridor-wall",
+          roomId: leg.a === "foyer" ? leg.b : leg.a,
         });
       }
     });
@@ -260,4 +263,14 @@ export function resolveCollision(x: number, z: number, radius: number, boxes: Bo
     if (!moved) break;
   }
   return [x, z];
+}
+
+/** Voxel cells (integer x/z centres, integer y floors) covered by a box. See the grid note at the top. */
+export function boxCells(b: Box): [number, number, number][] {
+  const out: [number, number, number][] = [];
+  const e = 1e-6;
+  for (let x = Math.ceil(b.min[0] - e); x <= Math.floor(b.max[0] + e); x++)
+    for (let z = Math.ceil(b.min[2] - e); z <= Math.floor(b.max[2] + e); z++)
+      for (let y = Math.floor(b.min[1] + e); y <= Math.ceil(b.max[1] - e) - 1; y++) out.push([x, y, z]);
+  return out;
 }
