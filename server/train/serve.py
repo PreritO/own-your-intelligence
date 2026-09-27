@@ -501,12 +501,19 @@ def reply_sft(steps: int, batch: int, lr: float, rank: int) -> None:
     with client.session(project="mind-palace-sft-legal-reply") as session:
         model = session.create_model(base_model=QWEN, lora=river.LoraConfig(rank=rank))
         print(json.dumps({"job": model.model_id, "base": QWEN, "examples": len(data)}), flush=True)
+        rec = {"team": "legal", "generation": 2, "recipe": "sft-reply", "jobId": model.model_id, "base_model": QWEN, "status": "training", "steps": steps,
+               "trainedOn": f"{len(rows)} grounded Claude replies ({sum(r['source'] != 'generic' for r in rows)} from replays), {steps} steps"}
+        (OUT / "ladder").mkdir(parents=True, exist_ok=True)
+        (OUT / "ladder" / "legal-gen2.json").write_text(json.dumps(rec, indent=2))
         save_checkpoint("sft-legal-reply", {"team": "legal", "kind": "sft-reply", "base_model": QWEN, "model_id": model.model_id, "status": "training", "steps": steps})
         for _ in range(steps):
             fb = model.forward_backward(rng.sample(data, min(batch, len(data))), loss_fn="cross_entropy")
             model.optim_step(lr=lr, grad_clip_norm=1.0)
             print(json.dumps({"step": model.step, "loss": round(fb.metrics["loss"], 4)}), flush=True)
         inf = model.save_weights("sft-legal-reply", mode="inference")
+        trn = model.save_weights("sft-legal-reply-train", mode="training")
+        rec.update(status="done", inference_path=inf.path, training_path=trn.path, savedAt=time.strftime("%H:%M:%S"))
+        (OUT / "ladder" / "legal-gen2.json").write_text(json.dumps(rec, indent=2))
         save_checkpoint("sft-legal-reply", {"team": "legal", "kind": "sft-reply", "base_model": QWEN, "model_id": model.model_id, "inference_path": inf.path, "steps": steps, "savedAt": time.strftime("%H:%M:%S")})
         print(json.dumps({"saved": inf.path}), flush=True)
 
