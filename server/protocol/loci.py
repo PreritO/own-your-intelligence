@@ -169,6 +169,7 @@ class Run:
     leases: dict[str, Lease] = field(default_factory=dict)  # memoryId -> lease
     verdicts: dict[tuple[str, str], tuple[str, str | None]] = field(default_factory=dict)  # (agent, mem) -> (verdict, note)
     handoffs: dict[str, Handoff] = field(default_factory=dict)
+    answers: dict[str, dict] = field(default_factory=dict)  # agent -> last answer check
     last_t: float = 0.0
     log_path: Path | None = None
 
@@ -224,6 +225,11 @@ class Protocol:
         with self.lock:
             self.load_palace()
             rid = run_id or time.strftime("run-%Y%m%d-%H%M%S")
+            if run_id is None and rid in self.runs:
+                n = 2
+                while f"{rid}-{n}" in self.runs:
+                    n += 1
+                rid = f"{rid}-{n}"
             run = Run(id=rid, t0=self.clock())
             run.location = {a["id"]: a["home"] for a in self.agents.values()}
             if log:
@@ -473,7 +479,29 @@ class Protocol:
             if blocked:
                 ev["blocked"] = True
             ev = self.emit(run, ev)
-            return {"ok": not blocked, "blocked": blocked, "reasons": reasons, "gaps": gaps, "stale": stale, "event": ev}
+            res = {"ok": not blocked, "blocked": blocked, "reasons": reasons, "gaps": gaps, "stale": stale, "event": ev}
+            run.answers[agent] = res
+            return res
+
+    def grounding(self, agent: str, text: str | None = None, run_id: str | None = None) -> dict:
+        """Pre-post check for a harness (QM fork): may this agent's message go out?
+        ok = its last `answer` in the run passed; annotate = passed but has gaps/stale stations the
+        text must state (we append them); block = blocked, or it never answered through the protocol."""
+        with self.lock:
+            self._agent(agent)
+            run = self.run(run_id)
+            a = run.answers.get(agent)
+            if a is None:
+                return {"verdict": "block", "reason": "no answer went through the loci protocol in this run", "run": run.id}
+            if a["blocked"]:
+                return {"verdict": "block", "reason": "; ".join(a["reasons"]), "run": run.id}
+            out = text if text is not None else a["event"]["text"]
+            missing = [m for m in a["gaps"] + a["stale"] if m not in out]
+            if missing:
+                title = lambda m: self.memories[m].get("title", m)  # noqa: E731
+                notes = [f"gap: {title(m)} ({m})" for m in a["gaps"] if m in missing] + [f"stale: {title(m)} ({m})" for m in a["stale"] if m in missing]
+                return {"verdict": "annotate", "text": out + "\n\n_" + "; ".join(notes) + "_", "run": run.id, "citations": a["event"]["citations"]}
+            return {"verdict": "ok", "text": out, "run": run.id, "citations": a["event"]["citations"]}
 
     # ---- Loose Ends loop
 

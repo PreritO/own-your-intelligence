@@ -3,7 +3,9 @@
     uv run --project server/protocol python server/protocol/service.py [--port 8790]
 
 POST (JSON body; every body may carry "run", default = current run):
-  /run        {run?}                                  start a fresh run -> {run}
+  /run        {run?}                                  start a fresh run -> {run} (with "tasks": same as /dispatch)
+  /dispatch   {tasks?:[{agent,text,route?}], tick?}   fresh run + scripted agents walk the tasks (demo_run.drive)
+  /grounding  {agent, text?}                          pre-post check -> {verdict: ok|annotate|block, text?, reason?, run}
   /task       {agent, text}
   /route      {agent, routeId, stations?, source?}    stations default to palace.json routes
   /claim      {agent, memoryId, ttl?}                 -> {ok} | {wait, heldBy} | 403 refused
@@ -147,9 +149,13 @@ def make_handler(proto: Protocol):
             run = b.get("run")
             try:
                 p = url.path
-                if p == "/run":
+                if p in ("/dispatch", "/run", "/runs"):
+                    if p == "/dispatch" or b.get("tasks"):
+                        return self._json(200, dispatch(proto, self.server, b))
                     r = proto.start_run(b.get("run"))
                     return self._json(200, {"ok": True, "run": r.id})
+                if p == "/grounding":
+                    return self._json(200, proto.grounding(b["agent"], b.get("text"), run))
                 if p == "/task":
                     return self._json(200, proto.task(b["agent"], b["text"], run))
                 if p == "/route":
@@ -174,6 +180,30 @@ def make_handler(proto: Protocol):
                 return self._json(e.status, e.payload)
 
     return Handler
+
+
+def dispatch(proto: Protocol, server, body: dict) -> dict:
+    """Start a fresh run and walk the tasks with the scripted driver (demo_run.drive) in a thread,
+    over this service's own HTTP API in real time. Body: {tasks?: [{agent, text, route?}], run?, tick?}.
+    A harness (UFO/QM) that wants to drive the agents itself just calls POST /run instead."""
+    import time
+
+    import demo_run
+
+    run = proto.start_run(body.get("run"))
+    host, port = server.server_address[:2]
+    c = demo_run.Client(f"http://127.0.0.1:{port}", run.id)
+    scale = float(body.get("tick", 0.35)) / 0.12
+    tasks = body.get("tasks") or None
+
+    def go():
+        try:
+            demo_run.drive(c, lambda dt: time.sleep(dt * scale), proto.palace, ["eng", "finance", "legal"], tasks)
+        except BaseException as e:  # noqa: BLE001
+            print(f"dispatch {run.id} stopped: {e!r}", flush=True)
+
+    threading.Thread(target=go, daemon=True).start()
+    return {"ok": True, "run": run.id, "tasks": tasks or [{"agent": a, "text": t, "route": r} for a, t, r in demo_run.TASKS]}
 
 
 def serve(proto: Protocol, port: int = PORT, host: str = "127.0.0.1") -> ThreadingHTTPServer:

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import tempfile
@@ -68,8 +69,10 @@ def first_sentence(text: str, limit: int = 160) -> str:
 
 
 class Agent:
-    def __init__(self, c: Client, agent: str, task: str, route_id: str, world: dict):
-        self.c, self.id, self.task, self.route_id, self.world = c, agent, task, route_id, world
+    def __init__(self, c: Client, agent: str, task: str, route: str | dict, world: dict):
+        self.c, self.id, self.task, self.world = c, agent, task, world
+        # route: a palace route id, or a picked route {routeId, stations, source} (server/routes.ts)
+        self.route = {"routeId": route, "source": "fallback"} if isinstance(route, str) else dict(route)
         self.found: dict[str, dict] = {}  # memoryId -> {verdict, text}
         self.done = False
 
@@ -96,8 +99,13 @@ class Agent:
     def run(self) -> Iterator[None]:
         self.c.post("/task", {"agent": self.id, "text": self.task})
         yield
-        s, r = self.c.post("/route", {"agent": self.id, "routeId": self.route_id, "source": "fallback"})
-        stations = r["stations"]
+        body = {"agent": self.id, "routeId": self.route.get("routeId", "explore"), "source": self.route.get("source", "fallback")}
+        if self.route.get("stations"):
+            body["stations"] = self.route["stations"]
+        s, r = self.c.post("/route", body)
+        if s != 200 and body.get("stations") and body["routeId"] in self.world["routes"]:
+            s, r = self.c.post("/route", {**body, "stations": None, "source": "fallback"})
+        stations = r.get("stations") or []
         yield
         for mid in stations:
             yield from self.serve_inbox()
@@ -108,22 +116,27 @@ class Agent:
                     q = QUESTIONS.get(mid) or f"{self.task} What does {mid} say?"
                     s, h = self.c.post("/handoff", {"agent": self.id, "memoryId": mid, "question": q, "toAgent": r["handoffTo"]})
                     yield
-                    while True:
+                    for _ in range(80):
                         st = self.c.get(f"/handoff?id={h['id']}")
                         if st["answered"]:
                             break
                         yield from self.serve_inbox()
                         yield
-                    self.found[mid] = {"verdict": st["verdict"], "text": st["answer"]}
+                    if st["answered"]:
+                        self.found[mid] = {"verdict": st["verdict"], "text": st["answer"]}
                     break
                 if r.get("wait"):
                     yield
                     continue
+                if not r.get("ok"):
+                    break  # unknown station etc.: no verdict, never cited
                 yield  # reading the page
                 s, v = self.c.post("/visit", {"agent": self.id, "memoryId": mid, "question": self.task})
                 if v.get("wait"):
                     yield
                     continue
+                if not v.get("verdict"):
+                    break
                 self.found[mid] = {"verdict": v["verdict"], "text": first_sentence(v["content"]) if v["verdict"] != "gap" else v.get("note") or "gap"}
                 break
             yield
@@ -146,11 +159,19 @@ class Agent:
             yield
 
 
-def drive(c: Client, advance: Callable[[float], None], palace: dict, order: list[str], max_ticks: int = 400) -> None:
+def drive(c: Client, advance: Callable[[float], None], palace: dict, order: list[str], tasks: list[dict] | None = None, max_ticks: int = 600) -> None:
+    """tasks: [{agent, text, route?}] (route = palace route id or {routeId, stations, source}); default TASKS."""
     routes = {r["id"] for r in palace.get("routes", [])}
     agents = {a["id"] for a in palace.get("agents", [])}
-    world: dict = {"titles": {m["id"]: m["title"] for m in palace["memories"]}}
-    walkers = [Agent(c, a, text, rid, world) for a, text, rid in TASKS if rid in routes and a in agents]
+    world: dict = {"titles": {m["id"]: m["title"] for m in palace["memories"]}, "routes": routes}
+    if tasks is None:
+        tasks = [{"agent": a, "text": text, "route": rid} for a, text, rid in TASKS if rid in routes]
+    default_route = {a: rid for a, _, rid in TASKS}
+    walkers = []
+    for t in tasks:
+        route = t.get("route") or default_route.get(t["agent"])
+        if t.get("agent") in agents and route:
+            walkers.append(Agent(c, t["agent"], t["text"], route, world))
     if not walkers:
         raise SystemExit("palace.json has none of the demo routes/agents")
     world["all_done"] = lambda: all(w.done for w in walkers)
@@ -174,9 +195,9 @@ def drive(c: Client, advance: Callable[[float], None], palace: dict, order: list
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--url", help="drive a running service (real time) instead of an in-process one (sim clock)")
+    ap.add_argument("--url", default=os.environ.get("PROTOCOL_URL"), help="drive a running service (real time) instead of an in-process one (sim clock); env PROTOCOL_URL")
     ap.add_argument("--tick", type=float, default=0.25, help="real seconds per step with --url")
-    ap.add_argument("--out", default=str(REPO / "fixtures" / "replays" / "protocol-run.jsonl"))
+    ap.add_argument("--out", default=None, help="default: fixtures/replays/protocol-run.jsonl (sim); not written with --url (the service logs runs)")
     ap.add_argument("--palace", default=None)
     ap.add_argument("--run", default="protocol-run")
     ap.add_argument("--order", default="eng,finance,legal", help="agent step order within a tick")
@@ -184,7 +205,7 @@ def main() -> None:
 
     if args.url:
         c = Client(args.url)
-        s, r = c.post("/run", {"run": args.run})
+        s, r = c.post("/run", {"run": None if os.environ.get("PROTOCOL_URL") == args.url else args.run})
         c.run = r["run"]
         palace = c.get("/palace")
         scale = args.tick / 0.12
@@ -207,7 +228,10 @@ def main() -> None:
     finally:
         if httpd:
             httpd.shutdown()
-    out = Path(args.out)
+    if args.out is None and args.url:
+        print(f"run {c.run} done; the service logged it under server/protocol/runs/")
+        return
+    out = Path(args.out or REPO / "fixtures" / "replays" / "protocol-run.jsonl")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(jsonl, "utf8")
     evs = [json.loads(l) for l in jsonl.splitlines() if l]

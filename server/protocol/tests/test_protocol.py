@@ -187,3 +187,56 @@ def test_http_roundtrip_and_sse(proto):
         assert got[2]["verdict"] == "gap"
     finally:
         httpd.shutdown()
+
+
+# ---- grounding (QM fork pre-post check) + dispatch (bridge)
+
+
+def test_grounding_verdicts(proto):
+    assert proto.grounding("eng", "anything")["verdict"] == "block"  # never answered
+    proto.visit("eng", "eng/security-policy")
+    proto.visit("eng", "eng/soc2-owner")
+    proto.visit("eng", "people/org-chart")
+    proto.answer("eng", "Org chart lists no compliance owner.", ["people/org-chart"])
+    g = proto.grounding("eng", "Org chart lists no compliance owner.")
+    assert g["verdict"] == "annotate" and "eng/soc2-owner" in g["text"] and "eng/security-policy" in g["text"]
+    proto.answer("eng", "Owner is Bob.", ["eng/soc2-owner"])
+    g = proto.grounding("eng", "Owner is Bob.")
+    assert g["verdict"] == "block" and "not verified" in g["reason"]
+    proto.visit("legal", "legal/gripworks-msa")
+    proto.answer("legal", "MSA is v3.", ["legal/gripworks-msa"])
+    assert proto.grounding("legal", "MSA is v3.")["verdict"] == "ok"
+
+
+def test_http_dispatch_runs_demo_tasks(tmp_path):
+    import time as _t
+
+    from loci import REPO, Brain, Protocol
+
+    p = Protocol(palace_path=REPO / "fixtures" / "palace.json", brain=Brain(overlay_dir=tmp_path / "o"), runs_dir=tmp_path / "runs")
+    httpd, base = serve_in_thread(p)
+    try:
+        s, r = _post(base, "/dispatch", {"tick": 0.0})
+        assert s == 200 and r["run"]
+        for _ in range(200):
+            if sum(1 for e in p.runs[r["run"]].events if e["type"] == "answer") == 3:
+                break
+            _t.sleep(0.05)
+        evs = p.runs[r["run"]].events
+        kinds = [e["type"] for e in evs]
+        assert kinds.count("answer") == 3 and "handoff" in kinds and "wait" in kinds
+        assert not any(e.get("blocked") for e in evs if e["type"] == "answer")
+        assert any(e["type"] == "visit" and e["verdict"] == "gap" for e in evs)
+        s, g = _post(base, "/grounding", {"agent": "legal", "run": r["run"]})
+        assert g["verdict"] == "ok"
+        # Bridge shape: tasks with picked routes {routeId, stations, source}.
+        s, r2 = _post(base, "/run", {"tasks": [{"agent": "eng", "text": "Who owns the SOC 2 renewal?", "route": {"routeId": "learned-soc2", "stations": ["eng/soc2-renewal", "eng/soc2-owner"], "source": "learned"}}], "tick": 0.0})
+        assert s == 200 and r2["run"] != r["run"]
+        for _ in range(200):
+            if any(e["type"] == "answer" for e in p.runs[r2["run"]].events):
+                break
+            _t.sleep(0.05)
+        route = [e for e in p.runs[r2["run"]].events if e["type"] == "route"][0]
+        assert route["source"] == "learned" and route["stations"] == ["eng/soc2-renewal", "eng/soc2-owner"]
+    finally:
+        httpd.shutdown()
