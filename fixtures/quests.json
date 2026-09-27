@@ -1,0 +1,56 @@
+[
+  {
+    "id": "security-questionnaire",
+    "title": "Northwind security questionnaire",
+    "prompt": "Answer Northwind Logistics' security questionnaire",
+    "departments": ["sales", "eng", "legal", "support"],
+    "stations": ["sales/security-questionnaire-northwind", "sales/northwind-logistics", "eng/soc2-2025-report", "eng/soc2-renewal", "eng/soc2-owner", "eng/security-policy", "eng/incident-response", "legal/harbor-cloud-dpa", "legal/privacy-policy", "sales/northwind-dpa-request", "support/sla-policy"],
+    "expectedGaps": ["eng/soc2-owner", "sales/northwind-dpa-request", "eng/security-policy", "eng/soc2-2025-report"],
+    "why": "Blocks a $1.1M deal. SOC 2 has no owner and the report is from 2025; nobody owns customer DPAs; the security policy is stale."
+  },
+  {
+    "id": "renewal-brief",
+    "title": "Kestrel renewal brief",
+    "prompt": "Prepare the renewal brief for our biggest customer",
+    "departments": ["sales", "support", "finance", "legal"],
+    "stations": ["sales/kestrel-foods", "sales/kestrel-renewal-2026", "support/customer-health-scorecard", "support/arm-controller-escalation", "support/sla-policy", "sales/deal-desk-rules", "finance/runway-forecast", "sales/kestrel-order-form", "legal/contract-playbook"],
+    "expectedGaps": ["sales/kestrel-order-form", "sales/pricing-sheet"],
+    "why": "Kestrel is $1.4M ARR (15% of revenue), red on health, and asks for a discount plus a Gripper v2 path; the signed contract terms are missing and the price sheet is stale."
+  },
+  {
+    "id": "gripper-v2-launch",
+    "title": "Gripper v2 launch plan",
+    "prompt": "Plan the Gripper v2 launch",
+    "departments": ["marketing", "eng", "ops", "sales", "legal"],
+    "stations": ["eng/gripper-v2", "eng/firmware-release-4-2", "ops/gripper-v2-bom", "ops/manufacturing-capacity", "ops/inventory-2026-09", "legal/gripworks-msa", "legal/trademark-acme", "sales/pricing-sheet", "support/warranty-terms"],
+    "expectedGaps": ["support/warranty-terms", "sales/pricing-sheet"],
+    "why": "Launch touches every department: no Gripper v2 warranty, no v2 price (stale sheet), parts waiting on the unsigned Gripworks MSA."
+  },
+  {
+    "id": "board-update",
+    "title": "Q4 board update",
+    "prompt": "Draft the Q4 board update",
+    "departments": ["finance", "sales", "eng", "ops", "people"],
+    "stations": ["finance/board-2026-q3", "finance/board-action-items", "finance/burn-report-2026-08", "finance/runway-forecast", "finance/gross-margin-plan", "sales/pipeline-2026-q4", "eng/roadmap-2026-h2", "ops/manufacturing-capacity", "ops/quality-rma-log", "people/org-chart"],
+    "expectedGaps": ["eng/soc2-owner", "sales/pricing-sheet"],
+    "why": "Board promises (margin plan, burn) meet pipeline, capacity and quality; compliance ownership is still unassigned."
+  },
+  {
+    "id": "arm-controller-triage",
+    "title": "Arm-controller failure triage",
+    "prompt": "A customer reports arm-controller failures — triage it",
+    "departments": ["support", "eng", "ops", "legal"],
+    "stations": ["support/arm-controller-escalation", "support/runbook-arm-controller-faults", "support/ticket-themes-2026-q3", "eng/arm-controller", "eng/firmware-release-4-2", "ops/quality-rma-log", "ops/inventory-2026-09", "ops/castellan-circuits", "support/warranty-terms", "sales/kestrel-foods"],
+    "expectedGaps": ["ops/castellan-circuits", "support/warranty-terms", "support/escalation-process"],
+    "why": "Traces a field failure to a board lot and a supplier with no quality agreement, then hits the missing warranty terms."
+  },
+  {
+    "id": "onboarding-page",
+    "title": "Engineer onboarding page",
+    "prompt": "Create an onboarding page for new engineers",
+    "departments": ["people", "legal", "eng"],
+    "stations": ["people/onboarding-guide", "people/employee-handbook", "people/org-chart", "people/priya-nand", "legal/ip-assignment", "legal/nda-template", "eng/security-policy", "eng/arm-controller"],
+    "expectedGaps": ["eng/security-policy", "legal/ip-assignment", "legal/nda-template", "people/employee-handbook"],
+    "why": "The existing quest-onboarding replay; its gaps are stale pages (freshness < 0.3)."
+  }
+]
