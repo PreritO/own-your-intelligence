@@ -1,0 +1,16 @@
+ON-CALL ROTATION - platform team
+(maintained by Dmitri, last touched 2026-09-01)
+
+weekly rotation, handoff mondays 10:00 PT in #eng-oncall
+
+primary:   Dmitri Solberg -> Felix Arrowood -> Ana Lindqvist -> Jonah Pereira -> (repeat)
+secondary: previous week's primary
+
+pager: PagerDuty service "pantry-prod". ack within 15 min, 24/7.
+escalation after 30 min unacked: Felix (CTO).
+
+on-call stipend $400/week, paid via payroll. comp day if paged after midnight.
+
+sev levels: see incident response runbook (which is out of date, don't trust the sev2 definition)
+
+shutdown dec 24 - jan 1: rotation still runs, days given back in january per PTO policy

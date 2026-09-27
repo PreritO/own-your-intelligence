@@ -1,0 +1,47 @@
+{
+  "name": "plan-Support/support-sla-and-refunds.md",
+  "model": "claude-sonnet-5",
+  "key": "f95402a46a23e6d13f4e",
+  "output": {
+    "doc_date": "2026-07-07",
+    "pages": [
+      {
+        "key": "support-sla",
+        "title": "Support SLA",
+        "type": "policy",
+        "department": "support",
+        "room": "SLAs",
+        "summary": "P1 issues get a 30-minute first response and 4-hour target resolution, with uptime credits for missed 99.5% monthly commitment.",
+        "body": "| Priority | Definition | First response | Target resolution |\n| --- | --- | --- | --- |\n| P1 | ordering or counts unavailable for a location | 30 minutes, 24/7 | 4 hours |\n| P2 | a feature broken, workaround exists | 4 business hours | 2 business days |\n| P3 | question or minor bug | 1 business day | best effort |\n\nEnterprise customers get a named CSM and a quarterly business review. Uptime commitment is 99.5% monthly; if we miss it the customer gets a credit of 5% of that month's fee for each 0.5% below target, capped at 25%.\n\nOnboarding SLA: new Growth customers are live (menu loaded, first count done) within 14 days of signature.\n\nLast reviewed July 7, 2026.",
+        "is_policy_or_process": true,
+        "owner": "Keiko Ferrante (Head of Customer Success)",
+        "owner_person": "Keiko Ferrante",
+        "gaps": []
+      },
+      {
+        "key": "refund-process",
+        "title": "Refund Process",
+        "type": "process",
+        "department": "support",
+        "room": "Policies",
+        "summary": "Refunds and credits outside the SLA formula are handled case by case, and refunds over $1,000 need approval.",
+        "body": "Refunds and credits outside the SLA formula are handled case by case. Customer Success requests the refund in the #billing channel with the account name, amount and reason; someone in Finance processes it in Ledgerline. Refunds over $1,000 need approval.\n\nThere is no written owner for this process and nobody has decided who approves refunds over $1,000 since the process was drafted. Last edited March 2026.",
+        "is_policy_or_process": true,
+        "owner": null,
+        "owner_person": null,
+        "gaps": [
+          "There is no written owner for this process",
+          "nobody has decided who approves refunds over $1,000 since the process was drafted"
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Keiko Ferrante",
+        "kind": "person",
+        "role": "Head of Customer Success",
+        "quote": "Owner: Keiko Ferrante (Head of Customer Success). Last reviewed July 7, 2026."
+      }
+    ]
+  }
+}

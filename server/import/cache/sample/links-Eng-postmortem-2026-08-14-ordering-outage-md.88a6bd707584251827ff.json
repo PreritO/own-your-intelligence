@@ -1,0 +1,57 @@
+{
+  "name": "links-Eng/postmortem-2026-08-14-ordering-outage.md",
+  "model": "claude-sonnet-5",
+  "key": "88a6bd707584251827ff",
+  "output": {
+    "links": [
+      {
+        "from": "eng/ordering-outage-postmortem",
+        "to": "people/dmitri-solberg",
+        "kind": "mentions",
+        "evidence": "Author: Dmitri Solberg"
+      },
+      {
+        "from": "eng/ordering-outage-postmortem",
+        "to": "people/felix-arrowood",
+        "kind": "mentions",
+        "evidence": "On-call (Felix Arrowood that week) declared the incident"
+      },
+      {
+        "from": "eng/ordering-outage-postmortem",
+        "to": "people/keiko-ferrante",
+        "kind": "mentions",
+        "evidence": "Credit affected customers 1 day of subscription | Keiko Ferrante"
+      },
+      {
+        "from": "eng/ordering-outage-postmortem",
+        "to": "companies/pagerduty",
+        "kind": "depends_on",
+        "evidence": "Automate status page from PagerDuty"
+      },
+      {
+        "from": "eng/ordering-outage-postmortem",
+        "to": "eng/oncall-rotation",
+        "kind": "references",
+        "evidence": "On-call (Felix Arrowood that week) declared the incident"
+      },
+      {
+        "from": "eng/ordering-outage-postmortem",
+        "to": "people/team-directory",
+        "kind": "references",
+        "evidence": "Nobody owns the incident-response runbook since the security lead left"
+      },
+      {
+        "from": "eng/ordering-outage-postmortem",
+        "to": "eng/information-security-policy",
+        "kind": "references",
+        "evidence": "the severity levels in it are out of date"
+      },
+      {
+        "from": "eng/ordering-outage-postmortem",
+        "to": "support/support-sla",
+        "kind": "references",
+        "evidence": "Credit affected customers 1 day of subscription"
+      }
+    ]
+  }
+}

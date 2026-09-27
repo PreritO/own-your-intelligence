@@ -1,0 +1,2394 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-19T00:00:00Z",
+  "wings": [
+    {
+      "id": "people",
+      "label": "People",
+      "color": "#7aa2f7",
+      "owner": "shared",
+      "origin": [
+        0,
+        0,
+        -20
+      ],
+      "rooms": [
+        "room-people-0",
+        "room-people-1",
+        "room-people-2"
+      ]
+    },
+    {
+      "id": "legal",
+      "label": "Legal",
+      "color": "#bb9af7",
+      "owner": "legal",
+      "origin": [
+        20,
+        0,
+        0
+      ],
+      "rooms": [
+        "room-legal-0"
+      ]
+    },
+    {
+      "id": "finance",
+      "label": "Finance",
+      "color": "#e0af68",
+      "owner": "finance",
+      "origin": [
+        0,
+        0,
+        20
+      ],
+      "rooms": [
+        "room-finance-0"
+      ]
+    },
+    {
+      "id": "eng",
+      "label": "Eng",
+      "color": "#9ece6a",
+      "owner": "eng",
+      "origin": [
+        -20,
+        0,
+        0
+      ],
+      "rooms": [
+        "room-eng-0"
+      ]
+    },
+    {
+      "id": "marketing",
+      "label": "Marketing",
+      "color": "#f7768e",
+      "owner": "marketing",
+      "origin": [
+        0,
+        0,
+        -62
+      ],
+      "rooms": [
+        "room-marketing-0"
+      ]
+    },
+    {
+      "id": "sales",
+      "label": "Sales",
+      "color": "#2ac3de",
+      "owner": "sales",
+      "origin": [
+        34,
+        0,
+        0
+      ],
+      "rooms": [
+        "room-sales-0"
+      ]
+    },
+    {
+      "id": "ops",
+      "label": "Ops",
+      "color": "#ff9e64",
+      "owner": "ops",
+      "origin": [
+        0,
+        0,
+        34
+      ],
+      "rooms": [
+        "room-ops-0"
+      ]
+    },
+    {
+      "id": "support",
+      "label": "Support",
+      "color": "#73daca",
+      "owner": "support",
+      "origin": [
+        -34,
+        0,
+        0
+      ],
+      "rooms": [
+        "room-support-0"
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "foyer",
+      "wing": "foyer",
+      "owner": "shared",
+      "label": "Foyer",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-people-0",
+          "pos": [
+            0,
+            0,
+            -6
+          ]
+        },
+        {
+          "to": "room-legal-0",
+          "pos": [
+            6,
+            0,
+            0
+          ]
+        },
+        {
+          "to": "room-finance-0",
+          "pos": [
+            0,
+            0,
+            6
+          ]
+        },
+        {
+          "to": "room-eng-0",
+          "pos": [
+            -6,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-people-0",
+      "wing": "people",
+      "owner": "shared",
+      "label": "Companies",
+      "center": [
+        0,
+        0,
+        -20
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "foyer",
+          "pos": [
+            0,
+            0,
+            -14
+          ]
+        },
+        {
+          "to": "room-people-1",
+          "pos": [
+            0,
+            0,
+            -26
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-people-1",
+      "wing": "people",
+      "owner": "shared",
+      "label": "People",
+      "center": [
+        0,
+        0,
+        -34
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-people-0",
+          "pos": [
+            0,
+            0,
+            -28
+          ]
+        },
+        {
+          "to": "room-people-2",
+          "pos": [
+            0,
+            0,
+            -40
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-people-2",
+      "wing": "people",
+      "owner": "shared",
+      "label": "People II",
+      "center": [
+        0,
+        0,
+        -48
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-people-1",
+          "pos": [
+            0,
+            0,
+            -42
+          ]
+        },
+        {
+          "to": "room-marketing-0",
+          "pos": [
+            0,
+            0,
+            -54
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-legal-0",
+      "wing": "legal",
+      "owner": "legal",
+      "label": "Contracts",
+      "center": [
+        20,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "foyer",
+          "pos": [
+            14,
+            0,
+            0
+          ]
+        },
+        {
+          "to": "room-sales-0",
+          "pos": [
+            26,
+            0,
+            0
+          ]
+        },
+        {
+          "to": "room-workshop",
+          "pos": [
+            20,
+            0,
+            -6
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-finance-0",
+      "wing": "finance",
+      "owner": "finance",
+      "label": "Board",
+      "center": [
+        0,
+        0,
+        20
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "foyer",
+          "pos": [
+            0,
+            0,
+            14
+          ]
+        },
+        {
+          "to": "room-ops-0",
+          "pos": [
+            0,
+            0,
+            26
+          ]
+        },
+        {
+          "to": "room-gym",
+          "pos": [
+            6,
+            0,
+            20
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-eng-0",
+      "wing": "eng",
+      "owner": "eng",
+      "label": "Incidents",
+      "center": [
+        -20,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "foyer",
+          "pos": [
+            -14,
+            0,
+            0
+          ]
+        },
+        {
+          "to": "room-support-0",
+          "pos": [
+            -26,
+            0,
+            0
+          ]
+        },
+        {
+          "to": "room-loose-ends",
+          "pos": [
+            -20,
+            0,
+            -6
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-marketing-0",
+      "wing": "marketing",
+      "owner": "marketing",
+      "label": "Launches",
+      "center": [
+        0,
+        0,
+        -62
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-people-2",
+          "pos": [
+            0,
+            0,
+            -56
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-sales-0",
+      "wing": "sales",
+      "owner": "sales",
+      "label": "Playbooks",
+      "center": [
+        34,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-legal-0",
+          "pos": [
+            28,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-ops-0",
+      "wing": "ops",
+      "owner": "ops",
+      "label": "Vendors",
+      "center": [
+        0,
+        0,
+        34
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-finance-0",
+          "pos": [
+            0,
+            0,
+            28
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-support-0",
+      "wing": "support",
+      "owner": "support",
+      "label": "Policy",
+      "center": [
+        -34,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        4,
+        12
+      ],
+      "doors": [
+        {
+          "to": "room-eng-0",
+          "pos": [
+            -28,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-gym",
+      "wing": "commons",
+      "owner": "shared",
+      "label": "The Gym",
+      "center": [
+        24,
+        0,
+        24
+      ],
+      "size": [
+        14,
+        4,
+        14
+      ],
+      "doors": [
+        {
+          "to": "room-finance-0",
+          "pos": [
+            17,
+            0,
+            20
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-workshop",
+      "wing": "commons",
+      "owner": "shared",
+      "label": "The Workshop",
+      "center": [
+        24,
+        0,
+        -24
+      ],
+      "size": [
+        14,
+        4,
+        14
+      ],
+      "doors": [
+        {
+          "to": "room-legal-0",
+          "pos": [
+            20,
+            0,
+            -17
+          ]
+        }
+      ]
+    },
+    {
+      "id": "room-loose-ends",
+      "wing": "commons",
+      "owner": "shared",
+      "label": "Loose Ends",
+      "center": [
+        -24,
+        0,
+        -24
+      ],
+      "size": [
+        14,
+        4,
+        14
+      ],
+      "doors": [
+        {
+          "to": "room-eng-0",
+          "pos": [
+            -20,
+            0,
+            -17
+          ]
+        }
+      ]
+    }
+  ],
+  "memories": [
+    {
+      "id": "companies/aws",
+      "title": "AWS",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        -2.49,
+        1.1,
+        -17.13
+      ],
+      "freshness": 0.83,
+      "excerpt": "AWS: hosting vendor. \"AWS | hosting (us-west-2) | Felix Arrowood | 2027-02-01 | yes | done 2026-01\" (Vendor List) mentioned_in: Vendor List mentions: Felix Arrowood",
+      "path": "companies/aws.md"
+    },
+    {
+      "id": "companies/cobaltcare",
+      "title": "Cobaltcare",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        -3.38,
+        1.1,
+        -18.26
+      ],
+      "freshness": 0.88,
+      "excerpt": "Cobaltcare: health insurance provider. \"Health insurance is through Cobaltcare; Kitewing pays 90% of employee premiums and 60% for dependents.\" (Your First Two Weeks) \"Cobaltcare | health insurance |…",
+      "path": "companies/cobaltcare.md"
+    },
+    {
+      "id": "companies/expensify",
+      "title": "Expensify",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        -3.78,
+        1.1,
+        -19.64
+      ],
+      "freshness": 0.91,
+      "excerpt": "Expensify: former expense tool. \"ledgerline is the only expense tool now (expensify is gone)\" (All-Hands Notes – Sept 2, 2026) mentioned_in: All-Hands Notes – Sept 2, 2026 superseded_by: Ledgerline",
+      "path": "companies/expensify.md"
+    },
+    {
+      "id": "companies/harlow-and-pike-llp",
+      "title": "Harlow & Pike LLP",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        -3.65,
+        1.1,
+        -21.07
+      ],
+      "freshness": 0.83,
+      "excerpt": "Harlow & Pike LLP: outside counsel. \"Notes from the May 2026 review with outside counsel (Harlow & Pike LLP).\" (Customer MSA - standard positions) \"Harlow & Pike | outside counsel | Tobias Mbeki |…",
+      "path": "companies/harlow-and-pike-llp.md"
+    },
+    {
+      "id": "companies/hubspot",
+      "title": "HubSpot",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        -2.99,
+        1.1,
+        -22.35
+      ],
+      "freshness": 0.83,
+      "excerpt": "HubSpot: CRM, price books, quotes vendor. \"HubSpot | CRM, price books, quotes | Marisol Quint | 2027-03-01 | yes (contacts) | done 2026-02\" (Vendor List) mentioned_in: Vendor List mentions: Marisol…",
+      "path": "companies/hubspot.md"
+    },
+    {
+      "id": "companies/juniper-row-group",
+      "title": "Juniper Row Group",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        1.9,
+        1.1,
+        -23.29
+      ],
+      "freshness": 1,
+      "excerpt": "Juniper Row Group: Enterprise deal waiting on security questionnaire. \"Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires.\" (Q3…",
+      "path": "companies/juniper-row-group.md"
+    },
+    {
+      "id": "companies/kandji",
+      "title": "Kandji",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        2.99,
+        1.1,
+        -22.35
+      ],
+      "freshness": 0.83,
+      "excerpt": "Kandji: laptop management vendor. \"Kandji | laptop management | Felix Arrowood | 2027-01-10 | no | done 2026-03\" (Vendor List) mentioned_in: Vendor List mentions: Felix Arrowood",
+      "path": "companies/kandji.md"
+    },
+    {
+      "id": "companies/ledgerline",
+      "title": "Ledgerline",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        3.65,
+        1.1,
+        -21.07
+      ],
+      "freshness": 0.91,
+      "excerpt": "Ledgerline: billing + expenses vendor. \"There's no signed DPA with our billing vendor Ledgerline yet, which counsel flagged as a gap.\" (Customer MSA - standard positions) \"paid through Ledgerline…",
+      "path": "companies/ledgerline.md"
+    },
+    {
+      "id": "companies/marrow-and-vine",
+      "title": "Marrow and Vine",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        3.78,
+        1.1,
+        -19.64
+      ],
+      "freshness": 0.99,
+      "excerpt": "Marrow and Vine: Enterprise deal waiting on security questionnaire. \"Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires.\" (Q3…",
+      "path": "companies/marrow-and-vine.md"
+    },
+    {
+      "id": "companies/northbay-ventures",
+      "title": "Northbay Ventures",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        3.38,
+        1.1,
+        -18.26
+      ],
+      "freshness": 0.99,
+      "excerpt": "Northbay Ventures: Series A investor. \"Board: Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures), independent seat vacant.\" (Q3 2026 Board Deck Outline) \"We raised a $9.5M Series A led…",
+      "path": "companies/northbay-ventures.md"
+    },
+    {
+      "id": "companies/pagerduty",
+      "title": "PagerDuty",
+      "type": "company",
+      "room": "room-people-0",
+      "pos": [
+        2.49,
+        1.1,
+        -17.13
+      ],
+      "freshness": 0.83,
+      "excerpt": "PagerDuty: on-call paging vendor. \"PagerDuty | on-call paging | Dmitri Solberg | 2026-11-30 | no | n/a\" (Vendor List) mentioned_in: Vendor List mentions: Dmitri Solberg",
+      "path": "companies/pagerduty.md"
+    },
+    {
+      "id": "companies/saltgrass-hospitality",
+      "title": "Saltgrass Hospitality",
+      "type": "company",
+      "room": "room-people-1",
+      "pos": [
+        -2.49,
+        1.1,
+        -31.13
+      ],
+      "freshness": 0.99,
+      "excerpt": "Saltgrass Hospitality: Enterprise deal waiting on security questionnaire. \"Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires.\"…",
+      "path": "companies/saltgrass-hospitality.md"
+    },
+    {
+      "id": "eng/information-security-policy",
+      "title": "Information Security Policy",
+      "type": "policy",
+      "room": "room-eng-0",
+      "pos": [
+        -18.1,
+        1.1,
+        3.29
+      ],
+      "freshness": 0,
+      "excerpt": "Kitewing's security policy covers access control, devices, data retention, incident response, vendors and training, effective March 1, 2026. Owner: not recorded. Version 1.3. Effective March 1, 2026…",
+      "path": "eng/information-security-policy.md"
+    },
+    {
+      "id": "eng/oncall-rotation",
+      "title": "On-Call Rotation - Platform Team",
+      "type": "runbook",
+      "room": "room-eng-0",
+      "pos": [
+        -21.9,
+        1.1,
+        3.29
+      ],
+      "freshness": 0.9,
+      "excerpt": "Platform team on-call rotates weekly with a $400/week stipend and 15-min ack requirement on PagerDuty. Owner: maintained by Dmitri. Weekly rotation, handoff Mondays 10:00 PT in #eng-oncall. Primary…",
+      "path": "eng/oncall-rotation.md"
+    },
+    {
+      "id": "eng/ordering-outage-postmortem",
+      "title": "Postmortem: ordering outage, 2026-08-14",
+      "type": "postmortem",
+      "room": "room-eng-0",
+      "pos": [
+        -21.9,
+        1.1,
+        -3.29
+      ],
+      "freshness": 0.91,
+      "excerpt": "From 11:05 to 17:10 Pacific on Aug 14, 2026, 214 restaurant groups could not submit supplier orders due to a locked table from an untested migration. Status: complete · Author: Dmitri Solberg ·…",
+      "path": "eng/ordering-outage-postmortem.md"
+    },
+    {
+      "id": "finance/expense-policy",
+      "title": "Expense Policy",
+      "type": "policy",
+      "room": "room-finance-0",
+      "pos": [
+        1.9,
+        1.1,
+        23.29
+      ],
+      "freshness": 0.05,
+      "excerpt": "Expenses over $25 need a receipt in Ledgerline within 30 days, with approval above $2,000 from Tobias Mbeki and above $10,000 from Noor Haddad. Owner: Tobias Mbeki (Head of Finance). Effective: April…",
+      "path": "finance/expense-policy.md"
+    },
+    {
+      "id": "finance/pricing-2026",
+      "title": "Kitewing Pricing 2026",
+      "type": "pricing",
+      "room": "room-finance-0",
+      "pos": [
+        -3.8,
+        1.1,
+        20
+      ],
+      "freshness": 0,
+      "excerpt": "Kitewing's 2026 pricing has Starter at $149/location/month, Growth at $299/location/month, and Enterprise custom with a $249/location floor. Issued by Finance, January 20, 2026. Prices in USD. Billed…",
+      "path": "finance/pricing-2026.md"
+    },
+    {
+      "id": "finance/q3-2026-board-deck-outline",
+      "title": "Q3 2026 Board Deck Outline",
+      "type": "meeting",
+      "room": "room-finance-0",
+      "pos": [
+        -1.9,
+        1.1,
+        16.71
+      ],
+      "freshness": 0.99,
+      "excerpt": "ARR reached $4.1M at end of August with 17 months runway, and security/compliance has had no owner since July. Meeting date: September 18, 2026. Prepared by Noor Haddad and Tobias Mbeki. Board: Noor…",
+      "path": "finance/q3-2026-board-deck-outline.md"
+    },
+    {
+      "id": "legal/customer-msa-standard-positions",
+      "title": "Customer MSA - standard positions",
+      "type": "reference",
+      "room": "room-legal-0",
+      "pos": [
+        18.1,
+        1.1,
+        3.29
+      ],
+      "freshness": 0.32,
+      "excerpt": "Standard Customer MSA terms include a 12-month term, liability cap of 12 months fees, and Net 30 payment. Owner: Tobias Mbeki. Notes from the May 2026 review with outside counsel (Harlow & Pike LLP)…",
+      "path": "legal/customer-msa-standard-positions.md"
+    },
+    {
+      "id": "marketing/pantry-2-0-launch-brief",
+      "title": "Pantry 2.0 launch brief",
+      "type": "brief",
+      "room": "room-marketing-0",
+      "pos": [
+        1.9,
+        1.1,
+        -65.29
+      ],
+      "freshness": 1,
+      "excerpt": "Pantry 2.0 (supplier price alerts and auto-reorder) launches November 4, 2026 for Growth and Enterprise customers only. Owner: Rafa Oyelaran. Launch date: November 4, 2026 Supplier price alerts: get…",
+      "path": "marketing/pantry-2-0-launch-brief.md"
+    },
+    {
+      "id": "ops/vendor-list",
+      "title": "Vendor List",
+      "type": "reference",
+      "room": "room-ops-0",
+      "pos": [
+        1.9,
+        1.1,
+        30.71
+      ],
+      "freshness": 0.83,
+      "excerpt": "Ledgerline's DPA is not signed and no one is assigned to run required security reviews for new vendors touching customer data. Notes: Ledgerline renewal in December: Tobias wants the DPA signed…",
+      "path": "ops/vendor-list.md"
+    },
+    {
+      "id": "people/all-hands-2026-09-02",
+      "title": "All-Hands Notes – Sept 2, 2026",
+      "type": "meeting",
+      "room": "room-people-1",
+      "pos": [
+        -3.38,
+        1.1,
+        -32.26
+      ],
+      "freshness": 0.91,
+      "excerpt": "Q3 ARR hit $4.1M end of Aug with board meeting Sept 18, and nobody officially owns the security policy yet. Noor: Q3 closing strong, ARR $4.1M end of Aug. Board mtg Sept 18 Welcome Ana Lindqvist…",
+      "path": "people/all-hands-2026-09-02.md"
+    },
+    {
+      "id": "people/ana-lindqvist",
+      "title": "Ana Lindqvist",
+      "type": "person",
+      "room": "room-people-1",
+      "pos": [
+        -3.78,
+        1.1,
+        -33.64
+      ],
+      "freshness": 0.91,
+      "excerpt": "Ana Lindqvist: platform eng. \"primary: Dmitri Solberg -> Felix Arrowood -> Ana Lindqvist -> Jonah Pereira -> (repeat)\" (On-Call Rotation - Platform Team) \"welcome Ana Lindqvist (platform eng) + Jonah…",
+      "path": "people/ana-lindqvist.md"
+    },
+    {
+      "id": "people/carmen-delacroix",
+      "title": "Carmen Delacroix",
+      "type": "person",
+      "room": "room-people-1",
+      "pos": [
+        -3.65,
+        1.1,
+        -35.07
+      ],
+      "freshness": 0.99,
+      "excerpt": "Carmen Delacroix: Board member (Northbay Ventures). \"Board: Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures), independent seat vacant.\" (Q3 2026 Board Deck Outline) mentioned_in: Q3…",
+      "path": "people/carmen-delacroix.md"
+    },
+    {
+      "id": "people/code-of-conduct",
+      "title": "Code of Conduct",
+      "type": "policy",
+      "room": "room-people-2",
+      "pos": [
+        -2.61,
+        1.1,
+        -45.24
+      ],
+      "freshness": 0.88,
+      "excerpt": "Harassment of any kind is grounds for termination, and concerns should be reported to Ines Takahara or Noor Haddad. Owner: Ines Takahara. We expect everyone to treat colleagues, customers and…",
+      "path": "people/code-of-conduct.md"
+    },
+    {
+      "id": "people/company-overview",
+      "title": "Kitewing Company Overview",
+      "type": "reference",
+      "room": "room-people-1",
+      "pos": [
+        -2.99,
+        1.1,
+        -36.35
+      ],
+      "freshness": 0.88,
+      "excerpt": "Kitewing builds Kitewing Pantry and serves 612 restaurant groups and 1,948 locations as of August 2026. Owner: Ines Takahara. Kitewing, Inc. builds Kitewing Pantry, inventory and ordering software…",
+      "path": "people/company-overview.md"
+    },
+    {
+      "id": "people/dmitri-solberg",
+      "title": "Dmitri Solberg",
+      "type": "person",
+      "room": "room-people-1",
+      "pos": [
+        1.9,
+        1.1,
+        -37.29
+      ],
+      "freshness": 0.94,
+      "excerpt": "Dmitri Solberg: Engineering Manager, Platform. \"ON-CALL ROTATION - platform team (maintained by Dmitri, last touched 2026-09-01)\" (On-Call Rotation - Platform Team) \"Status: complete · Author: Dmitri…",
+      "path": "people/dmitri-solberg.md"
+    },
+    {
+      "id": "people/felix-arrowood",
+      "title": "Felix Arrowood",
+      "type": "person",
+      "room": "room-people-1",
+      "pos": [
+        2.99,
+        1.1,
+        -36.35
+      ],
+      "freshness": 0.99,
+      "excerpt": "Felix Arrowood: CTO. \"Board: Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures), independent seat vacant.\" (Q3 2026 Board Deck Outline) \"escalation after 30 min unacked: Felix (CTO).\"…",
+      "path": "people/felix-arrowood.md"
+    },
+    {
+      "id": "people/first-two-weeks-onboarding",
+      "title": "Your First Two Weeks",
+      "type": "process",
+      "room": "room-people-1",
+      "pos": [
+        3.65,
+        1.1,
+        -35.07
+      ],
+      "freshness": 0.88,
+      "excerpt": "Benefits enrollment must be completed within 30 days of your start date, with Kitewing paying 90% of employee premiums. Owner: Ines Takahara. 1. Day 1: laptop pickup, Okta and Google accounts…",
+      "path": "people/first-two-weeks-onboarding.md"
+    },
+    {
+      "id": "people/ines-takahara",
+      "title": "Ines Takahara",
+      "type": "person",
+      "room": "room-people-1",
+      "pos": [
+        3.78,
+        1.1,
+        -33.64
+      ],
+      "freshness": 0.94,
+      "excerpt": "Ines Takahara: Head of People. \"Report concerns to Ines Takahara (Head of People) or, if the concern involves Ines, to Noor Haddad directly.\" (Code of Conduct) \"Owner: Ines Takahara\" (PTO and Leave)…",
+      "path": "people/ines-takahara.md"
+    },
+    {
+      "id": "people/jonah-pereira",
+      "title": "Jonah Pereira",
+      "type": "person",
+      "room": "room-people-1",
+      "pos": [
+        3.38,
+        1.1,
+        -32.26
+      ],
+      "freshness": 0.91,
+      "excerpt": "Jonah Pereira: platform eng. \"primary: Dmitri Solberg -> Felix Arrowood -> Ana Lindqvist -> Jonah Pereira -> (repeat)\" (On-Call Rotation - Platform Team) \"welcome Ana Lindqvist (platform eng) + Jonah…",
+      "path": "people/jonah-pereira.md"
+    },
+    {
+      "id": "people/keiko-ferrante",
+      "title": "Keiko Ferrante",
+      "type": "person",
+      "room": "room-people-2",
+      "pos": [
+        -3.57,
+        1.1,
+        -46.7
+      ],
+      "freshness": 0.98,
+      "excerpt": "Keiko Ferrante: Head of Customer Success. \"Credit affected customers 1 day of subscription | Keiko Ferrante | Aug 31 | done\" (Postmortem: ordering outage, 2026-08-14) \"Keiko Ferrante | Head of…",
+      "path": "people/keiko-ferrante.md"
+    },
+    {
+      "id": "people/marisol-quint",
+      "title": "Marisol Quint",
+      "type": "person",
+      "room": "room-people-2",
+      "pos": [
+        -3.77,
+        1.1,
+        -48.44
+      ],
+      "freshness": 0.96,
+      "excerpt": "Marisol Quint: owns the HubSpot price book update. \"Marisol Quint | RevOps Manager | Ops | Wren Castellano | Austin\" (Team Directory) \"VENDOR LIST (Ops) - updated 2026-08-20 by Marisol Quint\" (Vendor…",
+      "path": "people/marisol-quint.md"
+    },
+    {
+      "id": "people/noor-haddad",
+      "title": "Noor Haddad",
+      "type": "person",
+      "room": "room-people-2",
+      "pos": [
+        -3.17,
+        1.1,
+        -50.09
+      ],
+      "freshness": 0.99,
+      "excerpt": "Noor Haddad: signs all customer contracts over $50k ARR. \"Prepared by Noor Haddad and Tobias Mbeki.\" (Q3 2026 Board Deck Outline) \"Above $10,000, Noor Haddad also approves.\" (Expense Policy) \"Noor…",
+      "path": "people/noor-haddad.md"
+    },
+    {
+      "id": "people/pto-and-leave",
+      "title": "PTO and Leave",
+      "type": "policy",
+      "room": "room-people-2",
+      "pos": [
+        1.9,
+        1.1,
+        -51.29
+      ],
+      "freshness": 0.4,
+      "excerpt": "Kitewing has flexible PTO with a minimum of 15 days off per calendar year. Owner: Ines Takahara. Kitewing has flexible PTO with a minimum: everyone takes at least 15 days off per calendar year…",
+      "path": "people/pto-and-leave.md"
+    },
+    {
+      "id": "people/rafa-oyelaran",
+      "title": "Rafa Oyelaran",
+      "type": "person",
+      "room": "room-people-2",
+      "pos": [
+        3.17,
+        1.1,
+        -50.09
+      ],
+      "freshness": 1,
+      "excerpt": "Rafa Oyelaran: Product Marketing Lead. \"Launch plan owned by Rafa Oyelaran.\" (Q3 2026 Board Deck Outline) \"Owner: Rafa Oyelaran · Launch date: November 4, 2026 · Last updated Sept 19, 2026\" (Pantry…",
+      "path": "people/rafa-oyelaran.md"
+    },
+    {
+      "id": "people/remote-work-policy",
+      "title": "Remote Work Policy",
+      "type": "policy",
+      "room": "room-people-2",
+      "pos": [
+        3.77,
+        1.1,
+        -48.44
+      ],
+      "freshness": 0.88,
+      "excerpt": "The home-office stipend is $600 once plus $50 per month for internet, paid through Ledgerline expenses. Owner: Ines Takahara. Anyone can work remotely. Portland and Austin offices are open Monday to…",
+      "path": "people/remote-work-policy.md"
+    },
+    {
+      "id": "people/team-directory",
+      "title": "Team Directory",
+      "type": "directory",
+      "room": "room-people-1",
+      "pos": [
+        2.49,
+        1.1,
+        -31.13
+      ],
+      "freshness": 0.94,
+      "excerpt": "Leadership and team leads directory, with security and compliance unowned since Priyanka left in July. Leadership and team leads. Full directory is in Rippling. Security and compliance: no owner…",
+      "path": "people/team-directory.md"
+    },
+    {
+      "id": "people/tobias-mbeki",
+      "title": "Tobias Mbeki",
+      "type": "person",
+      "room": "room-people-2",
+      "pos": [
+        3.57,
+        1.1,
+        -46.7
+      ],
+      "freshness": 0.99,
+      "excerpt": "Tobias Mbeki: Head of Finance. \"Prepared by Noor Haddad and Tobias Mbeki.\" (Q3 2026 Board Deck Outline) \"Owner: Tobias Mbeki (Head of Finance)\" (Expense Policy) \"Kept by Tobias Mbeki until we hire…",
+      "path": "people/tobias-mbeki.md"
+    },
+    {
+      "id": "people/wren-castellano",
+      "title": "Wren Castellano",
+      "type": "person",
+      "room": "room-people-2",
+      "pos": [
+        2.61,
+        1.1,
+        -45.24
+      ],
+      "freshness": 0.98,
+      "excerpt": "Wren Castellano: VP Sales. \"Wren Castellano signs under $50k ARR.\" (Customer MSA - standard positions) \"Wren Castellano | VP Sales | Sales | Noor Haddad | Austin\" (Team Directory) \"Owner: Wren…",
+      "path": "people/wren-castellano.md"
+    },
+    {
+      "id": "sales/growth-and-starter-pricing-changes",
+      "title": "Growth & Starter Pricing Decisions",
+      "type": "decision",
+      "room": "room-sales-0",
+      "pos": [
+        34,
+        1.1,
+        3.8
+      ],
+      "freshness": 0.96,
+      "excerpt": "Growth goes from $299 to $349 per location per month for new customers starting October 1, 2026. 2026-09-09 (Noor Haddad): Decision: Growth goes from $299 to $349 per location per month for new…",
+      "path": "sales/growth-and-starter-pricing-changes.md"
+    },
+    {
+      "id": "sales/kitewing-sales-playbook",
+      "title": "Kitewing Sales Playbook",
+      "type": "playbook",
+      "room": "room-sales-0",
+      "pos": [
+        34,
+        1.1,
+        -3.8
+      ],
+      "freshness": 0.98,
+      "excerpt": "AEs may discount up to 15% without approval; deals above 25% or contracts over 24 months need finance approval. Owner: Wren Castellano, VP Sales. Ideal customer: independent restaurant groups with 3…",
+      "path": "sales/kitewing-sales-playbook.md"
+    },
+    {
+      "id": "support/refund-process",
+      "title": "Refund Process",
+      "type": "process",
+      "room": "room-support-0",
+      "pos": [
+        -34,
+        1.1,
+        3.8
+      ],
+      "freshness": 0.59,
+      "excerpt": "Refunds and credits outside the SLA formula are handled case by case, and refunds over $1,000 need approval. Owner: not recorded. Refunds and credits outside the SLA formula are handled case by case…",
+      "path": "support/refund-process.md"
+    },
+    {
+      "id": "support/support-sla",
+      "title": "Support SLA",
+      "type": "policy",
+      "room": "room-support-0",
+      "pos": [
+        -34,
+        1.1,
+        -3.8
+      ],
+      "freshness": 0.59,
+      "excerpt": "P1 issues get a 30-minute first response and 4-hour target resolution, with uptime credits for missed 99.5% monthly commitment. Owner: Keiko Ferrante (Head of Customer Success). Enterprise customers…",
+      "path": "support/support-sla.md"
+    }
+  ],
+  "links": [
+    {
+      "from": "companies/aws",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/aws",
+      "to": "people/felix-arrowood",
+      "kind": "mentions"
+    },
+    {
+      "from": "companies/cobaltcare",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/cobaltcare",
+      "to": "people/first-two-weeks-onboarding",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/cobaltcare",
+      "to": "people/ines-takahara",
+      "kind": "mentions"
+    },
+    {
+      "from": "companies/expensify",
+      "to": "companies/ledgerline",
+      "kind": "superseded_by"
+    },
+    {
+      "from": "companies/expensify",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/harlow-and-pike-llp",
+      "to": "legal/customer-msa-standard-positions",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/harlow-and-pike-llp",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/harlow-and-pike-llp",
+      "to": "people/tobias-mbeki",
+      "kind": "mentions"
+    },
+    {
+      "from": "companies/hubspot",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/hubspot",
+      "to": "people/marisol-quint",
+      "kind": "mentions"
+    },
+    {
+      "from": "companies/juniper-row-group",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/juniper-row-group",
+      "to": "marketing/pantry-2-0-launch-brief",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/kandji",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/kandji",
+      "to": "people/felix-arrowood",
+      "kind": "mentions"
+    },
+    {
+      "from": "companies/ledgerline",
+      "to": "companies/expensify",
+      "kind": "supersedes"
+    },
+    {
+      "from": "companies/ledgerline",
+      "to": "legal/customer-msa-standard-positions",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/ledgerline",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/ledgerline",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/ledgerline",
+      "to": "people/remote-work-policy",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/ledgerline",
+      "to": "people/tobias-mbeki",
+      "kind": "mentions"
+    },
+    {
+      "from": "companies/marrow-and-vine",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/northbay-ventures",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/northbay-ventures",
+      "to": "people/carmen-delacroix",
+      "kind": "mentions"
+    },
+    {
+      "from": "companies/northbay-ventures",
+      "to": "people/company-overview",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/pagerduty",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "companies/pagerduty",
+      "to": "people/dmitri-solberg",
+      "kind": "mentions"
+    },
+    {
+      "from": "companies/saltgrass-hospitality",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "eng/information-security-policy",
+      "to": "companies/aws",
+      "kind": "vendor"
+    },
+    {
+      "from": "eng/information-security-policy",
+      "to": "companies/kandji",
+      "kind": "vendor"
+    },
+    {
+      "from": "eng/information-security-policy",
+      "to": "eng/oncall-rotation",
+      "kind": "references"
+    },
+    {
+      "from": "eng/information-security-policy",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "conflicts_with"
+    },
+    {
+      "from": "eng/information-security-policy",
+      "to": "ops/vendor-list",
+      "kind": "references"
+    },
+    {
+      "from": "eng/information-security-policy",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "conflicts_with"
+    },
+    {
+      "from": "eng/information-security-policy",
+      "to": "people/team-directory",
+      "kind": "conflicts_with"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "companies/pagerduty",
+      "kind": "vendor"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "people/ana-lindqvist",
+      "kind": "mentions"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "people/dmitri-solberg",
+      "kind": "owned_by"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "people/felix-arrowood",
+      "kind": "mentions"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "people/jonah-pereira",
+      "kind": "mentions"
+    },
+    {
+      "from": "eng/oncall-rotation",
+      "to": "people/pto-and-leave",
+      "kind": "references"
+    },
+    {
+      "from": "eng/ordering-outage-postmortem",
+      "to": "companies/pagerduty",
+      "kind": "depends_on"
+    },
+    {
+      "from": "eng/ordering-outage-postmortem",
+      "to": "eng/information-security-policy",
+      "kind": "references"
+    },
+    {
+      "from": "eng/ordering-outage-postmortem",
+      "to": "eng/oncall-rotation",
+      "kind": "references"
+    },
+    {
+      "from": "eng/ordering-outage-postmortem",
+      "to": "people/dmitri-solberg",
+      "kind": "mentions"
+    },
+    {
+      "from": "eng/ordering-outage-postmortem",
+      "to": "people/felix-arrowood",
+      "kind": "mentions"
+    },
+    {
+      "from": "eng/ordering-outage-postmortem",
+      "to": "people/keiko-ferrante",
+      "kind": "mentions"
+    },
+    {
+      "from": "eng/ordering-outage-postmortem",
+      "to": "people/team-directory",
+      "kind": "references"
+    },
+    {
+      "from": "eng/ordering-outage-postmortem",
+      "to": "support/support-sla",
+      "kind": "references"
+    },
+    {
+      "from": "finance/expense-policy",
+      "to": "companies/ledgerline",
+      "kind": "vendor"
+    },
+    {
+      "from": "finance/expense-policy",
+      "to": "eng/information-security-policy",
+      "kind": "references"
+    },
+    {
+      "from": "finance/expense-policy",
+      "to": "people/noor-haddad",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/expense-policy",
+      "to": "people/remote-work-policy",
+      "kind": "references"
+    },
+    {
+      "from": "finance/expense-policy",
+      "to": "people/tobias-mbeki",
+      "kind": "owned_by"
+    },
+    {
+      "from": "finance/pricing-2026",
+      "to": "sales/growth-and-starter-pricing-changes",
+      "kind": "superseded_by"
+    },
+    {
+      "from": "finance/pricing-2026",
+      "to": "sales/kitewing-sales-playbook",
+      "kind": "references"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "companies/juniper-row-group",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "companies/marrow-and-vine",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "companies/northbay-ventures",
+      "kind": "investor"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "companies/saltgrass-hospitality",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "eng/ordering-outage-postmortem",
+      "kind": "references"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "marketing/pantry-2-0-launch-brief",
+      "kind": "references"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "conflicts_with"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "people/carmen-delacroix",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "people/felix-arrowood",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "people/noor-haddad",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "people/rafa-oyelaran",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "people/team-directory",
+      "kind": "conflicts_with"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "people/tobias-mbeki",
+      "kind": "mentions"
+    },
+    {
+      "from": "finance/q3-2026-board-deck-outline",
+      "to": "sales/growth-and-starter-pricing-changes",
+      "kind": "decided_in"
+    },
+    {
+      "from": "legal/customer-msa-standard-positions",
+      "to": "companies/harlow-and-pike-llp",
+      "kind": "references"
+    },
+    {
+      "from": "legal/customer-msa-standard-positions",
+      "to": "companies/ledgerline",
+      "kind": "vendor"
+    },
+    {
+      "from": "legal/customer-msa-standard-positions",
+      "to": "eng/information-security-policy",
+      "kind": "references"
+    },
+    {
+      "from": "legal/customer-msa-standard-positions",
+      "to": "finance/pricing-2026",
+      "kind": "references"
+    },
+    {
+      "from": "legal/customer-msa-standard-positions",
+      "to": "people/noor-haddad",
+      "kind": "approved_by"
+    },
+    {
+      "from": "legal/customer-msa-standard-positions",
+      "to": "people/tobias-mbeki",
+      "kind": "owned_by"
+    },
+    {
+      "from": "legal/customer-msa-standard-positions",
+      "to": "people/wren-castellano",
+      "kind": "signed_by"
+    },
+    {
+      "from": "legal/customer-msa-standard-positions",
+      "to": "support/support-sla",
+      "kind": "references"
+    },
+    {
+      "from": "marketing/pantry-2-0-launch-brief",
+      "to": "companies/juniper-row-group",
+      "kind": "mentions"
+    },
+    {
+      "from": "marketing/pantry-2-0-launch-brief",
+      "to": "finance/pricing-2026",
+      "kind": "conflicts_with"
+    },
+    {
+      "from": "marketing/pantry-2-0-launch-brief",
+      "to": "people/felix-arrowood",
+      "kind": "depends_on"
+    },
+    {
+      "from": "marketing/pantry-2-0-launch-brief",
+      "to": "people/keiko-ferrante",
+      "kind": "mentions"
+    },
+    {
+      "from": "marketing/pantry-2-0-launch-brief",
+      "to": "people/rafa-oyelaran",
+      "kind": "owned_by"
+    },
+    {
+      "from": "marketing/pantry-2-0-launch-brief",
+      "to": "people/wren-castellano",
+      "kind": "depends_on"
+    },
+    {
+      "from": "marketing/pantry-2-0-launch-brief",
+      "to": "sales/growth-and-starter-pricing-changes",
+      "kind": "references"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "companies/aws",
+      "kind": "vendor"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "companies/cobaltcare",
+      "kind": "vendor"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "companies/harlow-and-pike-llp",
+      "kind": "vendor"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "companies/hubspot",
+      "kind": "vendor"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "companies/kandji",
+      "kind": "vendor"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "companies/ledgerline",
+      "kind": "vendor"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "companies/pagerduty",
+      "kind": "vendor"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "eng/information-security-policy",
+      "kind": "governed_by"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "people/dmitri-solberg",
+      "kind": "owned_by"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "people/felix-arrowood",
+      "kind": "owned_by"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "people/ines-takahara",
+      "kind": "owned_by"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "people/marisol-quint",
+      "kind": "owned_by"
+    },
+    {
+      "from": "ops/vendor-list",
+      "to": "people/tobias-mbeki",
+      "kind": "owned_by"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "companies/expensify",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "companies/ledgerline",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "eng/information-security-policy",
+      "kind": "references"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "eng/ordering-outage-postmortem",
+      "kind": "references"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "finance/expense-policy",
+      "kind": "references"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "references"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "marketing/pantry-2-0-launch-brief",
+      "kind": "references"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "people/ana-lindqvist",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "people/felix-arrowood",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "people/ines-takahara",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "people/jonah-pereira",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "people/noor-haddad",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "people/rafa-oyelaran",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "people/tobias-mbeki",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "people/wren-castellano",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/all-hands-2026-09-02",
+      "to": "sales/growth-and-starter-pricing-changes",
+      "kind": "references"
+    },
+    {
+      "from": "people/ana-lindqvist",
+      "to": "eng/oncall-rotation",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/ana-lindqvist",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/carmen-delacroix",
+      "to": "companies/northbay-ventures",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/carmen-delacroix",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/code-of-conduct",
+      "to": "people/company-overview",
+      "kind": "part_of"
+    },
+    {
+      "from": "people/code-of-conduct",
+      "to": "people/ines-takahara",
+      "kind": "owned_by"
+    },
+    {
+      "from": "people/code-of-conduct",
+      "to": "people/noor-haddad",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/company-overview",
+      "to": "companies/northbay-ventures",
+      "kind": "investor"
+    },
+    {
+      "from": "people/company-overview",
+      "to": "people/felix-arrowood",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/company-overview",
+      "to": "people/ines-takahara",
+      "kind": "owned_by"
+    },
+    {
+      "from": "people/company-overview",
+      "to": "people/noor-haddad",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/company-overview",
+      "to": "people/pto-and-leave",
+      "kind": "references"
+    },
+    {
+      "from": "people/dmitri-solberg",
+      "to": "companies/pagerduty",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/dmitri-solberg",
+      "to": "eng/oncall-rotation",
+      "kind": "owns"
+    },
+    {
+      "from": "people/dmitri-solberg",
+      "to": "eng/ordering-outage-postmortem",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/dmitri-solberg",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/dmitri-solberg",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/felix-arrowood",
+      "to": "companies/aws",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/felix-arrowood",
+      "to": "eng/oncall-rotation",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/felix-arrowood",
+      "to": "eng/ordering-outage-postmortem",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/felix-arrowood",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/felix-arrowood",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/felix-arrowood",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/felix-arrowood",
+      "to": "people/company-overview",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/felix-arrowood",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/first-two-weeks-onboarding",
+      "to": "companies/cobaltcare",
+      "kind": "vendor"
+    },
+    {
+      "from": "people/first-two-weeks-onboarding",
+      "to": "eng/information-security-policy",
+      "kind": "references"
+    },
+    {
+      "from": "people/first-two-weeks-onboarding",
+      "to": "people/company-overview",
+      "kind": "part_of"
+    },
+    {
+      "from": "people/first-two-weeks-onboarding",
+      "to": "people/ines-takahara",
+      "kind": "owned_by"
+    },
+    {
+      "from": "people/first-two-weeks-onboarding",
+      "to": "people/pto-and-leave",
+      "kind": "references"
+    },
+    {
+      "from": "people/first-two-weeks-onboarding",
+      "to": "sales/kitewing-sales-playbook",
+      "kind": "references"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "companies/cobaltcare",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "people/code-of-conduct",
+      "kind": "owns"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "people/company-overview",
+      "kind": "owns"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "people/first-two-weeks-onboarding",
+      "kind": "owns"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "people/pto-and-leave",
+      "kind": "owns"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "people/remote-work-policy",
+      "kind": "owns"
+    },
+    {
+      "from": "people/ines-takahara",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/jonah-pereira",
+      "to": "eng/oncall-rotation",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/jonah-pereira",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/keiko-ferrante",
+      "to": "eng/ordering-outage-postmortem",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/keiko-ferrante",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/keiko-ferrante",
+      "to": "sales/kitewing-sales-playbook",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/keiko-ferrante",
+      "to": "support/support-sla",
+      "kind": "owns"
+    },
+    {
+      "from": "people/marisol-quint",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/marisol-quint",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/marisol-quint",
+      "to": "sales/growth-and-starter-pricing-changes",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/noor-haddad",
+      "to": "finance/expense-policy",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/noor-haddad",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/noor-haddad",
+      "to": "legal/customer-msa-standard-positions",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/noor-haddad",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/noor-haddad",
+      "to": "people/company-overview",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/noor-haddad",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/noor-haddad",
+      "to": "sales/growth-and-starter-pricing-changes",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/noor-haddad",
+      "to": "sales/kitewing-sales-playbook",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/pto-and-leave",
+      "to": "eng/oncall-rotation",
+      "kind": "references"
+    },
+    {
+      "from": "people/pto-and-leave",
+      "to": "people/company-overview",
+      "kind": "part_of"
+    },
+    {
+      "from": "people/pto-and-leave",
+      "to": "people/ines-takahara",
+      "kind": "owned_by"
+    },
+    {
+      "from": "people/rafa-oyelaran",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/rafa-oyelaran",
+      "to": "marketing/pantry-2-0-launch-brief",
+      "kind": "owns"
+    },
+    {
+      "from": "people/rafa-oyelaran",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/rafa-oyelaran",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/remote-work-policy",
+      "to": "companies/ledgerline",
+      "kind": "vendor"
+    },
+    {
+      "from": "people/remote-work-policy",
+      "to": "finance/expense-policy",
+      "kind": "references"
+    },
+    {
+      "from": "people/remote-work-policy",
+      "to": "people/company-overview",
+      "kind": "part_of"
+    },
+    {
+      "from": "people/remote-work-policy",
+      "to": "people/ines-takahara",
+      "kind": "owned_by"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "eng/information-security-policy",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/dmitri-solberg",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/felix-arrowood",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/ines-takahara",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/keiko-ferrante",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/marisol-quint",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/noor-haddad",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/rafa-oyelaran",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/tobias-mbeki",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/team-directory",
+      "to": "people/wren-castellano",
+      "kind": "reports_to"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "companies/expensify",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "companies/ledgerline",
+      "kind": "mentions"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "finance/expense-policy",
+      "kind": "owns"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "finance/q3-2026-board-deck-outline",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "legal/customer-msa-standard-positions",
+      "kind": "owns"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "ops/vendor-list",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/tobias-mbeki",
+      "to": "sales/kitewing-sales-playbook",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/wren-castellano",
+      "to": "legal/customer-msa-standard-positions",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/wren-castellano",
+      "to": "people/all-hands-2026-09-02",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/wren-castellano",
+      "to": "people/team-directory",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/wren-castellano",
+      "to": "sales/growth-and-starter-pricing-changes",
+      "kind": "mentioned_in"
+    },
+    {
+      "from": "people/wren-castellano",
+      "to": "sales/kitewing-sales-playbook",
+      "kind": "owns"
+    },
+    {
+      "from": "sales/growth-and-starter-pricing-changes",
+      "to": "companies/hubspot",
+      "kind": "vendor"
+    },
+    {
+      "from": "sales/growth-and-starter-pricing-changes",
+      "to": "finance/pricing-2026",
+      "kind": "supersedes"
+    },
+    {
+      "from": "sales/growth-and-starter-pricing-changes",
+      "to": "people/keiko-ferrante",
+      "kind": "mentions"
+    },
+    {
+      "from": "sales/growth-and-starter-pricing-changes",
+      "to": "people/marisol-quint",
+      "kind": "mentions"
+    },
+    {
+      "from": "sales/growth-and-starter-pricing-changes",
+      "to": "people/noor-haddad",
+      "kind": "decided_in"
+    },
+    {
+      "from": "sales/growth-and-starter-pricing-changes",
+      "to": "people/tobias-mbeki",
+      "kind": "mentions"
+    },
+    {
+      "from": "sales/growth-and-starter-pricing-changes",
+      "to": "people/wren-castellano",
+      "kind": "mentions"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "companies/hubspot",
+      "kind": "vendor"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "eng/information-security-policy",
+      "kind": "references"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "finance/pricing-2026",
+      "kind": "references"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "people/keiko-ferrante",
+      "kind": "reports_to"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "people/noor-haddad",
+      "kind": "approved_by"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "people/tobias-mbeki",
+      "kind": "approved_by"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "people/wren-castellano",
+      "kind": "owned_by"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "sales/growth-and-starter-pricing-changes",
+      "kind": "superseded_by"
+    },
+    {
+      "from": "sales/kitewing-sales-playbook",
+      "to": "support/support-sla",
+      "kind": "references"
+    },
+    {
+      "from": "support/refund-process",
+      "to": "companies/ledgerline",
+      "kind": "vendor"
+    },
+    {
+      "from": "support/refund-process",
+      "to": "support/support-sla",
+      "kind": "references"
+    },
+    {
+      "from": "support/support-sla",
+      "to": "finance/pricing-2026",
+      "kind": "references"
+    },
+    {
+      "from": "support/support-sla",
+      "to": "people/keiko-ferrante",
+      "kind": "owned_by"
+    },
+    {
+      "from": "support/support-sla",
+      "to": "support/refund-process",
+      "kind": "related_to"
+    }
+  ],
+  "agents": [
+    {
+      "id": "legal",
+      "label": "Legal agent",
+      "team": "legal",
+      "color": "#bb9af7",
+      "home": "room-legal-0"
+    },
+    {
+      "id": "finance",
+      "label": "Finance agent",
+      "team": "finance",
+      "color": "#e0af68",
+      "home": "room-finance-0"
+    },
+    {
+      "id": "eng",
+      "label": "Eng agent",
+      "team": "eng",
+      "color": "#9ece6a",
+      "home": "room-eng-0"
+    },
+    {
+      "id": "sales",
+      "label": "Sales agent",
+      "team": "sales",
+      "color": "#2ac3de",
+      "home": "room-sales-0"
+    },
+    {
+      "id": "support",
+      "label": "Support agent",
+      "team": "support",
+      "color": "#73daca",
+      "home": "room-support-0"
+    },
+    {
+      "id": "ops",
+      "label": "Ops agent",
+      "team": "ops",
+      "color": "#ff9e64",
+      "home": "room-ops-0"
+    },
+    {
+      "id": "marketing",
+      "label": "Marketing agent",
+      "team": "marketing",
+      "color": "#f7768e",
+      "home": "room-marketing-0"
+    }
+  ],
+  "routes": []
+}

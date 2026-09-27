@@ -1,0 +1,63 @@
+{
+  "name": "links-Sales/Kitewing Sales Playbook.md",
+  "model": "claude-sonnet-5",
+  "key": "5bb1c2d4d99b4d688cf1",
+  "output": {
+    "links": [
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "people/wren-castellano",
+        "kind": "approved_by",
+        "evidence": "needs approval from Wren Castellano"
+      },
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "people/noor-haddad",
+        "kind": "approved_by",
+        "evidence": "needs Noor Haddad and Tobias Mbeki"
+      },
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "people/tobias-mbeki",
+        "kind": "approved_by",
+        "evidence": "needs Noor Haddad and Tobias Mbeki (finance)"
+      },
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "finance/pricing-2026",
+        "kind": "references",
+        "evidence": "List prices are in the Pricing 2026 sheet"
+      },
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "sales/growth-and-starter-pricing-changes",
+        "kind": "superseded_by",
+        "evidence": "pricing changes decided in #pricing-decisions override the sheet"
+      },
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "eng/information-security-policy",
+        "kind": "references",
+        "evidence": "Send them the Information Security Policy and the SOC 2 status"
+      },
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "people/keiko-ferrante",
+        "kind": "reports_to",
+        "evidence": "handed to Keiko Ferrante's team in HubSpot"
+      },
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "companies/hubspot",
+        "kind": "vendor",
+        "evidence": "handed to Keiko Ferrante's team in HubSpot"
+      },
+      {
+        "from": "sales/kitewing-sales-playbook",
+        "to": "support/support-sla",
+        "kind": "references",
+        "evidence": "Onboarding SLA is in the Support SLA doc"
+      }
+    ]
+  }
+}

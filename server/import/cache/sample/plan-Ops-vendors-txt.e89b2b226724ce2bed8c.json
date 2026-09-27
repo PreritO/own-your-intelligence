@@ -1,0 +1,100 @@
+{
+  "name": "plan-Ops/vendors.txt",
+  "model": "claude-sonnet-5",
+  "key": "e89b2b226724ce2bed8c",
+  "output": {
+    "doc_date": "2026-08-20",
+    "pages": [
+      {
+        "key": "vendor-list",
+        "title": "Vendor List",
+        "type": "reference",
+        "department": "ops",
+        "room": "Vendors",
+        "summary": "Ledgerline's DPA is not signed and no one is assigned to run required security reviews for new vendors touching customer data.",
+        "body": "| vendor | what | contract owner | renews | touches customer data | security review |\n|---|---|---|---|---|---|\n| AWS | hosting (us-west-2) | Felix Arrowood | 2027-02-01 | yes | done 2026-01 |\n| Ledgerline | billing + expenses | Tobias Mbeki | 2026-12-15 | yes | done 2025-11, DPA NOT signed |\n| HubSpot | CRM, price books, quotes | Marisol Quint | 2027-03-01 | yes (contacts) | done 2026-02 |\n| PagerDuty | on-call paging | Dmitri Solberg | 2026-11-30 | no | n/a |\n| Kandji | laptop management | Felix Arrowood | 2027-01-10 | no | done 2026-03 |\n| Cobaltcare | health insurance | Ines Takahara | 2026-12-31 | no (employee data) | n/a |\n| Harlow & Pike | outside counsel | Tobias Mbeki | engagement letter, no renewal | no | n/a |\n\n**Notes:**\n- Ledgerline renewal in December: Tobias wants the DPA signed before renewing.\n- Any new vendor touching customer data needs a security review first (security policy section 6). Right now nobody is assigned to run those reviews.",
+        "is_policy_or_process": false,
+        "owner": null,
+        "owner_person": null,
+        "gaps": [
+          "Ledgerline DPA NOT signed",
+          "Nobody is assigned to run security reviews for new vendors touching customer data"
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Marisol Quint",
+        "kind": "person",
+        "role": "HubSpot contract owner",
+        "quote": "VENDOR LIST (Ops) - updated 2026-08-20 by Marisol Quint"
+      },
+      {
+        "name": "Felix Arrowood",
+        "kind": "person",
+        "role": "contract owner (AWS, Kandji)",
+        "quote": "AWS | hosting (us-west-2) | Felix Arrowood | 2027-02-01 | yes | done 2026-01"
+      },
+      {
+        "name": "Tobias Mbeki",
+        "kind": "person",
+        "role": "contract owner (Ledgerline, Harlow & Pike)",
+        "quote": "Ledgerline | billing + expenses | Tobias Mbeki | 2026-12-15 | yes | done 2025-11, DPA NOT signed"
+      },
+      {
+        "name": "Dmitri Solberg",
+        "kind": "person",
+        "role": "contract owner (PagerDuty)",
+        "quote": "PagerDuty | on-call paging | Dmitri Solberg | 2026-11-30 | no | n/a"
+      },
+      {
+        "name": "Ines Takahara",
+        "kind": "person",
+        "role": "contract owner (Cobaltcare)",
+        "quote": "Cobaltcare | health insurance | Ines Takahara | 2026-12-31 | no (employee data) | n/a"
+      },
+      {
+        "name": "AWS",
+        "kind": "company",
+        "role": "hosting vendor",
+        "quote": "AWS | hosting (us-west-2) | Felix Arrowood | 2027-02-01 | yes | done 2026-01"
+      },
+      {
+        "name": "Ledgerline",
+        "kind": "company",
+        "role": "billing + expenses vendor",
+        "quote": "Ledgerline | billing + expenses | Tobias Mbeki | 2026-12-15 | yes | done 2025-11, DPA NOT signed"
+      },
+      {
+        "name": "HubSpot",
+        "kind": "company",
+        "role": "CRM, price books, quotes vendor",
+        "quote": "HubSpot | CRM, price books, quotes | Marisol Quint | 2027-03-01 | yes (contacts) | done 2026-02"
+      },
+      {
+        "name": "PagerDuty",
+        "kind": "company",
+        "role": "on-call paging vendor",
+        "quote": "PagerDuty | on-call paging | Dmitri Solberg | 2026-11-30 | no | n/a"
+      },
+      {
+        "name": "Kandji",
+        "kind": "company",
+        "role": "laptop management vendor",
+        "quote": "Kandji | laptop management | Felix Arrowood | 2027-01-10 | no | done 2026-03"
+      },
+      {
+        "name": "Cobaltcare",
+        "kind": "company",
+        "role": "health insurance vendor",
+        "quote": "Cobaltcare | health insurance | Ines Takahara | 2026-12-31 | no (employee data) | n/a"
+      },
+      {
+        "name": "Harlow & Pike",
+        "kind": "company",
+        "role": "outside counsel",
+        "quote": "Harlow & Pike | outside counsel | Tobias Mbeki | engagement letter, no renewal | no | n/a"
+      }
+    ]
+  }
+}

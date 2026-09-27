@@ -1,0 +1,69 @@
+{
+  "name": "links-Notion Export/Team Directory 5c9d0e1f2a3b4c5d6e7f8091a2b3c4d5.md",
+  "model": "claude-sonnet-5",
+  "key": "45bb2cd1edfa5ad96e24",
+  "output": {
+    "links": [
+      {
+        "from": "people/team-directory",
+        "to": "people/noor-haddad",
+        "kind": "mentions",
+        "evidence": "Noor Haddad | CEO & co-founder"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "people/felix-arrowood",
+        "kind": "reports_to",
+        "evidence": "Felix Arrowood ... Reports to Noor Haddad"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "people/wren-castellano",
+        "kind": "reports_to",
+        "evidence": "Wren Castellano ... Reports to Noor Haddad"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "people/tobias-mbeki",
+        "kind": "reports_to",
+        "evidence": "Tobias Mbeki ... Reports to Noor Haddad"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "people/ines-takahara",
+        "kind": "reports_to",
+        "evidence": "Ines Takahara ... Reports to Noor Haddad"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "people/dmitri-solberg",
+        "kind": "reports_to",
+        "evidence": "Dmitri Solberg ... Reports to Felix Arrowood"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "people/keiko-ferrante",
+        "kind": "reports_to",
+        "evidence": "Keiko Ferrante ... Reports to Wren Castellano"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "people/rafa-oyelaran",
+        "kind": "reports_to",
+        "evidence": "Rafa Oyelaran ... Reports to Noor Haddad"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "people/marisol-quint",
+        "kind": "reports_to",
+        "evidence": "Marisol Quint ... Reports to Wren Castellano"
+      },
+      {
+        "from": "people/team-directory",
+        "to": "eng/information-security-policy",
+        "kind": "mentions",
+        "evidence": "Security and compliance: no owner since Priyanka left in July"
+      }
+    ]
+  }
+}

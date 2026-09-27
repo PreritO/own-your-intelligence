@@ -1,0 +1,21 @@
+{
+  "name": "links-Finance/Kitewing Pricing 2026.pdf",
+  "model": "claude-sonnet-5",
+  "key": "9bfd809d131475cf321d",
+  "output": {
+    "links": [
+      {
+        "from": "finance/pricing-2026",
+        "to": "sales/growth-and-starter-pricing-changes",
+        "kind": "superseded_by",
+        "evidence": "Growth at $299/location/month"
+      },
+      {
+        "from": "finance/pricing-2026",
+        "to": "sales/kitewing-sales-playbook",
+        "kind": "references",
+        "evidence": "Multi-year contracts need Finance approval."
+      }
+    ]
+  }
+}

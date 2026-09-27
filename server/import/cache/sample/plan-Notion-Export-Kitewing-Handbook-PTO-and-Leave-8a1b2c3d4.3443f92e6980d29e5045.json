@@ -1,0 +1,31 @@
+{
+  "name": "plan-Notion Export/Kitewing Handbook/PTO and Leave 8a1b2c3d4e5f60718293a4b5c6d7e8f9.md",
+  "model": "claude-sonnet-5",
+  "key": "3443f92e6980d29e5045",
+  "output": {
+    "doc_date": "2026-06-03",
+    "pages": [
+      {
+        "key": "pto-and-leave",
+        "title": "PTO and Leave",
+        "type": "policy",
+        "department": "people",
+        "room": "Handbook",
+        "summary": "Kitewing has flexible PTO with a minimum of 15 days off per calendar year.",
+        "body": "Kitewing has **flexible PTO** with a minimum: everyone takes at least 15 days off per calendar year. Managers get a nudge in Lattice in September if someone on their team has taken fewer than 8.\n\n| Leave type | Allowance | Notes |\n| --- | --- | --- |\n| Flexible PTO | minimum 15 days/year | book in Lattice 2 weeks ahead for 3+ days |\n| Company holidays | 11 days | list in the People calendar |\n| Sick leave | unlimited | no doctor's note under 5 consecutive days |\n| Parental leave | 16 weeks fully paid | for all parents, after 90 days of employment |\n| Bereavement | up to 10 days | |\n\nWinter shutdown: the office closes December 24, 2026 through January 1, 2027. On-call engineers who cover the shutdown get the same number of days back in January.\n\nQuestions go to Ines Takahara in #people-ops.",
+        "is_policy_or_process": true,
+        "owner": "Ines Takahara",
+        "owner_person": "Ines Takahara",
+        "gaps": []
+      }
+    ],
+    "entities": [
+      {
+        "name": "Ines Takahara",
+        "kind": "person",
+        "role": null,
+        "quote": "Owner: Ines Takahara"
+      }
+    ]
+  }
+}

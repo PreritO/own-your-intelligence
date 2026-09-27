@@ -1,0 +1,33 @@
+{
+  "name": "slack-pricing-decisions",
+  "model": "claude-sonnet-5",
+  "key": "04c207c9a697e0e5056b",
+  "output": {
+    "keep": [
+      {
+        "i": 8,
+        "why": "decision"
+      },
+      {
+        "i": 9,
+        "why": "owner"
+      },
+      {
+        "i": 10,
+        "why": "owner"
+      },
+      {
+        "i": 13,
+        "why": "owner"
+      },
+      {
+        "i": 14,
+        "why": "owner"
+      },
+      {
+        "i": 16,
+        "why": "decision"
+      }
+    ]
+  }
+}

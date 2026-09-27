@@ -1,0 +1,47 @@
+{
+  "name": "plan-Eng/postmortem-2026-08-14-ordering-outage.md",
+  "model": "claude-sonnet-5",
+  "key": "ba5c8f35da218b462ca9",
+  "output": {
+    "doc_date": "2026-09-02",
+    "pages": [
+      {
+        "key": "ordering-outage-postmortem",
+        "title": "Postmortem: ordering outage, 2026-08-14",
+        "type": "postmortem",
+        "department": "eng",
+        "room": "Incidents",
+        "summary": "From 11:05 to 17:10 Pacific on Aug 14, 2026, 214 restaurant groups could not submit supplier orders due to a locked table from an untested migration.",
+        "body": "**Status:** complete · **Author:** Dmitri Solberg · **Reviewed:** Sep 2, 2026\n\n## Summary\nFrom 11:05 to 17:10 Pacific on August 14, 2026, restaurants could not submit supplier orders from Kitewing Pantry. 214 restaurant groups were affected. Counts and recipe costing kept working.\n\n## Root cause\nA migration added a NOT NULL column to `supplier_orders` without a default. The migration ran during peak ordering (the Thursday deploy window), locked the table, and the order service's connection pool was exhausted. Rollback took 6 hours because the down-migration had never been tested.\n\n## What went well\n- On-call (Felix Arrowood that week) declared the incident 12 minutes after the first alert.\n- Customer Success posted status updates every 30 minutes.\n\n## What went wrong\n- No migration review checklist.\n- The status page was updated manually and lagged by 40 minutes.\n- Nobody owns the incident-response runbook since the security lead left, so the severity levels in it are out of date.\n\n## Action items\n| Action | Owner | Due | State |\n| --- | --- | --- | --- |\n| Migration checklist (defaults, lock timeouts, tested down-migration) | Dmitri Solberg | Sep 15 | done |\n| Move deploy window off Thursday 11:00 to 13:00 peak | Felix Arrowood | Sep 30 | open |\n| Automate status page from PagerDuty | Dmitri Solberg | Oct 15 | open |\n| Update incident-response runbook severity levels | (unassigned) | – | open |\n| Credit affected customers 1 day of subscription | Keiko Ferrante | Aug 31 | done |",
+        "is_policy_or_process": false,
+        "owner": null,
+        "owner_person": null,
+        "gaps": [
+          "No migration review checklist.",
+          "Nobody owns the incident-response runbook since the security lead left, so the severity levels in it are out of date.",
+          "Update incident-response runbook severity levels action item is unassigned."
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Dmitri Solberg",
+        "kind": "person",
+        "role": "Author",
+        "quote": "**Status:** complete · **Author:** Dmitri Solberg · **Reviewed:** Sep 2, 2026"
+      },
+      {
+        "name": "Felix Arrowood",
+        "kind": "person",
+        "role": "On-call",
+        "quote": "On-call (Felix Arrowood that week) declared the incident 12 minutes after the first alert."
+      },
+      {
+        "name": "Keiko Ferrante",
+        "kind": "person",
+        "role": null,
+        "quote": "Credit affected customers 1 day of subscription | Keiko Ferrante | Aug 31 | done"
+      }
+    ]
+  }
+}

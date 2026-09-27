@@ -1,0 +1,43 @@
+{
+  "name": "plan-slack-export/pricing-decisions.json",
+  "model": "claude-sonnet-5",
+  "key": "455ced2dd9f729b3f8cf",
+  "output": {
+    "doc_date": "2026-09-12",
+    "pages": [
+      {
+        "key": "growth-and-starter-pricing-changes",
+        "title": "Growth & Starter Pricing Decisions",
+        "type": "decision",
+        "department": "sales",
+        "room": "Pricing",
+        "summary": "Growth goes from $299 to $349 per location per month for new customers starting October 1, 2026.",
+        "body": "- **2026-09-09** (Noor Haddad): Decision: Growth goes from $299 to $349 per location per month for new customers starting October 1, 2026. Existing customers keep $299 through March 31, 2027, then move to $349 at renewal.\n- **2026-09-09** (Noor Haddad): Wren owns customer comms for the change. Tobias owns reissuing the pricing sheet by September 30.\n- **2026-09-09** (Wren Castellano): On it. Keiko and I will send the grandfathering email to existing Growth accounts by September 22.\n- **2026-09-11** (Wren Castellano): Marisol, can you own the HubSpot price book update? Due September 29.\n- **2026-09-11** (Marisol Quint): Yes, I'll own it.\n- **2026-09-12** (Noor Haddad): Correct. Starter stays at $149 for 2026. We'll revisit in the 2027 plan.",
+        "is_policy_or_process": false,
+        "owner": null,
+        "owner_person": null,
+        "gaps": []
+      }
+    ],
+    "entities": [
+      {
+        "name": "Noor Haddad",
+        "kind": "person",
+        "role": null,
+        "quote": "Decision: Growth goes from $299 to $349 per location per month for new customers starting October 1, 2026."
+      },
+      {
+        "name": "Wren Castellano",
+        "kind": "person",
+        "role": "owns customer comms for the change",
+        "quote": "Wren owns customer comms for the change."
+      },
+      {
+        "name": "Marisol Quint",
+        "kind": "person",
+        "role": "owns the HubSpot price book update",
+        "quote": "Yes, I'll own it."
+      }
+    ]
+  }
+}

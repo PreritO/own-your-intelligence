@@ -1,0 +1,57 @@
+{
+  "name": "links-Legal/customer-msa-notes.md",
+  "model": "claude-sonnet-5",
+  "key": "410a058595b8134a2b73",
+  "output": {
+    "links": [
+      {
+        "from": "legal/customer-msa-standard-positions",
+        "to": "people/tobias-mbeki",
+        "kind": "owned_by",
+        "evidence": "Owner: Tobias Mbeki."
+      },
+      {
+        "from": "legal/customer-msa-standard-positions",
+        "to": "companies/harlow-and-pike-llp",
+        "kind": "references",
+        "evidence": "Notes from the May 2026 review with outside counsel (Harlow & Pike LLP)."
+      },
+      {
+        "from": "legal/customer-msa-standard-positions",
+        "to": "finance/pricing-2026",
+        "kind": "references",
+        "evidence": "Payment: Net 30 (matches the pricing sheet)."
+      },
+      {
+        "from": "legal/customer-msa-standard-positions",
+        "to": "eng/information-security-policy",
+        "kind": "references",
+        "evidence": "we delete within 60 days of termination (matches the security policy)"
+      },
+      {
+        "from": "legal/customer-msa-standard-positions",
+        "to": "support/support-sla",
+        "kind": "references",
+        "evidence": "SLA: 99.5% monthly uptime, service credits per the Support SLA."
+      },
+      {
+        "from": "legal/customer-msa-standard-positions",
+        "to": "companies/ledgerline",
+        "kind": "vendor",
+        "evidence": "There's no signed DPA with our billing vendor Ledgerline yet, which counsel flagged as a gap."
+      },
+      {
+        "from": "legal/customer-msa-standard-positions",
+        "to": "people/noor-haddad",
+        "kind": "approved_by",
+        "evidence": "Redlines that need Noor's sign-off... Noor Haddad signs all customer contracts over $50k ARR."
+      },
+      {
+        "from": "legal/customer-msa-standard-positions",
+        "to": "people/wren-castellano",
+        "kind": "signed_by",
+        "evidence": "Wren Castellano signs under $50k ARR."
+      }
+    ]
+  }
+}

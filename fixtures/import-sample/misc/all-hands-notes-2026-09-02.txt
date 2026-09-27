@@ -1,0 +1,10 @@
+all hands 9/2/2026 - notes (ines)
+
+- noor: Q3 closing strong, ARR $4.1M end of aug. board mtg sept 18
+- welcome Ana Lindqvist (platform eng) + Jonah Pereira (platform eng)
+- felix: postmortem for aug 14 outage is up in the eng folder. new migration checklist is mandatory from today
+- wren: growth pricing thread is in #pricing-decisions, decision coming next week
+- rafa: pantry 2.0 launch nov 4, webinar oct 28
+- tobias: expense policy reminder, submit within 30 days. ledgerline is the only expense tool now (expensify is gone)
+- ines: offsite in austin oct 20-22. open enrollment for benefits in november
+- Q&A: "who owns security now?" -> noor: we're hiring a security lead, felix covers until then. nobody officially owns the security policy yet.

@@ -1,0 +1,37 @@
+{
+  "name": "plan-Finance/expense-policy.txt",
+  "model": "claude-sonnet-5",
+  "key": "928517fad755fd39c094",
+  "output": {
+    "doc_date": "2026-04-01",
+    "pages": [
+      {
+        "key": "expense-policy",
+        "title": "Expense Policy",
+        "type": "policy",
+        "department": "finance",
+        "room": "Policies",
+        "summary": "Expenses over $25 need a receipt in Ledgerline within 30 days, with approval above $2,000 from Tobias Mbeki and above $10,000 from Noor Haddad.",
+        "body": "Effective: April 1, 2026\n\n1. Submit expenses in Ledgerline within 30 days with a receipt for anything over $25.\n2. Meals while travelling: up to $75 per day. Customer dinners: up to $120 per person, name the customer.\n3. Flights: economy, booked at least 14 days ahead where possible. Premium economy allowed for flights over 6 hours.\n4. Software purchases over $500 per year need approval from Finance and a security review if the tool touches customer data (see the Information Security Policy).\n5. Company cards: issued to managers and AEs. Card limit $5,000 per month.\n6. Approvals: your manager approves up to $2,000. Above $2,000, Tobias Mbeki approves. Above $10,000, Noor Haddad also approves.\n7. Home-office stipend and internet reimbursement are described in the handbook.\n\nReimbursements are paid in the next payroll run after approval.",
+        "is_policy_or_process": true,
+        "owner": "Tobias Mbeki (Head of Finance)",
+        "owner_person": "Tobias Mbeki",
+        "gaps": []
+      }
+    ],
+    "entities": [
+      {
+        "name": "Tobias Mbeki",
+        "kind": "person",
+        "role": "Head of Finance",
+        "quote": "Owner: Tobias Mbeki (Head of Finance)"
+      },
+      {
+        "name": "Noor Haddad",
+        "kind": "person",
+        "role": null,
+        "quote": "Above $10,000, Noor Haddad also approves."
+      }
+    ]
+  }
+}

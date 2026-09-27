@@ -1,0 +1,82 @@
+{
+  "name": "plan-Board/Q3 2026 Board Deck Outline.docx",
+  "model": "claude-sonnet-5",
+  "key": "300fa8033518e6944772",
+  "output": {
+    "doc_date": "2026-09-18",
+    "pages": [
+      {
+        "key": "q3-2026-board-deck-outline",
+        "title": "Q3 2026 Board Deck Outline",
+        "type": "meeting",
+        "department": "finance",
+        "room": "Board",
+        "summary": "ARR reached $4.1M at end of August with 17 months runway, and security/compliance has had no owner since July.",
+        "body": "**Meeting date:** September 18, 2026. Prepared by Noor Haddad and Tobias Mbeki.\n\n**Board:** Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures), independent seat vacant.\n\n### Slide 1. Headline numbers\n- ARR $4.1M at end of August, up from $3.2M at end of Q1.\n- Net revenue retention 118%.\n- Gross margin 74%.\n- Cash $7.3M; monthly net burn $410k; runway 17 months.\n\n### Slide 2. Pricing change\nGrowth tier moves from $299 to $349 per location per month for new customers from October 1, 2026 (decided in #pricing-decisions on September 9). Existing customers grandfathered through March 31, 2027.\n\n### Slide 3. Pantry 2.0 launch\nSupplier price alerts and auto-reorder ship November 4, 2026. Launch plan owned by Rafa Oyelaran.\n\n### Slide 4. Risks\n- Security and compliance: no owner since July. Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires.\n- The August 14 ordering outage cost 6 hours of order submission; postmortem done.\n\n### Slide 5. Asks and commitments\n- Board asked for a named security owner by the Q4 meeting.\n- Tobias to present a 2027 operating plan at the December 10, 2026 board meeting.\n- Approve hiring plan: 6 roles in Q4 (3 engineering, 2 sales, 1 security lead).",
+        "is_policy_or_process": false,
+        "owner": null,
+        "owner_person": null,
+        "gaps": [
+          "Security and compliance: no owner since July.",
+          "Board asked for a named security owner by the Q4 meeting."
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Noor Haddad",
+        "kind": "person",
+        "role": "Board member / preparer",
+        "quote": "Prepared by Noor Haddad and Tobias Mbeki."
+      },
+      {
+        "name": "Tobias Mbeki",
+        "kind": "person",
+        "role": "Preparer",
+        "quote": "Prepared by Noor Haddad and Tobias Mbeki."
+      },
+      {
+        "name": "Felix Arrowood",
+        "kind": "person",
+        "role": "Board member",
+        "quote": "Board: Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures), independent seat vacant."
+      },
+      {
+        "name": "Carmen Delacroix",
+        "kind": "person",
+        "role": "Board member (Northbay Ventures)",
+        "quote": "Board: Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures), independent seat vacant."
+      },
+      {
+        "name": "Northbay Ventures",
+        "kind": "company",
+        "role": "Board investor",
+        "quote": "Board: Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures), independent seat vacant."
+      },
+      {
+        "name": "Rafa Oyelaran",
+        "kind": "person",
+        "role": "Launch plan owner",
+        "quote": "Launch plan owned by Rafa Oyelaran."
+      },
+      {
+        "name": "Saltgrass Hospitality",
+        "kind": "company",
+        "role": "Enterprise deal waiting on security questionnaire",
+        "quote": "Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires."
+      },
+      {
+        "name": "Juniper Row Group",
+        "kind": "company",
+        "role": "Enterprise deal waiting on security questionnaire",
+        "quote": "Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires."
+      },
+      {
+        "name": "Marrow and Vine",
+        "kind": "company",
+        "role": "Enterprise deal waiting on security questionnaire",
+        "quote": "Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires."
+      }
+    ]
+  }
+}

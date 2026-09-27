@@ -1,0 +1,183 @@
+{
+  "name": "links-entities-1",
+  "model": "claude-sonnet-5",
+  "key": "00ad553229a276470cd8",
+  "output": {
+    "links": [
+      {
+        "from": "companies/aws",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "AWS | hosting (us-west-2) | Felix Arrowood"
+      },
+      {
+        "from": "companies/aws",
+        "to": "people/felix-arrowood",
+        "kind": "mentions",
+        "evidence": "AWS | hosting (us-west-2) | Felix Arrowood"
+      },
+      {
+        "from": "companies/cobaltcare",
+        "to": "people/first-two-weeks-onboarding",
+        "kind": "mentioned_in",
+        "evidence": "Health insurance is through Cobaltcare"
+      },
+      {
+        "from": "companies/cobaltcare",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "Cobaltcare | health insurance | Ines Takahara"
+      },
+      {
+        "from": "companies/cobaltcare",
+        "to": "people/ines-takahara",
+        "kind": "mentions",
+        "evidence": "Cobaltcare | health insurance | Ines Takahara"
+      },
+      {
+        "from": "companies/expensify",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "ledgerline is the only expense tool now (expensify is gone)"
+      },
+      {
+        "from": "companies/expensify",
+        "to": "companies/ledgerline",
+        "kind": "superseded_by",
+        "evidence": "ledgerline is the only expense tool now (expensify is gone)"
+      },
+      {
+        "from": "companies/harlow-and-pike-llp",
+        "to": "legal/customer-msa-standard-positions",
+        "kind": "mentioned_in",
+        "evidence": "Notes from the May 2026 review with outside counsel (Harlow & Pike LLP)."
+      },
+      {
+        "from": "companies/harlow-and-pike-llp",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "Harlow & Pike | outside counsel | Tobias Mbeki"
+      },
+      {
+        "from": "companies/harlow-and-pike-llp",
+        "to": "people/tobias-mbeki",
+        "kind": "mentions",
+        "evidence": "Harlow & Pike | outside counsel | Tobias Mbeki"
+      },
+      {
+        "from": "companies/hubspot",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "HubSpot | CRM, price books, quotes | Marisol Quint"
+      },
+      {
+        "from": "companies/hubspot",
+        "to": "people/marisol-quint",
+        "kind": "mentions",
+        "evidence": "HubSpot | CRM, price books, quotes | Marisol Quint"
+      },
+      {
+        "from": "companies/juniper-row-group",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires."
+      },
+      {
+        "from": "companies/juniper-row-group",
+        "to": "marketing/pantry-2-0-launch-brief",
+        "kind": "mentioned_in",
+        "evidence": "Case study with Juniper Row Group (approval pending from their marketing team)"
+      },
+      {
+        "from": "companies/kandji",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "Kandji | laptop management | Felix Arrowood"
+      },
+      {
+        "from": "companies/kandji",
+        "to": "people/felix-arrowood",
+        "kind": "mentions",
+        "evidence": "Kandji | laptop management | Felix Arrowood"
+      },
+      {
+        "from": "companies/ledgerline",
+        "to": "legal/customer-msa-standard-positions",
+        "kind": "mentioned_in",
+        "evidence": "There's no signed DPA with our billing vendor Ledgerline yet, which counsel flagged as a gap."
+      },
+      {
+        "from": "companies/ledgerline",
+        "to": "people/remote-work-policy",
+        "kind": "mentioned_in",
+        "evidence": "paid through Ledgerline expenses (see the Expense Policy from Finance)."
+      },
+      {
+        "from": "companies/ledgerline",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "Ledgerline | billing + expenses | Tobias Mbeki"
+      },
+      {
+        "from": "companies/ledgerline",
+        "to": "people/all-hands-2026-09-02",
+        "kind": "mentioned_in",
+        "evidence": "ledgerline is the only expense tool now (expensify is gone)"
+      },
+      {
+        "from": "companies/ledgerline",
+        "to": "people/tobias-mbeki",
+        "kind": "mentions",
+        "evidence": "Ledgerline | billing + expenses | Tobias Mbeki"
+      },
+      {
+        "from": "companies/ledgerline",
+        "to": "companies/expensify",
+        "kind": "supersedes",
+        "evidence": "ledgerline is the only expense tool now (expensify is gone)"
+      },
+      {
+        "from": "companies/marrow-and-vine",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires."
+      },
+      {
+        "from": "companies/northbay-ventures",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Board: Noor Haddad, Felix Arrowood, Carmen Delacroix (Northbay Ventures), independent seat vacant."
+      },
+      {
+        "from": "companies/northbay-ventures",
+        "to": "people/company-overview",
+        "kind": "mentioned_in",
+        "evidence": "We raised a $9.5M Series A led by Northbay Ventures in February 2026."
+      },
+      {
+        "from": "companies/northbay-ventures",
+        "to": "people/carmen-delacroix",
+        "kind": "mentions",
+        "evidence": "Carmen Delacroix (Northbay Ventures)"
+      },
+      {
+        "from": "companies/pagerduty",
+        "to": "ops/vendor-list",
+        "kind": "mentioned_in",
+        "evidence": "PagerDuty | on-call paging | Dmitri Solberg"
+      },
+      {
+        "from": "companies/pagerduty",
+        "to": "people/dmitri-solberg",
+        "kind": "mentions",
+        "evidence": "PagerDuty | on-call paging | Dmitri Solberg"
+      },
+      {
+        "from": "companies/saltgrass-hospitality",
+        "to": "finance/q3-2026-board-deck-outline",
+        "kind": "mentioned_in",
+        "evidence": "Three enterprise deals (Saltgrass Hospitality, Juniper Row Group, Marrow and Vine) are waiting on security questionnaires."
+      }
+    ]
+  }
+}

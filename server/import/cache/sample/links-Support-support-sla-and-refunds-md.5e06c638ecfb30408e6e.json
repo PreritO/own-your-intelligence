@@ -1,0 +1,39 @@
+{
+  "name": "links-Support/support-sla-and-refunds.md",
+  "model": "claude-sonnet-5",
+  "key": "5e06c638ecfb30408e6e",
+  "output": {
+    "links": [
+      {
+        "from": "support/support-sla",
+        "to": "people/keiko-ferrante",
+        "kind": "owned_by",
+        "evidence": "Owner: Keiko Ferrante (Head of Customer Success)"
+      },
+      {
+        "from": "support/support-sla",
+        "to": "support/refund-process",
+        "kind": "related_to",
+        "evidence": "Refunds and credits outside the SLA formula are handled case by case"
+      },
+      {
+        "from": "support/support-sla",
+        "to": "finance/pricing-2026",
+        "kind": "references",
+        "evidence": "credit of 5% of that month's fee for each 0.5% below target"
+      },
+      {
+        "from": "support/refund-process",
+        "to": "companies/ledgerline",
+        "kind": "vendor",
+        "evidence": "someone in Finance processes it in Ledgerline"
+      },
+      {
+        "from": "support/refund-process",
+        "to": "support/support-sla",
+        "kind": "references",
+        "evidence": "Refunds and credits outside the SLA formula are handled case by case"
+      }
+    ]
+  }
+}

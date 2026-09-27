@@ -1,0 +1,51 @@
+{
+  "name": "plan-Sales/Kitewing Sales Playbook.md",
+  "model": "claude-sonnet-5",
+  "key": "ecc999251e40cf7c9ba5",
+  "output": {
+    "doc_date": "2026-09-15",
+    "pages": [
+      {
+        "key": "kitewing-sales-playbook",
+        "title": "Kitewing Sales Playbook",
+        "type": "playbook",
+        "department": "sales",
+        "room": "Playbooks",
+        "summary": "AEs may discount up to 15% without approval; deals above 25% or contracts over 24 months need finance approval.",
+        "body": "# 1. Who we sell to\nIdeal customer: independent restaurant groups with 3 to 40 locations, doing at least $2M annual revenue per location, currently tracking inventory in spreadsheets or a legacy POS add-on. Single-location restaurants are served self-serve on the Starter plan and are not worked by AEs.\n\nBuyer: owner/operator or Director of Operations. Champion: usually the executive chef or kitchen manager.\n\n# 2. Sales stages\n| Stage | Exit criteria | Owner |\n| --- | --- | --- |\n| Discovery | pain confirmed, locations counted | SDR |\n| Demo | live demo with their menu loaded | AE |\n| Pilot | 30-day pilot at 1 to 2 locations, success metric written down | AE + CS |\n| Proposal | pricing approved by deal desk if discount > 15% | AE |\n| Closed won | order form signed, handed to CS within 2 business days | AE |\n\n# 3. Discounting rules\n* AEs may discount up to 15% without approval.\n* 15% to 25% needs approval from Wren Castellano.\n* Anything above 25%, or any contract longer than 24 months, needs Noor Haddad and Tobias Mbeki (finance).\n* Never discount the onboarding fee. It is $1,500 per location for Growth and waived for Enterprise.\n\n# 4. Pricing\nList prices are in the Pricing 2026 sheet (PDF from Finance). Note: pricing changes decided in #pricing-decisions override the sheet until the sheet is reissued.\n\n# 5. Security reviews\nAbout a third of groups over 10 locations send a security questionnaire. Send them the Information Security Policy and the SOC 2 status. We do not have a SOC 2 report yet; the Type I audit is planned for Q1 2027. Do not promise a date.\n\n# 6. Handoff to Customer Success\nClosed-won deals are handed to Keiko Ferrante's team in HubSpot with the pilot success metric copied into the onboarding ticket. Onboarding SLA is in the Support SLA doc.",
+        "is_policy_or_process": true,
+        "owner": "Wren Castellano, VP Sales",
+        "owner_person": "Wren Castellano",
+        "gaps": [
+          "We do not have a SOC 2 report yet; the Type I audit is planned for Q1 2027."
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Wren Castellano",
+        "kind": "person",
+        "role": "VP Sales",
+        "quote": "Owner: Wren Castellano, VP Sales"
+      },
+      {
+        "name": "Noor Haddad",
+        "kind": "person",
+        "role": "Finance",
+        "quote": "Anything above 25%, or any contract longer than 24 months, needs Noor Haddad and Tobias Mbeki (finance)."
+      },
+      {
+        "name": "Tobias Mbeki",
+        "kind": "person",
+        "role": "Finance",
+        "quote": "Anything above 25%, or any contract longer than 24 months, needs Noor Haddad and Tobias Mbeki (finance)."
+      },
+      {
+        "name": "Keiko Ferrante",
+        "kind": "person",
+        "role": "Customer Success lead",
+        "quote": "Closed-won deals are handed to Keiko Ferrante's team in HubSpot with the pilot success metric copied into the onboarding ticket."
+      }
+    ]
+  }
+}
