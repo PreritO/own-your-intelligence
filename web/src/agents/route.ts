@@ -20,6 +20,7 @@ export class RouteView {
     private scene: THREE.Scene,
     private palace: Palace,
     private memoryPosition: (id: string) => THREE.Vector3 | undefined,
+    private title: (id: string) => string = (id) => id,
   ) {
     this.group.name = "follow-route";
     scene.add(this.group);
@@ -63,7 +64,7 @@ export class RouteView {
       if (look === "done") m.label.set(`✓ ${n}`, { color: "#07170d", bg: COLORS.verified, border: "#c9ffe0" });
       else if (look === "gap") m.label.set(`⚠ ${n} gap`, { color: "#1a1204", bg: COLORS.gap, border: "#ffe2a0" });
       else if (look === "stale") m.label.set(`${n} stale`, { color: "#1a1204", bg: COLORS.stale, border: "#f0d59a" });
-      else if (look === "current") m.label.set(`▶ ${n}`, { color: "#0b0d12", bg: this.color, border: "#ffffff" });
+      else if (look === "current") m.label.set(`▶ ${n}  ${this.title(m.id)}`, { color: "#0b0d12", bg: this.color, border: "#ffffff" });
       else m.label.set(String(n), { color: "#c9c4b8", bg: "rgba(20,18,26,0.85)", border: "rgba(255,255,255,0.25)" });
       m.label.sprite.userData.base = m.label.sprite.scale.clone();
     });

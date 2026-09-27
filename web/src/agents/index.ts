@@ -8,7 +8,8 @@ import { pathBetween, roomAt, roomById } from "../nav";
 import { Avatar, AVATAR_Y } from "./avatar";
 import { Beams } from "./beams";
 import { director } from "./camera";
-import { names, PRESENCE_EVENTS, subscribeRuns } from "./run";
+import { names, playReplay, PRESENCE_EVENTS, registerSpawn, subscribeRuns } from "./run";
+import { additive } from "./fx";
 import { Stations } from "./stations";
 import { RouteView, type StationLook } from "./route";
 import { CAMERA_EVENTS } from "../controls";
@@ -28,6 +29,8 @@ export const mountPresence: Plugin = (rt) => {
   const avatars = new Map<string, Avatar>();
   const routes = new Map<string, string[]>();
   const agentIds = rt.palace.agents.map((a) => a.id);
+  const spawned: string[] = []; // commissioned agents this run, first in the party order
+  const party = () => [...spawned, ...agentIds];
 
   const slot = (agentId: string) => {
     const i = agentIds.indexOf(agentId);
@@ -43,6 +46,16 @@ export const mountPresence: Plugin = (rt) => {
     const room = roomById(rt.palace, "foyer") ?? roomById(rt.palace, N.agents.get(agentId)?.home ?? "") ?? rt.palace.rooms[0];
     const c = room ? new THREE.Vector3(room.center[0], AVATAR_Y, room.center[2]) : new THREE.Vector3(0, AVATAR_Y, 0);
     return c.add(slotOffset(agentId));
+  }
+
+  // spawn flourish: an expanding ring + column of light in the agent's colour
+  const bursts: { mesh: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>; t: number }[] = [];
+  function burst(at: THREE.Vector3, color: string) {
+    const mesh = new THREE.Mesh(new THREE.RingGeometry(0.6, 0.95, 48), additive(color, 0.9));
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.copy(at).setY(0.08);
+    rt.scene.add(mesh);
+    bursts.push({ mesh, t: 0 });
   }
 
   function avatar(agentId: string): Avatar {
@@ -112,12 +125,31 @@ export const mountPresence: Plugin = (rt) => {
     routes.clear();
     covered.clear();
     handoffOf.clear();
+    for (const id of spawned) {
+      avatars.get(id)?.dispose();
+      avatars.delete(id);
+    }
+    spawned.length = 0;
+    if (mode !== "overview" && !avatars.has(mode)) setMode("overview");
     for (const a of avatars.values()) a.teleport(homePos(a.id));
     refreshFollow(true);
   }
 
   function handle(e: PalaceEvent) {
     if (e.type === "train_step") return;
+    if (e.type === "spawn") {
+      registerSpawn(N, e);
+      const room = roomById(rt.palace, e.home) ?? roomById(rt.palace, "foyer");
+      const at = room ? new THREE.Vector3(room.center[0], AVATAR_Y, room.center[2]) : new THREE.Vector3(0, AVATAR_Y, 0);
+      avatars.get(e.agent)?.dispose();
+      const av = new Avatar(rt.scene, e.agent, N.agent(e.agent), e.color, at);
+      avatars.set(e.agent, av);
+      if (!spawned.includes(e.agent)) spawned.unshift(e.agent);
+      av.ping();
+      burst(at, e.color);
+      setMode(e.agent); // auto-follow the new agent
+      return;
+    }
     const a = avatar(e.agent);
     switch (e.type) {
       case "task":
@@ -165,6 +197,14 @@ export const mountPresence: Plugin = (rt) => {
         if (h) covered.add(`${h.agent}|${h.memoryId}`);
         break;
       }
+      case "phase":
+        if (e.phase === "done") a.ping();
+        break;
+      case "artifact":
+        N.mems.set(e.memory.id, e.memory);
+        rt.addMemory?.(e.memory);
+        a.ping();
+        break;
       case "answer":
         a.setWaiting(false);
         a.ping();
@@ -185,11 +225,24 @@ export const mountPresence: Plugin = (rt) => {
     stations.update(dt * Math.max(1, s));
     beams.update(dt * Math.max(1, s));
     route.update(dt);
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const b = bursts[i];
+      b.t += dt;
+      const k = b.t / 1.4;
+      b.mesh.scale.setScalar(1 + k * 5);
+      b.mesh.material.opacity = 0.9 * (1 - k);
+      if (k >= 1) {
+        b.mesh.geometry.dispose();
+        b.mesh.material.dispose();
+        b.mesh.removeFromParent();
+        bursts.splice(i, 1);
+      }
+    }
   });
 
   // ---- camera: overview (map controls, default) or follow one agent (1-3, click avatar/card)
   const cam = director(rt);
-  const route = new RouteView(rt.scene, rt.palace, (id) => rt.memoryPosition(id));
+  const route = new RouteView(rt.scene, rt.palace, (id) => rt.memoryPosition(id), (id) => N.memory(id));
   let mode: CamMode = "overview";
   const FOLLOW_DIR = new THREE.Vector3(-0.3, 1.05, 0.95).normalize(); // high third person, same side as overview
 
@@ -222,7 +275,7 @@ export const mountPresence: Plugin = (rt) => {
     if (!av) return;
     if (rebuild) {
       route.show(av.color, homePos(mode), list, (m) => standAt(mode, m));
-      stations.focus = new Set(list);
+      stations.focus = new Set(); // the route markers carry the labels now; gap notes still show
       rt.focusRooms?.(list.length ? routeRooms(list) : null);
     }
     route.setLooks((m, i) => lookOf(mode, m, i, list));
@@ -247,7 +300,7 @@ export const mountPresence: Plugin = (rt) => {
         const av = avatars.get(mode);
         if (!av) return null;
         const p = av.group.position.clone().setY(0);
-        return { pos: p.clone().addScaledVector(FOLLOW_DIR, 17), look: p, rate: 3 };
+        return { pos: p.clone().addScaledVector(FOLLOW_DIR, 19), look: p, rate: 5 };
       });
     }
     const label = mode === "overview" ? "Overview" : `Following ${N.agent(mode)}`;
@@ -283,8 +336,8 @@ export const mountPresence: Plugin = (rt) => {
     try {
       if (rt.events.mode === "demo") {
         reset();
-        await rt.events.restart();
-        status("Dispatched 3 tasks (replay)");
+        await playReplay(rt, "demo-1");
+        status("Dispatched 3 department tasks");
         return;
       }
       try {
@@ -302,7 +355,7 @@ export const mountPresence: Plugin = (rt) => {
       } catch {
         status("Bridge offline, replaying demo-1 instead", "warn");
         reset();
-        await rt.events.restart("demo-1");
+        await playReplay(rt, "demo-1");
       }
     } finally {
       dispatching = false;
@@ -315,7 +368,7 @@ export const mountPresence: Plugin = (rt) => {
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
     const k = ev.key.toLowerCase();
     if (k === "t") dispatch();
-    else if (k >= "1" && k <= "9" && agentIds[Number(k) - 1]) setMode(agentIds[Number(k) - 1]);
+    else if (k >= "1" && k <= "9" && party()[Number(k) - 1]) setMode(party()[Number(k) - 1]);
     else if (k === "0" || k === "o" || k === "f" || k === "h" || (k === "escape" && mode !== "overview")) {
       if (mode === "overview") window.dispatchEvent(new CustomEvent(CAMERA_EVENTS.home));
       else setMode("overview");
@@ -326,11 +379,54 @@ export const mountPresence: Plugin = (rt) => {
     setMode(m === "free" || m === "overhead" ? "overview" : m);
   };
   const onDispatch = () => dispatch();
+
+  // ---- commission a quest: live → bridge; ?demo or bridge down → the recorded quest replay
+  let commissioning = false;
+  async function commission(task: string) {
+    if (commissioning) return;
+    commissioning = true;
+    const status = (text: string, tone = "info") =>
+      window.dispatchEvent(new CustomEvent(PRESENCE_EVENTS.status, { detail: { text, tone } }));
+    try {
+      if (rt.events.mode === "live") {
+        try {
+          const ctl = new AbortController();
+          const timer = setTimeout(() => ctl.abort(), 4000);
+          const res = await fetch(`http://localhost:${PORTS.bridge}/commission`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ task }),
+            signal: ctl.signal,
+          });
+          clearTimeout(timer);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          status("Quest commissioned. A new agent is on its way.");
+          return;
+        } catch {
+          status("Bridge offline, playing the recorded quest", "warn");
+        }
+      }
+      reset();
+      if (await playReplay(rt, "quest-onboarding", 30)) {
+        if (rt.events.mode === "demo") status("Quest commissioned (recorded run)");
+      } else status("No recorded quest yet (fixtures/replays/quest-onboarding.jsonl). Try the department demo.", "warn");
+    } finally {
+      commissioning = false;
+    }
+  }
+  const onCommission = (ev: Event) => commission(String((ev as CustomEvent).detail?.task ?? "").trim() || "Create an onboarding page for new engineers");
+  const onReplay = (ev: Event) => {
+    const name = String((ev as CustomEvent).detail?.name ?? "demo-1");
+    reset();
+    void playReplay(rt, name);
+  };
   addEventListener("keydown", onKey);
   addEventListener(PRESENCE_EVENTS.camera, onCam);
   addEventListener(PRESENCE_EVENTS.dispatch, onDispatch);
+  addEventListener(PRESENCE_EVENTS.commission, onCommission);
+  addEventListener(PRESENCE_EVENTS.replay, onReplay);
 
-  (window as any).presence = { avatars, stations, beams, setMode, dispatch, reset }; // browser QA
+  (window as any).presence = { avatars, stations, beams, setMode, dispatch, commission, reset, party, mode: () => mode }; // browser QA
 
   return () => {
     unsub();
@@ -338,6 +434,8 @@ export const mountPresence: Plugin = (rt) => {
     removeEventListener("keydown", onKey);
     removeEventListener(PRESENCE_EVENTS.camera, onCam);
     removeEventListener(PRESENCE_EVENTS.dispatch, onDispatch);
+    removeEventListener(PRESENCE_EVENTS.commission, onCommission);
+    removeEventListener(PRESENCE_EVENTS.replay, onReplay);
     cam.drop("presence");
     rt.renderer.domElement.removeEventListener("pointerdown", onDown);
     rt.renderer.domElement.removeEventListener("click", onClick);
