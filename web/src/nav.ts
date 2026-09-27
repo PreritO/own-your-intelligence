@@ -2,6 +2,7 @@
 // Rooms are axis-aligned boxes; doors are gaps in walls; corridors join door pairs in straight lines.
 import * as THREE from "three";
 import type { Palace, Room, Vec3 } from "../../server/schema";
+import { buildLayout, type CorridorLeg } from "./scene/layout";
 
 /** Distance a waypoint is pulled inside a room from its door, so paths cross walls head-on. */
 const INSET = 1.2;
@@ -33,6 +34,29 @@ function inward(room: Room, door: Vec3): [number, number] {
 export function doorPoint(room: Room, door: Vec3, d: number, y: number): THREE.Vector3 {
   const [nx, nz] = inward(room, door);
   return new THREE.Vector3(door[0] + nx * d, y, door[2] + nz * d);
+}
+
+const corridorCache = new WeakMap<Palace, CorridorLeg[]>();
+
+/**
+ * Corridor centre-line between two rooms' doors as xz points, door of `from` first. Uses the scene's
+ * own layout (straight, L or Z legs) so agents walk exactly where the corridors are drawn; null if the
+ * pair has no corridor (then callers fall back to a straight door-to-door line).
+ */
+export function corridorBetween(palace: Palace, from: string, to: string): [number, number][] | null {
+  let legs = corridorCache.get(palace);
+  if (!legs) {
+    try {
+      legs = buildLayout(palace).corridors;
+    } catch {
+      legs = [];
+    }
+    corridorCache.set(palace, legs);
+  }
+  const mine = legs.filter((l) => (l.a === from && l.b === to) || (l.a === to && l.b === from));
+  if (!mine.length) return null;
+  const pts: [number, number][] = [mine[0].from, ...mine.map((l) => l.to)];
+  return mine[0].a === from ? pts : pts.reverse();
 }
 
 /** Shortest room sequence over the door graph (BFS), inclusive of both ends; null if unreachable. */
@@ -107,16 +131,22 @@ export function pathBetween(
     for (let i = 0; i < rooms.length - 1; i++) {
       const a = roomById(palace, rooms[i])!;
       const b = roomById(palace, rooms[i + 1])!;
-      const da = a.doors.find((d) => d.to === b.id)?.pos;
-      const db = b.doors.find((d) => d.to === a.id)?.pos ?? da;
-      const dA = da ?? db!;
-      const last = i === rooms.length - 2;
-      out.push(doorPoint(a, dA, INSET, y), new THREE.Vector3(dA[0], y, dA[2]));
-      if (last && opts.stopAtDoor) {
-        out.push(doorPoint(b, db!, -0.8, y));
+      let line = corridorBetween(palace, a.id, b.id);
+      if (!line) {
+        const da = a.doors.find((d) => d.to === b.id)?.pos;
+        const db = b.doors.find((d) => d.to === a.id)?.pos ?? da;
+        const dA = da ?? db!;
+        line = [[dA[0], dA[2]], [db![0], db![2]]];
+      }
+      const A: Vec3 = [line[0][0], 0, line[0][1]];
+      const B: Vec3 = [line[line.length - 1][0], 0, line[line.length - 1][1]];
+      out.push(doorPoint(a, A, INSET, y));
+      for (const [x, z] of line.slice(0, -1)) out.push(new THREE.Vector3(x, y, z));
+      if (i === rooms.length - 2 && opts.stopAtDoor) {
+        out.push(doorPoint(b, B, -0.8, y));
         return dedupe(out);
       }
-      out.push(new THREE.Vector3(db![0], y, db![2]), doorPoint(b, db!, INSET, y));
+      out.push(new THREE.Vector3(B[0], y, B[2]), doorPoint(b, B, INSET, y));
     }
   }
   out.push(target.point);

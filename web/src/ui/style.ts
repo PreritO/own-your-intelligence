@@ -10,7 +10,7 @@ export const CSS = /* css */ `
 .mp-h { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
 
 /* right column: roster, answers, feed */
-.mp-right { position: absolute; top: 12px; right: 12px; bottom: 60px; width: 360px; display: flex; flex-direction: column; gap: 8px; }
+.mp-right { position: absolute; top: 12px; right: 12px; bottom: 12px; width: 360px; display: flex; flex-direction: column; gap: 8px; }
 .mp-roster { padding: 10px 12px; }
 .mp-agent { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; padding: 5px 6px; border-radius: 8px; cursor: pointer; }
 .mp-agent:hover { background: rgba(255,255,255,0.05); }
@@ -46,7 +46,7 @@ export const CSS = /* css */ `
 .mp-row .m { color: #fff; }
 
 /* left: memory panel */
-.mp-mem { position: absolute; top: 12px; left: 12px; width: 330px; max-height: calc(100vh - 84px); overflow-y: auto; padding: 14px 16px; animation: mp-in-l .25s ease-out; }
+.mp-mem { position: absolute; top: 12px; left: 12px; width: 330px; max-height: calc(100vh - 236px); overflow-y: auto; padding: 14px 16px; animation: mp-in-l .25s ease-out; }
 .mp-mem .ttl { font-size: 17px; font-weight: 700; margin: 0 0 2px; padding-right: 20px; }
 .mp-mem .meta { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
 .mp-mem .ex { margin: 8px 0 12px; white-space: pre-wrap; }
@@ -60,24 +60,24 @@ export const CSS = /* css */ `
 .mp-verdicts { margin: 0 0 10px; display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
 .mp-verdicts b { color: var(--c); }
 
-/* bottom: hints, mode, toast */
-.mp-bottom { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; gap: 8px; align-items: center; }
+/* top centre: mode, dispatch, hints, toast (scene owns bottom-centre hint + bottom-left minimap) */
+.mp-bottom { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); display: flex; gap: 8px; align-items: center; }
 .mp-hints { padding: 6px 12px; color: var(--muted); font-size: 12px; white-space: nowrap; }
 .mp-hints kbd { font: inherit; color: var(--text); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; margin: 0 2px 0 8px; background: rgba(255,255,255,0.04); }
 .mp-hints kbd:first-child { margin-left: 0; }
 .mp-mode { padding: 6px 12px; font-weight: 650; font-size: 12px; }
 .mp-btn { pointer-events: auto; cursor: pointer; border: 1px solid var(--line); background: rgba(255,255,255,0.06); color: var(--text); border-radius: 8px; padding: 6px 12px; font: inherit; font-weight: 650; }
 .mp-btn:hover { background: rgba(255,255,255,0.12); }
-.mp-toast { position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%); padding: 7px 14px; font-size: 12.5px; transition: opacity .4s; }
+.mp-toast { position: absolute; left: 50%; top: 58px; transform: translateX(-50%); padding: 7px 14px; font-size: 12.5px; transition: opacity .4s; }
 .mp-toast.warn { color: var(--amber); }
 
 /* top: ask bar */
-.mp-ask { position: absolute; top: 18px; left: 0; right: 0; margin: 0 auto; width: min(620px, calc(100vw - 32px)); padding: 6px; display: flex; gap: 6px; animation: mp-in .2s ease-out; }
+.mp-ask { position: absolute; top: 58px; left: 0; right: 0; margin: 0 auto; width: min(620px, calc(100vw - 32px)); padding: 6px; display: flex; gap: 6px; animation: mp-in .2s ease-out; }
 .mp-ask input { flex: 1; background: transparent; border: 0; outline: 0; color: #fff; font: inherit; font-size: 16px; padding: 8px 10px; }
 .mp-ask input::placeholder { color: var(--muted); }
 
 /* walk answer panel */
-.mp-walk { position: absolute; left: 0; right: 0; margin: 0 auto; bottom: 60px; width: min(640px, calc(100vw - 32px)); padding: 14px 18px; border-left: 3px solid #ffd98a; animation: mp-in .35s ease-out; }
+.mp-walk { position: absolute; left: 0; right: 0; margin: 0 auto; bottom: 24px; width: min(640px, calc(100vw - 32px)); padding: 14px 18px; border-left: 3px solid #ffd98a; animation: mp-in .35s ease-out; }
 .mp-walk .q { color: var(--muted); margin-bottom: 4px; }
 .mp-walk .a { font-size: 15.5px; margin-bottom: 8px; }
 .mp-walk .esc { color: var(--muted); font-size: 11.5px; float: right; }

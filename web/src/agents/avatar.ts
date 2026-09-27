@@ -39,8 +39,8 @@ export class Avatar {
       new THREE.SphereGeometry(0.32, 24, 16),
       new THREE.MeshBasicMaterial({ color: this.base.clone().lerp(new THREE.Color("#ffffff"), 0.35) }),
     );
-    const shell = new THREE.Mesh(new THREE.SphereGeometry(0.46, 24, 16), additive(color, 0.25));
-    this.halo = makeGlow(color, 2.6, 0.85);
+    const shell = new THREE.Mesh(new THREE.SphereGeometry(0.46, 24, 16), additive(color, 0.16));
+    this.halo = makeGlow(color, 2.6, 0.55);
     this.light = new THREE.PointLight(color, 6, 9, 1.6);
     this.light.position.y = 0.2;
 
