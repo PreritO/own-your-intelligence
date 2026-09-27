@@ -496,7 +496,7 @@
       "id": "room-sales-0",
       "wing": "sales",
       "owner": "sales",
-      "label": "Sales",
+      "label": "Pipeline",
       "center": [
         48,
         0,
@@ -522,7 +522,7 @@
       "id": "room-ops-0",
       "wing": "ops",
       "owner": "ops",
-      "label": "Ops",
+      "label": "Manufacturing",
       "center": [
         0,
         0,
@@ -548,7 +548,7 @@
       "id": "room-support-0",
       "wing": "support",
       "owner": "support",
-      "label": "Support",
+      "label": "Runbooks",
       "center": [
         -48,
         0,
@@ -1421,6 +1421,90 @@
       "path": "legal/voltcell-supply-agreement.md"
     },
     {
+      "id": "ops/castellan-circuits",
+      "title": "Castellan Circuits",
+      "type": "supplier",
+      "room": "room-ops-0",
+      "pos": [
+        -2.91,
+        1.1,
+        50.44
+      ],
+      "freshness": 0.98,
+      "excerpt": "Contract manufacturer that assembles the arm controller board. No quality agreement is on record, and no supply agreement: Acme buys on individual purchase orders only. Castellan builds boards in…",
+      "path": "ops/castellan-circuits.md"
+    },
+    {
+      "id": "ops/gripper-v2-bom",
+      "title": "Gripper v2 BOM",
+      "type": "reference",
+      "room": "room-ops-0",
+      "pos": [
+        -3.8,
+        1.1,
+        48
+      ],
+      "freshness": 0.95,
+      "excerpt": "Gripper v2 bill of materials: $1,040 per gripper at pilot volume, down from $1,200 for Gripper v1. Gripworks pads and actuators are $600 of it. Design and program: Gripper v2. The arm-level BOM is…",
+      "path": "ops/gripper-v2-bom.md"
+    },
+    {
+      "id": "ops/inventory-2026-09",
+      "title": "Inventory, September 2026",
+      "type": "ledger",
+      "room": "room-ops-0",
+      "pos": [
+        -2.91,
+        1.1,
+        45.56
+      ],
+      "freshness": 0.98,
+      "excerpt": "On hand Sep 22: 14 finished arms, 38 controller boards (22 of them lot CB-2607, quarantined), 25 battery packs, 120 Gripper v1 pad sets, 0 Gripper v2 parts. Replacing every CB-2607 board in the field…",
+      "path": "ops/inventory-2026-09.md"
+    },
+    {
+      "id": "ops/manufacturing-capacity",
+      "title": "Manufacturing Capacity",
+      "type": "plan",
+      "room": "room-ops-0",
+      "pos": [
+        2.91,
+        1.1,
+        45.56
+      ],
+      "freshness": 0.92,
+      "excerpt": "Final assembly line: 22 arms per month on one shift, 36 on two shifts. Q4 demand plan is 58 arms. Gripper v2 needs a second bench at 30 grippers per month from January. Capacity assumes the 86%…",
+      "path": "ops/manufacturing-capacity.md"
+    },
+    {
+      "id": "ops/quality-rma-log",
+      "title": "Quality and RMA Log",
+      "type": "log",
+      "room": "room-ops-0",
+      "pos": [
+        3.8,
+        1.1,
+        48
+      ],
+      "freshness": 0.99,
+      "excerpt": "Q3 returns: 17 RMAs. 11 controller boards (9 from Castellan lot CB-2607, all fault E-47), 4 Gripper v1 pad tears inside 90 days, 2 battery packs. Controller RMA rate is 3x Q2. Failure analysis of…",
+      "path": "ops/quality-rma-log.md"
+    },
+    {
+      "id": "ops/supplier-list",
+      "title": "Supplier List",
+      "type": "reference",
+      "room": "room-ops-0",
+      "pos": [
+        2.91,
+        1.1,
+        50.44
+      ],
+      "freshness": 0.91,
+      "excerpt": "Approved production suppliers: Ferro Castings (housings), Voltcell (battery packs), Castellan Circuits (controller boards), Gripworks (Gripper v2 pads and actuators, pending MSA). Owner: Kenji Sato…",
+      "path": "ops/supplier-list.md"
+    },
+    {
       "id": "people/ada-chen",
       "title": "Ada Chen",
       "type": "person",
@@ -1601,6 +1685,300 @@
       "freshness": 0.86,
       "excerpt": "General Counsel. Leads Legal, approves every vendor contract and keeps the approvals log. Tomas reviews contracts against the Contract Playbook and records decisions in the Legal Approvals Log. He…",
       "path": "people/tomas-reyes.md"
+    },
+    {
+      "id": "sales/deal-desk-rules",
+      "title": "Deal Desk Rules",
+      "type": "policy",
+      "room": "room-sales-0",
+      "pos": [
+        50.87,
+        1.1,
+        2.49
+      ],
+      "freshness": 0.78,
+      "excerpt": "Discount and terms approvals: reps up to 10% off list, VP Sales up to 20%, CEO above 20%. Multi-year prepay, custom SLAs and non-standard legal terms need Finance and Legal review. Every discount…",
+      "path": "sales/deal-desk-rules.md"
+    },
+    {
+      "id": "sales/kestrel-foods",
+      "title": "Kestrel Foods",
+      "type": "account",
+      "room": "room-sales-0",
+      "pos": [
+        49.74,
+        1.1,
+        3.38
+      ],
+      "freshness": 0.96,
+      "excerpt": "Biggest customer: frozen-food packer running 42 Acme arms with Gripper v1 across three plants. $1.4M ARR, about 15% of 2026 revenue. Customer since 2024; contract renews Dec 31. AE: Carla Nwosu…",
+      "path": "sales/kestrel-foods.md"
+    },
+    {
+      "id": "sales/kestrel-order-form",
+      "title": "Kestrel Order Form",
+      "type": "contract",
+      "room": "room-sales-0",
+      "pos": [
+        48.36,
+        1.1,
+        3.78
+      ],
+      "freshness": 0.52,
+      "excerpt": "Kestrel Foods customer agreement and 2024 order form. The signed copy is not recorded in the brain; auto-renewal and price-increase terms are unknown. Sales has the unsigned 2024 order form draft…",
+      "path": "sales/kestrel-order-form.md"
+    },
+    {
+      "id": "sales/kestrel-renewal-2026",
+      "title": "Kestrel Renewal 2026",
+      "type": "opportunity",
+      "room": "room-sales-0",
+      "pos": [
+        46.93,
+        1.1,
+        3.65
+      ],
+      "freshness": 0.97,
+      "excerpt": "Renewal of Kestrel Foods' 42-arm software and support contract, $1.4M ARR, due Dec 31. Kestrel asked for a 15% discount and a Gripper v2 upgrade path; they cite the Fresno controller failures. Asks…",
+      "path": "sales/kestrel-renewal-2026.md"
+    },
+    {
+      "id": "sales/northwind-dpa-request",
+      "title": "Northwind DPA Request",
+      "type": "request",
+      "room": "room-sales-0",
+      "pos": [
+        45.65,
+        1.1,
+        2.99
+      ],
+      "freshness": 0.91,
+      "excerpt": "Northwind Logistics requires Acme to sign their data processing addendum before go-live. DPA owner: not recorded. Acme has no customer-facing DPA template of its own. The only DPA in the brain is the…",
+      "path": "sales/northwind-dpa-request.md"
+    },
+    {
+      "id": "sales/northwind-logistics",
+      "title": "Northwind Logistics",
+      "type": "account",
+      "room": "room-sales-0",
+      "pos": [
+        44.71,
+        1.1,
+        -1.9
+      ],
+      "freshness": 0.98,
+      "excerpt": "Prospect: a regional 3PL with four warehouses evaluating 60 arms with Gripper v2 for mixed-case picking. Deal value $1.1M over two years. Stage: security review. AE: Carla Nwosu. Northwind's…",
+      "path": "sales/northwind-logistics.md"
+    },
+    {
+      "id": "sales/pinecrest-pharma",
+      "title": "Pinecrest Pharma",
+      "type": "account",
+      "room": "room-sales-0",
+      "pos": [
+        45.65,
+        1.1,
+        -2.99
+      ],
+      "freshness": 0.87,
+      "excerpt": "Paid pilot: 4 arms picking sealed cartons at a pharmaceutical distribution center. Pilot ends Nov 15; conversion would be 30 arms, $0.6M. AE: Carla Nwosu. Pinecrest requires validated firmware: every…",
+      "path": "sales/pinecrest-pharma.md"
+    },
+    {
+      "id": "sales/pipeline-2026-q4",
+      "title": "Q4 2026 Sales Pipeline",
+      "type": "pipeline",
+      "room": "room-sales-0",
+      "pos": [
+        46.93,
+        1.1,
+        -3.65
+      ],
+      "freshness": 0.98,
+      "excerpt": "Q4 pipeline: $3.4M total, $1.46M weighted. Largest open deal is Northwind Logistics (60 arms, $1.1M) in security review. Kestrel Foods renewal ($1.4M ARR) closes Dec 31. Owner: Owen Achterberg, VP…",
+      "path": "sales/pipeline-2026-q4.md"
+    },
+    {
+      "id": "sales/pricing-sheet",
+      "title": "Pricing Sheet",
+      "type": "reference",
+      "room": "room-sales-0",
+      "pos": [
+        48.36,
+        1.1,
+        -3.78
+      ],
+      "freshness": 0,
+      "excerpt": "List prices for 2026, published in February: arm with Gripper v1 $38,000; annual software and support $4,800 per arm; field install $2,500 per site. Volume tiers start at 20 arms. This sheet predates…",
+      "path": "sales/pricing-sheet.md"
+    },
+    {
+      "id": "sales/security-questionnaire-northwind",
+      "title": "Northwind Security Questionnaire",
+      "type": "request",
+      "room": "room-sales-0",
+      "pos": [
+        49.74,
+        1.1,
+        -3.38
+      ],
+      "freshness": 0.99,
+      "excerpt": "Northwind Logistics sent a 142-question vendor security questionnaire (SIG Lite format) on Sep 19. Due Oct 10. Sales engineer Felix Brandauer is collating answers; each section needs a source page…",
+      "path": "sales/security-questionnaire-northwind.md"
+    },
+    {
+      "id": "sales/win-loss-2026",
+      "title": "Win/Loss Notes 2026",
+      "type": "report",
+      "room": "room-sales-0",
+      "pos": [
+        50.87,
+        1.1,
+        -2.49
+      ],
+      "freshness": 0.84,
+      "excerpt": "2026 year to date: 5 wins, 4 losses. Two losses went to Tessellate Robotics on price; one to Kinemora on security certifications (they hold SOC 2 Type II and ISO 27001). Competitor detail lives in…",
+      "path": "sales/win-loss-2026.md"
+    },
+    {
+      "id": "support/arm-controller-escalation",
+      "title": "Arm Controller Escalation",
+      "type": "escalation",
+      "room": "room-support-0",
+      "pos": [
+        -45.18,
+        1.1,
+        2.54
+      ],
+      "freshness": 0.99,
+      "excerpt": "ESC-212, Sev-2, opened Sep 16: Kestrel Foods reports 7 arms at the Fresno plant stopping with controller fault E-47 (watchdog reset), 2 to 5 times per shift. All 7 run firmware 4.1.3 on controller…",
+      "path": "support/arm-controller-escalation.md"
+    },
+    {
+      "id": "support/customer-health-scorecard",
+      "title": "Customer Health Scorecard",
+      "type": "scorecard",
+      "room": "room-support-0",
+      "pos": [
+        -46.45,
+        1.1,
+        3.47
+      ],
+      "freshness": 0.99,
+      "excerpt": "Monthly customer health for September. Kestrel Foods is red (open Sev-2 escalation, uptime 99.2% in Fresno vs 99.9% Premium target, renewal in Q4). Orbital Parcel green. Pinecrest Pharma yellow…",
+      "path": "support/customer-health-scorecard.md"
+    },
+    {
+      "id": "support/escalation-process",
+      "title": "Escalation Process",
+      "type": "process",
+      "room": "room-support-0",
+      "pos": [
+        -48,
+        1.1,
+        3.8
+      ],
+      "freshness": 0,
+      "excerpt": "Support escalation tiers, written in February: Tier 1 support engineers, Tier 2 field service, Tier 3 engineering on-call. Sev-1 goes straight to Tier 3; Sev-2 escalates after 4 hours without a…",
+      "path": "support/escalation-process.md"
+    },
+    {
+      "id": "support/field-service-coverage",
+      "title": "Field Service Coverage",
+      "type": "reference",
+      "room": "room-support-0",
+      "pos": [
+        -49.55,
+        1.1,
+        3.47
+      ],
+      "freshness": 0.8,
+      "excerpt": "Two field technicians cover the US West Coast directly; everywhere else uses spares shipped overnight plus remote guidance. EU sites get spares in 2 to 3 days. Spare boards and grippers ship from…",
+      "path": "support/field-service-coverage.md"
+    },
+    {
+      "id": "support/runbook-arm-controller-faults",
+      "title": "Arm Controller Fault Runbook",
+      "type": "runbook",
+      "room": "room-support-0",
+      "pos": [
+        -50.82,
+        1.1,
+        2.54
+      ],
+      "freshness": 0.72,
+      "excerpt": "Tier-1 steps for controller faults: read the fault code from telemetry, check firmware version and board lot, power-cycle once, swap the board if the fault repeats within a shift, then open an RMA…",
+      "path": "support/runbook-arm-controller-faults.md"
+    },
+    {
+      "id": "support/runbook-gripper-pads",
+      "title": "Gripper Pad Runbook",
+      "type": "runbook",
+      "room": "room-support-0",
+      "pos": [
+        -50.82,
+        1.1,
+        -2.54
+      ],
+      "freshness": 0.67,
+      "excerpt": "Replacing worn Gripper v1 fingertip pads: inspect weekly, replace at 1.5 mm tread depth or visible tearing, about 10 minutes per gripper. Pads are a consumable billed at $95 per set outside the first…",
+      "path": "support/runbook-gripper-pads.md"
+    },
+    {
+      "id": "support/sla-policy",
+      "title": "SLA Policy",
+      "type": "policy",
+      "room": "room-support-0",
+      "pos": [
+        -49.55,
+        1.1,
+        -3.47
+      ],
+      "freshness": 0.75,
+      "excerpt": "Customer SLA: Standard tier 99.5% monthly dashboard uptime, Sev-1 response in 1 hour, onsite within 3 business days. Premium tier 99.9% uptime, Sev-1 response in 30 minutes, onsite within 48 hours…",
+      "path": "support/sla-policy.md"
+    },
+    {
+      "id": "support/support-team",
+      "title": "Customer Success Team",
+      "type": "team",
+      "room": "room-support-0",
+      "pos": [
+        -48,
+        1.1,
+        -3.8
+      ],
+      "freshness": 0.6,
+      "excerpt": "Customer Success: 7 people led by Hana Osei (Head of Customer Success), reporting to COO Dev Lindqvist. Five support engineers on a follow-the-sun rota with two field technicians. The team is not yet…",
+      "path": "support/support-team.md"
+    },
+    {
+      "id": "support/ticket-themes-2026-q3",
+      "title": "Top Ticket Themes, Q3 2026",
+      "type": "report",
+      "room": "room-support-0",
+      "pos": [
+        -46.45,
+        1.1,
+        -3.47
+      ],
+      "freshness": 0.94,
+      "excerpt": "Q3 support volume: 412 tickets, median first response 38 minutes. Top themes: controller faults 31%, gripper pad wear 18%, dashboard login and SSO 12%, telemetry gaps 9%. The controller-fault spike…",
+      "path": "support/ticket-themes-2026-q3.md"
+    },
+    {
+      "id": "support/warranty-terms",
+      "title": "Warranty Terms",
+      "type": "policy",
+      "room": "room-support-0",
+      "pos": [
+        -45.18,
+        1.1,
+        -2.54
+      ],
+      "freshness": 0.51,
+      "excerpt": "Hardware warranty for the arm: 12 months parts and labor from install, taken from the 2024 order form. No Gripper v2 warranty is recorded. Owner: not recorded. Support applies the 12-month arm…",
+      "path": "support/warranty-terms.md"
     }
   ],
   "links": [
@@ -2465,6 +2843,176 @@
       "kind": "signed_by"
     },
     {
+      "from": "ops/castellan-circuits",
+      "to": "eng/arm-controller",
+      "kind": "assembles"
+    },
+    {
+      "from": "ops/castellan-circuits",
+      "to": "finance/purchase-order-policy",
+      "kind": "bought_under"
+    },
+    {
+      "from": "ops/castellan-circuits",
+      "to": "legal/vendor-onboarding",
+      "kind": "skipped"
+    },
+    {
+      "from": "ops/castellan-circuits",
+      "to": "ops/supplier-list",
+      "kind": "listed_in"
+    },
+    {
+      "from": "ops/gripper-v2-bom",
+      "to": "companies/ferro-castings",
+      "kind": "supplier"
+    },
+    {
+      "from": "ops/gripper-v2-bom",
+      "to": "companies/gripworks",
+      "kind": "supplier"
+    },
+    {
+      "from": "ops/gripper-v2-bom",
+      "to": "eng/gripper-v2",
+      "kind": "design_and_program"
+    },
+    {
+      "from": "ops/gripper-v2-bom",
+      "to": "eng/hardware-bom",
+      "kind": "rolls_up_to"
+    },
+    {
+      "from": "ops/gripper-v2-bom",
+      "to": "finance/gross-margin-plan",
+      "kind": "lever_in"
+    },
+    {
+      "from": "ops/gripper-v2-bom",
+      "to": "legal/gripworks-msa",
+      "kind": "priced_under"
+    },
+    {
+      "from": "ops/inventory-2026-09",
+      "to": "companies/ferro-castings",
+      "kind": "supplier"
+    },
+    {
+      "from": "ops/inventory-2026-09",
+      "to": "companies/voltcell",
+      "kind": "supplier"
+    },
+    {
+      "from": "ops/inventory-2026-09",
+      "to": "legal/gripworks-msa",
+      "kind": "blocked_by"
+    },
+    {
+      "from": "ops/inventory-2026-09",
+      "to": "ops/manufacturing-capacity",
+      "kind": "feeds"
+    },
+    {
+      "from": "ops/inventory-2026-09",
+      "to": "ops/quality-rma-log",
+      "kind": "quarantine"
+    },
+    {
+      "from": "ops/manufacturing-capacity",
+      "to": "eng/manufacturing-yield",
+      "kind": "assumes"
+    },
+    {
+      "from": "ops/manufacturing-capacity",
+      "to": "finance/operating-plan-2026",
+      "kind": "demand_from"
+    },
+    {
+      "from": "ops/manufacturing-capacity",
+      "to": "people/dev-lindqvist",
+      "kind": "owned_by"
+    },
+    {
+      "from": "ops/manufacturing-capacity",
+      "to": "sales/pipeline-2026-q4",
+      "kind": "demand_from"
+    },
+    {
+      "from": "ops/quality-rma-log",
+      "to": "eng/arm-controller",
+      "kind": "part"
+    },
+    {
+      "from": "ops/quality-rma-log",
+      "to": "eng/firmware-release-4-2",
+      "kind": "mitigation"
+    },
+    {
+      "from": "ops/quality-rma-log",
+      "to": "eng/manufacturing-yield",
+      "kind": "affects"
+    },
+    {
+      "from": "ops/quality-rma-log",
+      "to": "ops/castellan-circuits",
+      "kind": "supplier"
+    },
+    {
+      "from": "ops/quality-rma-log",
+      "to": "sales/kestrel-foods",
+      "kind": "customer"
+    },
+    {
+      "from": "ops/quality-rma-log",
+      "to": "support/arm-controller-escalation",
+      "kind": "escalation"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "companies/ferro-castings",
+      "kind": "supplier"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "companies/gripworks",
+      "kind": "supplier"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "companies/voltcell",
+      "kind": "supplier"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "finance/supplier-spend-ledger",
+      "kind": "spend_in"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "legal/ferro-castings-po-terms",
+      "kind": "contract"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "legal/gripworks-msa",
+      "kind": "contract"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "legal/vendor-onboarding",
+      "kind": "onboarding"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "legal/voltcell-supply-agreement",
+      "kind": "contract"
+    },
+    {
+      "from": "ops/supplier-list",
+      "to": "ops/castellan-circuits",
+      "kind": "supplier"
+    },
+    {
       "from": "people/ada-chen",
       "to": "companies/lumen-ventures",
       "kind": "observer_for"
@@ -2698,6 +3246,526 @@
       "from": "people/tomas-reyes",
       "to": "people/signatories",
       "kind": "listed_in"
+    },
+    {
+      "from": "sales/deal-desk-rules",
+      "to": "finance/gross-margin-plan",
+      "kind": "margin_check"
+    },
+    {
+      "from": "sales/deal-desk-rules",
+      "to": "legal/contract-playbook",
+      "kind": "legal_terms"
+    },
+    {
+      "from": "sales/deal-desk-rules",
+      "to": "people/mara-okafor",
+      "kind": "escalates_to"
+    },
+    {
+      "from": "sales/deal-desk-rules",
+      "to": "people/signatories",
+      "kind": "signing"
+    },
+    {
+      "from": "sales/deal-desk-rules",
+      "to": "support/sla-policy",
+      "kind": "sla_check"
+    },
+    {
+      "from": "sales/kestrel-foods",
+      "to": "finance/operating-plan-2026",
+      "kind": "revenue_in"
+    },
+    {
+      "from": "sales/kestrel-foods",
+      "to": "sales/kestrel-order-form",
+      "kind": "contract"
+    },
+    {
+      "from": "sales/kestrel-foods",
+      "to": "sales/kestrel-renewal-2026",
+      "kind": "renewal"
+    },
+    {
+      "from": "sales/kestrel-foods",
+      "to": "support/arm-controller-escalation",
+      "kind": "open_escalation"
+    },
+    {
+      "from": "sales/kestrel-foods",
+      "to": "support/customer-health-scorecard",
+      "kind": "health"
+    },
+    {
+      "from": "sales/kestrel-order-form",
+      "to": "legal/contract-playbook",
+      "kind": "not_covered_by"
+    },
+    {
+      "from": "sales/kestrel-order-form",
+      "to": "legal/privacy-policy",
+      "kind": "data_terms"
+    },
+    {
+      "from": "sales/kestrel-order-form",
+      "to": "sales/kestrel-foods",
+      "kind": "for_account"
+    },
+    {
+      "from": "sales/kestrel-renewal-2026",
+      "to": "eng/gripper-v2",
+      "kind": "asks_for"
+    },
+    {
+      "from": "sales/kestrel-renewal-2026",
+      "to": "finance/runway-forecast",
+      "kind": "impacts"
+    },
+    {
+      "from": "sales/kestrel-renewal-2026",
+      "to": "sales/deal-desk-rules",
+      "kind": "approval"
+    },
+    {
+      "from": "sales/kestrel-renewal-2026",
+      "to": "sales/kestrel-foods",
+      "kind": "for_account"
+    },
+    {
+      "from": "sales/kestrel-renewal-2026",
+      "to": "sales/pricing-sheet",
+      "kind": "priced_from"
+    },
+    {
+      "from": "sales/kestrel-renewal-2026",
+      "to": "support/arm-controller-escalation",
+      "kind": "risk"
+    },
+    {
+      "from": "sales/kestrel-renewal-2026",
+      "to": "support/customer-health-scorecard",
+      "kind": "health"
+    },
+    {
+      "from": "sales/kestrel-renewal-2026",
+      "to": "support/sla-policy",
+      "kind": "credits_under"
+    },
+    {
+      "from": "sales/northwind-dpa-request",
+      "to": "legal/contract-playbook",
+      "kind": "not_covered_by"
+    },
+    {
+      "from": "sales/northwind-dpa-request",
+      "to": "legal/harbor-cloud-dpa",
+      "kind": "compare_with"
+    },
+    {
+      "from": "sales/northwind-dpa-request",
+      "to": "legal/privacy-policy",
+      "kind": "aligns_with"
+    },
+    {
+      "from": "sales/northwind-dpa-request",
+      "to": "sales/northwind-logistics",
+      "kind": "for_account"
+    },
+    {
+      "from": "sales/northwind-logistics",
+      "to": "eng/gripper-v2",
+      "kind": "wants"
+    },
+    {
+      "from": "sales/northwind-logistics",
+      "to": "sales/northwind-dpa-request",
+      "kind": "requires"
+    },
+    {
+      "from": "sales/northwind-logistics",
+      "to": "sales/pricing-sheet",
+      "kind": "priced_from"
+    },
+    {
+      "from": "sales/northwind-logistics",
+      "to": "sales/security-questionnaire-northwind",
+      "kind": "requires"
+    },
+    {
+      "from": "sales/northwind-logistics",
+      "to": "support/sla-policy",
+      "kind": "asks_for"
+    },
+    {
+      "from": "sales/pinecrest-pharma",
+      "to": "eng/firmware-release-4-2",
+      "kind": "pinecrest_requires_validated_firmware"
+    },
+    {
+      "from": "sales/pinecrest-pharma",
+      "to": "legal/export-controls",
+      "kind": "ships_under"
+    },
+    {
+      "from": "sales/pinecrest-pharma",
+      "to": "sales/pipeline-2026-q4",
+      "kind": "in_pipeline"
+    },
+    {
+      "from": "sales/pinecrest-pharma",
+      "to": "support/sla-policy",
+      "kind": "supported_under"
+    },
+    {
+      "from": "sales/pipeline-2026-q4",
+      "to": "finance/burn-report-2026-08",
+      "kind": "reported_with"
+    },
+    {
+      "from": "sales/pipeline-2026-q4",
+      "to": "finance/operating-plan-2026",
+      "kind": "target_from"
+    },
+    {
+      "from": "sales/pipeline-2026-q4",
+      "to": "sales/deal-desk-rules",
+      "kind": "governed_by"
+    },
+    {
+      "from": "sales/pipeline-2026-q4",
+      "to": "sales/kestrel-renewal-2026",
+      "kind": "includes"
+    },
+    {
+      "from": "sales/pipeline-2026-q4",
+      "to": "sales/northwind-logistics",
+      "kind": "includes"
+    },
+    {
+      "from": "sales/pipeline-2026-q4",
+      "to": "sales/pinecrest-pharma",
+      "kind": "includes"
+    },
+    {
+      "from": "sales/pricing-sheet",
+      "to": "eng/gripper-v2",
+      "kind": "predates"
+    },
+    {
+      "from": "sales/pricing-sheet",
+      "to": "finance/gross-margin-plan",
+      "kind": "affects"
+    },
+    {
+      "from": "sales/pricing-sheet",
+      "to": "finance/operating-plan-2026",
+      "kind": "based_on"
+    },
+    {
+      "from": "sales/pricing-sheet",
+      "to": "sales/deal-desk-rules",
+      "kind": "governed_by"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "eng/incident-response",
+      "kind": "evidence"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "eng/security-policy",
+      "kind": "evidence"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "eng/soc2-2025-report",
+      "kind": "evidence"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "eng/soc2-renewal",
+      "kind": "evidence"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "legal/harbor-cloud-dpa",
+      "kind": "evidence"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "legal/privacy-policy",
+      "kind": "evidence"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "sales/northwind-dpa-request",
+      "kind": "blocked_by"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "sales/northwind-logistics",
+      "kind": "for_account"
+    },
+    {
+      "from": "sales/security-questionnaire-northwind",
+      "to": "support/sla-policy",
+      "kind": "evidence"
+    },
+    {
+      "from": "sales/win-loss-2026",
+      "to": "eng/soc2-renewal",
+      "kind": "lost_on"
+    },
+    {
+      "from": "sales/win-loss-2026",
+      "to": "sales/pricing-sheet",
+      "kind": "quoted_from"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "eng/arm-controller",
+      "kind": "affects"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "eng/cloud-infra",
+      "kind": "sep_19"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "eng/firmware-release-4-2",
+      "kind": "sep_25"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "ops/castellan-circuits",
+      "kind": "supplier"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "ops/inventory-2026-09",
+      "kind": "open_questions"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "ops/quality-rma-log",
+      "kind": "sep_23"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "sales/kestrel-foods",
+      "kind": "customer"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "support/runbook-arm-controller-faults",
+      "kind": "sep_16"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "support/sla-policy",
+      "kind": "sla"
+    },
+    {
+      "from": "support/arm-controller-escalation",
+      "to": "support/warranty-terms",
+      "kind": "warranty"
+    },
+    {
+      "from": "support/customer-health-scorecard",
+      "to": "sales/kestrel-foods",
+      "kind": "scores"
+    },
+    {
+      "from": "support/customer-health-scorecard",
+      "to": "sales/kestrel-renewal-2026",
+      "kind": "feeds"
+    },
+    {
+      "from": "support/customer-health-scorecard",
+      "to": "sales/pinecrest-pharma",
+      "kind": "scores"
+    },
+    {
+      "from": "support/customer-health-scorecard",
+      "to": "support/arm-controller-escalation",
+      "kind": "driver"
+    },
+    {
+      "from": "support/customer-health-scorecard",
+      "to": "support/sla-policy",
+      "kind": "measured_against"
+    },
+    {
+      "from": "support/escalation-process",
+      "to": "eng/incident-response",
+      "kind": "follows"
+    },
+    {
+      "from": "support/escalation-process",
+      "to": "eng/oncall-rotation",
+      "kind": "pages"
+    },
+    {
+      "from": "support/escalation-process",
+      "to": "support/field-service-coverage",
+      "kind": "dispatches"
+    },
+    {
+      "from": "support/field-service-coverage",
+      "to": "companies/axis-logistics",
+      "kind": "ships_via"
+    },
+    {
+      "from": "support/field-service-coverage",
+      "to": "legal/export-controls",
+      "kind": "governed_by"
+    },
+    {
+      "from": "support/field-service-coverage",
+      "to": "ops/inventory-2026-09",
+      "kind": "stock_from"
+    },
+    {
+      "from": "support/field-service-coverage",
+      "to": "support/sla-policy",
+      "kind": "constrains"
+    },
+    {
+      "from": "support/runbook-arm-controller-faults",
+      "to": "eng/arm-controller",
+      "kind": "system"
+    },
+    {
+      "from": "support/runbook-arm-controller-faults",
+      "to": "eng/cloud-infra",
+      "kind": "telemetry"
+    },
+    {
+      "from": "support/runbook-arm-controller-faults",
+      "to": "eng/firmware-release-4-2",
+      "kind": "firmware"
+    },
+    {
+      "from": "support/runbook-arm-controller-faults",
+      "to": "ops/quality-rma-log",
+      "kind": "rma"
+    },
+    {
+      "from": "support/runbook-arm-controller-faults",
+      "to": "support/escalation-process",
+      "kind": "escalate_via"
+    },
+    {
+      "from": "support/runbook-gripper-pads",
+      "to": "companies/gripworks",
+      "kind": "supplier"
+    },
+    {
+      "from": "support/runbook-gripper-pads",
+      "to": "eng/gripper-v2",
+      "kind": "successor"
+    },
+    {
+      "from": "support/runbook-gripper-pads",
+      "to": "ops/inventory-2026-09",
+      "kind": "spares"
+    },
+    {
+      "from": "support/runbook-gripper-pads",
+      "to": "ops/quality-rma-log",
+      "kind": "defects"
+    },
+    {
+      "from": "support/sla-policy",
+      "to": "eng/cloud-infra",
+      "kind": "measures"
+    },
+    {
+      "from": "support/sla-policy",
+      "to": "eng/incident-response",
+      "kind": "paging"
+    },
+    {
+      "from": "support/sla-policy",
+      "to": "eng/oncall-rotation",
+      "kind": "paging"
+    },
+    {
+      "from": "support/sla-policy",
+      "to": "support/warranty-terms",
+      "kind": "hardware_terms"
+    },
+    {
+      "from": "support/support-team",
+      "to": "people/dev-lindqvist",
+      "kind": "reports_to"
+    },
+    {
+      "from": "support/support-team",
+      "to": "people/org-chart",
+      "kind": "missing_from"
+    },
+    {
+      "from": "support/support-team",
+      "to": "sales/deal-desk-rules",
+      "kind": "approves_in"
+    },
+    {
+      "from": "support/support-team",
+      "to": "support/sla-policy",
+      "kind": "owns"
+    },
+    {
+      "from": "support/ticket-themes-2026-q3",
+      "to": "eng/arm-controller",
+      "kind": "theme"
+    },
+    {
+      "from": "support/ticket-themes-2026-q3",
+      "to": "eng/cloud-infra",
+      "kind": "theme"
+    },
+    {
+      "from": "support/ticket-themes-2026-q3",
+      "to": "eng/gripper-v2",
+      "kind": "fix"
+    },
+    {
+      "from": "support/ticket-themes-2026-q3",
+      "to": "sales/kestrel-foods",
+      "kind": "concentrated_at"
+    },
+    {
+      "from": "support/ticket-themes-2026-q3",
+      "to": "support/arm-controller-escalation",
+      "kind": "escalated_in"
+    },
+    {
+      "from": "support/ticket-themes-2026-q3",
+      "to": "support/runbook-gripper-pads",
+      "kind": "theme"
+    },
+    {
+      "from": "support/warranty-terms",
+      "to": "eng/gripper-v2",
+      "kind": "missing_for"
+    },
+    {
+      "from": "support/warranty-terms",
+      "to": "legal/contract-playbook",
+      "kind": "not_covered_by"
+    },
+    {
+      "from": "support/warranty-terms",
+      "to": "legal/gripworks-msa",
+      "kind": "supplier_terms"
+    },
+    {
+      "from": "support/warranty-terms",
+      "to": "support/sla-policy",
+      "kind": "referenced_by"
     }
   ],
   "agents": [
@@ -2789,19 +3857,6 @@
         "finance/burn-report-2026-08",
         "finance/runway-forecast",
         "finance/venture-debt-facility"
-      ]
-    },
-    {
-      "id": "quest-onboarding-page-new-engineer",
-      "label": "Create an onboarding page for new engineers",
-      "stations": [
-        "people/org-chart",
-        "people/priya-nand",
-        "people/onboarding-guide",
-        "people/employee-handbook",
-        "legal/ip-assignment",
-        "eng/security-policy",
-        "eng/oncall-rotation"
       ]
     },
     {
