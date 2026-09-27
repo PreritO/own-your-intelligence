@@ -38,9 +38,13 @@ def _content(result) -> str:
         return str(body)
 
 
-def eval_river(rows: list[dict], call) -> dict:
+# SFT prompts were rendered with thinking disabled; serve the same way (and keep replies short).
+GEN = {"max_tokens": 1024, "temperature": 0.0, "chat_template_kwargs": {"enable_thinking": False}}
+
+
+def eval_river(rows: list[dict], call, show: int = 0, label: str = "") -> dict:
     agg = {"reward": 0.0, "max_reward": 0.0, "correct": 0, "compliant": 0, "tool_calls": 0, "latency": 0.0}
-    for row in rows:
+    for i, row in enumerate(rows):
         t0 = time.time()
         try:
             text = call(row["messages"][:2])
@@ -48,6 +52,8 @@ def eval_river(rows: list[dict], call) -> dict:
             text = f"error: {e}"
         agg["latency"] += time.time() - t0
         s = score_plan(row, parse_plan(text))
+        if i < show:
+            print(f"--- {label} #{i} task: {row['task']}\n{text[:700]}\n=> reward {s['reward']} skipped={s['skipped']} invented={s['invented']} unowned={s['unowned_reads']}")
         for k in ("reward", "max_reward", "tool_calls"):
             agg[k] += s[k]
         agg["correct"] += s["correct"]
@@ -61,6 +67,9 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true", help="scripted policies only (no River calls)")
     ap.add_argument("--limit", type=int, default=30, help="held-out tasks per team for River models")
     ap.add_argument("--samples", type=int, default=4, help="samples per task for scripted policies")
+    ap.add_argument("--team", choices=TEAMS, help="River models: only this team")
+    ap.add_argument("--show", type=int, default=0, help="print the first N raw model replies per policy")
+    ap.add_argument("--skip-base", action="store_true", help="River models: checkpoints only")
     a = ap.parse_args()
 
     board: dict[str, dict[str, dict]] = {t: {} for t in TEAMS}
@@ -83,14 +92,15 @@ def main() -> None:
             base = pick_base_model(client)
             ckpts = load_checkpoints()
             print(f"River base model: {base}; checkpoints: {sorted(ckpts)}")
-            for team in TEAMS:
+            for team in [a.team] if a.team else TEAMS:
                 rows = heldout(team)[: a.limit]
-                board[team][f"base:{base.split('/')[-1]}"] = {**eval_river(rows, lambda m: _content(client.chat_complete(m, base_model=base, max_tokens=1024, temperature=0.0))), "kind": "base"}
+                if not a.skip_base:
+                    board[team][f"base:{base.split('/')[-1]}"] = {**eval_river(rows, lambda m: _content(client.chat_complete(m, base_model=base, **GEN)), a.show, "base"), "kind": "base"}
                 for key, info in ckpts.items():
                     if info.get("team") != team or not info.get("inference_path"):
                         continue
                     path = info["inference_path"]
-                    board[team][key] = {**eval_river(rows, lambda m, path=path: _content(client.chat_complete_from_checkpoint(m, checkpoint_path=path, base_model=info.get("base_model", base), max_tokens=1024, temperature=0.0))), "kind": "checkpoint"}
+                    board[team][key] = {**eval_river(rows, lambda m, path=path, info=info: _content(client.chat_complete_from_checkpoint(m, checkpoint_path=path, base_model=info.get("base_model", base), **GEN)), a.show, key), "kind": "checkpoint"}
             # Frontier planner column: not wired (no frontier key in this workspace); see NOTES-training.md.
 
     print(f"\nGym scoreboard ({mode}) · held-out tasks per team · reward = docs/SPEC.md Gym rules\n")

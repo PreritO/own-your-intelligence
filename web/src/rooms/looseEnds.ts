@@ -25,7 +25,7 @@ const RESOLVED_MS = 6000;
 export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
   const g = buildShell(rt, pl, "Loose Ends", "#f7768e");
   const board = makeBoard(10, 5.6, 2048);
-  mountOnFarWall(pl, board.mesh, 3.2);
+  mountOnFarWall(pl, board.mesh, 5.6);
   g.add(board.mesh);
   signAbove(g, board.mesh, 5.6);
 
@@ -94,13 +94,13 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
         const x = 56 + i * (colW + 32);
         const color = teamColor(rt.palace, team);
         ctx.fillStyle = color;
-        ctx.font = "700 44px ui-sans-serif, system-ui, sans-serif";
-        ctx.fillText(TEAM_LABEL[team] ?? team, x, 190);
-        ctx.fillRect(x, 246, colW, 5);
+        ctx.font = "800 60px ui-sans-serif, system-ui, sans-serif";
+        ctx.fillText(TEAM_LABEL[team] ?? team, x, 180);
+        ctx.fillRect(x, 252, colW, 8);
         const list = [...cards.values()].filter((c) => c.team === team).sort((a, b) => a.t - b.t);
-        let y = 276;
+        let y = 284;
         for (const c of list) {
-          const h = 230;
+          const h = 300;
           if (y + h > H - 30) break;
           const age = now - c.born;
           const glow = age < GLOW_MS ? 1 - age / GLOW_MS : 0;
@@ -113,32 +113,33 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
           ctx.fill();
           ctx.restore();
           ctx.strokeStyle = vc;
-          ctx.lineWidth = 3 + 5 * glow;
+          ctx.lineWidth = 5 + 6 * glow;
           roundRect(ctx, x, y, colW, h, 22);
           ctx.stroke();
-          // badge
+          // team colour accent bar
+          ctx.fillStyle = color;
+          roundRect(ctx, x + 10, y + 16, 12, h - 32, 6);
+          ctx.fill();
+          // big verdict badge
           ctx.fillStyle = vc;
-          roundRect(ctx, x + 22, y + 22, 150, 50, 12);
+          roundRect(ctx, x + 40, y + 24, 210, 68, 14);
           ctx.fill();
           ctx.fillStyle = "#11131a";
-          ctx.font = "800 32px ui-sans-serif, system-ui, sans-serif";
-          ctx.fillText(c.resolvedAt ? "CLOSED" : c.verdict.toUpperCase(), x + 38, y + 30);
-          ctx.fillStyle = "#e6e8ef";
-          ctx.font = "700 36px ui-sans-serif, system-ui, sans-serif";
-          ctx.fillText(wrapText(ctx, c.title, colW - 210, 1)[0] ?? "", x + 190, y + 30);
-          ctx.font = "500 34px ui-sans-serif, system-ui, sans-serif";
-          ctx.fillStyle = "#cfd3e0";
-          const lines = wrapText(ctx, `${TEAM_LABEL[c.team] ?? c.team}: ${c.note}`, colW - 44, 2);
-          lines.forEach((l, k) => ctx.fillText(l, x + 22, y + 94 + k * 42));
-          ctx.font = "400 24px ui-monospace, SFMono-Regular, monospace";
-          ctx.fillStyle = "#8a90a6";
-          ctx.fillText(wrapText(ctx, `${c.memoryId} · found by ${c.agent} @ ${c.t.toFixed(1)}s`, colW - 44, 1)[0] ?? "", x + 22, y + h - 44);
-          y += h + 22;
+          ctx.font = "900 46px ui-sans-serif, system-ui, sans-serif";
+          ctx.fillText(c.resolvedAt ? "CLOSED" : c.verdict.toUpperCase(), x + 58, y + 34);
+          ctx.fillStyle = "#f2f3f7";
+          ctx.font = "800 52px ui-sans-serif, system-ui, sans-serif";
+          ctx.fillText(wrapText(ctx, c.title, colW - 70, 1)[0] ?? "", x + 40, y + 112);
+          ctx.font = "600 42px ui-sans-serif, system-ui, sans-serif";
+          ctx.fillStyle = "#d5d9e4";
+          const lines = wrapText(ctx, `${TEAM_LABEL[c.team] ?? c.team}: ${c.note}`, colW - 70, 2);
+          lines.forEach((l, k) => ctx.fillText(l, x + 40, y + 180 + k * 50));
+          y += h + 24;
         }
         if (!list.length) {
-          ctx.font = "italic 400 30px ui-sans-serif, system-ui, sans-serif";
+          ctx.font = "italic 500 40px ui-sans-serif, system-ui, sans-serif";
           ctx.fillStyle = "#5c6278";
-          ctx.fillText("nothing open", x, 290);
+          ctx.fillText("nothing open", x, 300);
         }
       });
     });
@@ -163,7 +164,7 @@ export function mountLooseEnds(rt: PalaceRuntime, pl: Placement) {
     group: g,
     cards,
     onCount(cb: (n: number) => void) { listeners.add(cb); cb([...cards.values()].filter((c) => !c.resolvedAt).length); },
-    pose: () => framePose(pl, board.mesh, 9, 0.8),
+    pose: () => framePose(pl, board.mesh, 9.5),
     dispose() { off(); offFrame(); rt.scene.remove(g); },
   };
 }

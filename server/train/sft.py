@@ -104,7 +104,7 @@ def train_team(client, base: str, team: str, steps: int, batch: int, lr: float, 
     rs = []
     for r in rows:
         try:
-            text = _content(client.chat_complete_from_checkpoint(r["messages"][:2], checkpoint_path=inf.path, base_model=base, max_tokens=1024, temperature=0.0))
+            text = _content(client.chat_complete_from_checkpoint(r["messages"][:2], checkpoint_path=inf.path, base_model=base, max_tokens=1024, temperature=0.0, chat_template_kwargs={"enable_thinking": False}))
         except Exception as e:
             text = f"error: {e}"
         rs.append(score_plan(r, parse_plan(text))["reward"])

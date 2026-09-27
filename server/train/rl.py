@@ -81,7 +81,7 @@ def dry_run(team: str, steps: int, groups_per_step: int, group_size: int, lr: fl
 
 
 # ------------------------------------------------------------------ real River job
-def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float, use_protocol: bool = False, from_base: bool = False) -> None:
+def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float, use_protocol: bool = False, from_base: bool = False, thinking: bool = False) -> None:
     import river_client as river  # type: ignore
     from river_client import rl  # type: ignore
     from river_client.renderers import get_renderer  # type: ignore
@@ -102,7 +102,8 @@ def real(team: str, steps: int, groups_per_step: int, group_size: int, lr: float
         print(json.dumps({"batch": step.n, "model_step": step.model_step, **m}), flush=True)
         log.log(team, step.n, float(m.get("reward/mean", 0.0)))
 
-    renderer = get_renderer(base)
+    # Thinking off by default: matches the SFT prompt rendering and keeps multi-turn rollouts short.
+    renderer = get_renderer(base, thinking=thinking)
     # River docs (rl-checkpoints): after a transient failure, recreate the session and trainer with the
     # same checkpoint directory and it resumes. Retry a few times on RiverError.
     for attempt in range(1, 5):
@@ -167,13 +168,14 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--protocol", action="store_true", help="real mode: route tool calls through the protocol service (:8790)")
     ap.add_argument("--from-base", action="store_true", help="real mode: ignore the SFT checkpoint and start from base weights")
+    ap.add_argument("--thinking", action="store_true", help="real mode: enable the model's thinking mode in rollouts")
     a = ap.parse_args()
     if a.dry_run or not river_key():
         if not a.dry_run:
             print("RIVER_API_KEY not set: running --dry-run.")
         dry_run(a.team, a.steps or 30, a.groups_per_step, a.group_size, a.lr or 0.6, a.pace, a.seed)
     else:
-        real(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 1e-5, a.protocol, a.from_base)
+        real(a.team, a.steps or 20, a.groups_per_step, a.group_size, a.lr or 1e-5, a.protocol, a.from_base, a.thinking)
 
 
 if __name__ == "__main__":

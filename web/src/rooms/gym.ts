@@ -18,7 +18,7 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
 
   // ---------- scoreboard ----------
   const board = makeBoard(9, 5, 2048);
-  mountOnFarWall(pl, board.mesh, 3.4, 0.36);
+  mountOnFarWall(pl, board.mesh, 5, 0.36);
   g.add(board.mesh);
   signAbove(g, board.mesh, 5);
 
@@ -220,7 +220,7 @@ export function mountGym(rt: PalaceRuntime, pl: Placement) {
     group: g,
     pose: () => {
       // Higher and further back than the other boards so the lanes and racks are in frame.
-      const { eye, target } = framePose(pl, board.mesh, 15, 5.5);
+      const { eye, target } = framePose(pl, board.mesh, 16);
       target.lerp(pl.center.clone().setY(1), 0.45);
       return { eye, target };
     },

@@ -41,9 +41,10 @@ export function buildShell(rt: PalaceRuntime, pl: Placement, label: string, colo
   g.name = `special-room:${pl.id}`;
   g.position.copy(pl.center);
   const [w, d] = pl.size;
+  // Unlit, calm materials: no PointLights, readable from the high overview camera.
   const floor = new THREE.Mesh(
     new THREE.BoxGeometry(w, 0.1, d),
-    new THREE.MeshStandardMaterial({ color, transparent: true, opacity: 0.22, roughness: 0.9 }),
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.07 }),
   );
   g.add(floor);
   const edge = new THREE.LineSegments(
@@ -59,12 +60,9 @@ export function buildShell(rt: PalaceRuntime, pl: Placement, label: string, colo
   const wallZ = new THREE.Mesh(new THREE.BoxGeometry(w, 1.2, 0.3), wallMat);
   wallZ.position.set(0, 0.6, (sz * d) / 2);
   g.add(wallX, wallZ);
-  const light = new THREE.PointLight(color, 18, 22, 1.6);
-  light.position.set(0, 6, 0);
-  g.add(light);
   const sign = textSprite(label, color, 64);
   sign.position.set(0, 7.5, 0);
-  sign.scale.multiplyScalar(1.4);
+  sign.scale.multiplyScalar(1.6);
   sign.name = "room-sign";
   g.add(sign);
   rt.scene.add(g);
@@ -81,7 +79,7 @@ export function textSprite(text: string, color = "#ffffff", px = 48): THREE.Spri
   ctx.fillStyle = color;
   ctx.textBaseline = "middle";
   ctx.shadowColor = color;
-  ctx.shadowBlur = px / 4;
+  ctx.shadowBlur = px / 10;
   ctx.fillText(text, px / 2, c.height / 2);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -103,7 +101,7 @@ export function makeBoard(width: number, height: number, px = 1024): Board {
   tex.anisotropy = 4;
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(width, height),
-    new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, toneMapped: false }),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, color: "#d9d9d9" }),
   );
   return {
     mesh, canvas, ctx,
@@ -112,25 +110,33 @@ export function makeBoard(width: number, height: number, px = 1024): Board {
 }
 
 /** Orient a board inside a room so it stands on the far wall and faces the foyer. */
-export function mountOnFarWall(pl: Placement, obj: THREE.Object3D, y: number, depth = 0.3) {
+/** Boards lean back like a lectern so they read from the high "dollhouse" overview and up close. */
+export const BOARD_TILT = 0.95; // radians back from vertical
+
+export function mountOnFarWall(pl: Placement, obj: THREE.Object3D, height: number, depth = 0.3) {
   const sx = Math.sign(pl.center.x) || 1, sz = Math.sign(pl.center.z) || 1;
-  // Stand across the far-corner diagonal, facing the palace origin (plane normal is +z).
+  // Across the far-corner diagonal, facing the palace origin (plane normal is +z), tilted to face up.
+  const y = (height / 2) * Math.cos(BOARD_TILT) + 0.4;
   obj.position.set(sx * pl.size[0] * depth, y, sz * pl.size[1] * depth);
   const wx = pl.center.x + obj.position.x, wz = pl.center.z + obj.position.z;
-  obj.rotation.set(0, Math.atan2(-wx, -wz), 0);
+  obj.rotation.set(-BOARD_TILT, Math.atan2(-wx, -wz), 0, "YXZ");
 }
 
 /** Hang the room's sign just above a board mounted with mountOnFarWall. */
 export function signAbove(g: THREE.Group, board: THREE.Object3D, height: number) {
   const sign = g.getObjectByName("room-sign");
-  if (sign) sign.position.set(board.position.x, board.position.y + height / 2 + 1.1, board.position.z);
+  if (!sign) return;
+  // Above the board's far (top) edge.
+  const up = new THREE.Vector3(0, height / 2, 0).applyEuler(board.rotation);
+  sign.position.copy(board.position).add(up).add(new THREE.Vector3(0, 1.4, 0));
 }
 
 /** Camera pose that frames an object mounted with mountOnFarWall, from the foyer side. */
-export function framePose(pl: Placement, obj: THREE.Object3D, distance: number, lift = 1.5) {
+export function framePose(pl: Placement, obj: THREE.Object3D, distance: number) {
+  // Look straight down the tilted board's normal.
   const target = pl.center.clone().add(obj.position);
-  const toOrigin = new THREE.Vector3(-target.x, 0, -target.z).normalize();
-  const eye = target.clone().addScaledVector(toOrigin, distance).add(new THREE.Vector3(0, lift, 0));
+  const normal = new THREE.Vector3(0, 0, 1).applyEuler(obj.rotation);
+  const eye = target.clone().addScaledVector(normal, distance);
   return { eye, target };
 }
 

@@ -15,7 +15,7 @@ const TOOL_EVENTS = new Set(["claim", "visit", "handoff", "reply", "answer", "wa
 export function mountWorkshop(rt: PalaceRuntime, pl: Placement) {
   const g = buildShell(rt, pl, "Workshop", "#7dcfff");
   const board = makeBoard(10, 5.6, 2048);
-  mountOnFarWall(pl, board.mesh, 3.2);
+  mountOnFarWall(pl, board.mesh, 5.6);
   g.add(board.mesh);
   signAbove(g, board.mesh, 5.6);
 
@@ -36,14 +36,14 @@ export function mountWorkshop(rt: PalaceRuntime, pl: Placement) {
       if (pts.length < 2) continue;
       const curve = new THREE.CurvePath<THREE.Vector3>();
       for (let i = 0; i < pts.length - 1; i++) curve.add(new THREE.LineCurve3(pts[i], pts[i + 1]));
-      const width = 0.18 + 0.7 * (r.uses / maxUses);
+      const width = 0.12 + 0.5 * (r.uses / maxUses);
       const color = teamColor(rt.palace, routeTeam(r));
       const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.55, depthWrite: false, toneMapped: false, side: THREE.DoubleSide });
       const mesh = new THREE.Mesh(ribbon(pts, width), mat);
       mesh.renderOrder = 2;
-      const dot = new THREE.Mesh(new THREE.SphereGeometry(width * 0.6, 12, 8), new THREE.MeshBasicMaterial({ color, toneMapped: false }));
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), new THREE.MeshBasicMaterial({ color, toneMapped: false }));
       pathGroup.add(mesh, dot);
-      paths.set(r.routeId, { mesh, mat, dot, curve, base: 0.35 + 0.35 * (r.uses / maxUses), pulse: 0 });
+      paths.set(r.routeId, { mesh, mat, dot, curve, base: 0.2 + 0.25 * (r.uses / maxUses), pulse: 0 });
     }
   }
 
@@ -60,7 +60,7 @@ export function mountWorkshop(rt: PalaceRuntime, pl: Placement) {
     clock += dt;
     for (const p of paths.values()) {
       p.pulse = Math.max(0, p.pulse - dt / 4);
-      p.mat.opacity = Math.min(1, p.base + 0.15 * Math.sin(clock * 2) + 0.6 * p.pulse);
+      p.mat.opacity = Math.min(1, p.base + 0.05 * Math.sin(clock * 2) + 0.5 * p.pulse);
       const u = (clock * 0.12) % 1;
       p.dot.position.copy(p.curve.getPointAt(u)).setY(0.25);
     }
@@ -232,7 +232,7 @@ export function mountWorkshop(rt: PalaceRuntime, pl: Placement) {
 
   return {
     group: g,
-    pose: () => framePose(pl, board.mesh, 9, 0.8),
+    pose: () => framePose(pl, board.mesh, 9.5),
     availableReplays,
     dispose() { offFrame(); offEvents(); rt.scene.remove(g); rt.scene.remove(pathGroup); },
   };

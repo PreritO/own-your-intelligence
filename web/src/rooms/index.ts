@@ -21,31 +21,39 @@ export const mountRooms: Plugin = (rt) => {
   const go = (id: SpecialRoomId) => { const p = poses[id](); flyTo(rt, p.eye, p.target); };
 
   // ---------- HUD: small room switcher, bottom-right ----------
-  const hud = document.createElement("div");
+  // ONE compact collapsible panel (bottom-right); collapsed it's a single chip with the open count.
+  const hud = document.createElement("details");
   hud.className = "mp-rooms";
   hud.innerHTML = `<style>
-    .mp-rooms{position:absolute;right:16px;bottom:16px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;font:600 12px/1 ui-sans-serif,system-ui,sans-serif}
-    .mp-rooms button{all:unset;cursor:pointer;padding:7px 11px;border-radius:999px;background:rgba(20,23,32,.82);color:#d7dae0;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(6px)}
-    .mp-rooms button:hover{border-color:rgba(255,255,255,.35)}
-    .mp-rooms .le{border-color:rgba(247,118,142,.6)}
-    .mp-rooms .le.pulse{animation:mpPulse 1.2s ease-out 3}
-    .mp-rooms .row{display:flex;gap:6px}
-    .mp-rooms .hint{color:#7b8199;font-weight:400}
-    @keyframes mpPulse{0%{box-shadow:0 0 0 0 rgba(247,118,142,.8)}100%{box-shadow:0 0 0 12px rgba(247,118,142,0)}}
+    .mp-rooms{position:absolute;right:16px;bottom:16px;max-width:220px;font:600 12px/1.2 ui-sans-serif,system-ui,sans-serif;color:#d7dae0;background:rgba(20,23,32,.86);border:1px solid rgba(255,255,255,.12);border-radius:12px;backdrop-filter:blur(6px)}
+    .mp-rooms summary{list-style:none;cursor:pointer;padding:8px 12px;display:flex;gap:8px;align-items:center}
+    .mp-rooms summary::-webkit-details-marker{display:none}
+    .mp-rooms summary .n{background:#f7768e;color:#11131a;border-radius:999px;padding:1px 7px;font-weight:800}
+    .mp-rooms summary .n.zero{background:#3a3f52;color:#9aa0b4}
+    .mp-rooms.pulse summary .n{animation:mpPulse 1.2s ease-out 3}
+    .mp-rooms .body{display:grid;gap:4px;padding:0 8px 8px}
+    .mp-rooms button{all:unset;cursor:pointer;padding:6px 8px;border-radius:8px}
+    .mp-rooms button:hover{background:rgba(255,255,255,.08)}
+    .mp-rooms .row{display:flex;gap:4px}
+    .mp-rooms .hint{color:#7b8199;font-weight:400;padding:2px 8px}
+    @keyframes mpPulse{0%{box-shadow:0 0 0 0 rgba(247,118,142,.8)}100%{box-shadow:0 0 0 10px rgba(247,118,142,0)}}
   </style>
-  <div class="row replays" hidden></div>
-  <button class="le" data-room="loose-ends">Loose Ends <b class="n">0</b></button>
-  <button data-room="workshop">Workshop</button>
-  <button data-room="gym">The Gym</button>
-  <span class="hint">Esc returns</span>`;
+  <summary>Rooms <span class="n zero">0</span><span class="hint" style="padding:0">loose ends</span></summary>
+  <div class="body">
+    <button data-room="loose-ends">Loose Ends board</button>
+    <button data-room="workshop">Workshop · learned routes</button>
+    <button data-room="gym">The Gym · training</button>
+    <div class="row replays" hidden></div>
+    <span class="hint">Esc returns to your view</span>
+  </div>`;
   rt.hud.appendChild(hud);
   hud.querySelectorAll<HTMLButtonElement>("button[data-room]").forEach((b) => b.addEventListener("click", () => go(b.dataset.room as SpecialRoomId)));
-  const le = hud.querySelector<HTMLButtonElement>(".le")!;
-  const n = le.querySelector(".n")!;
+  const n = hud.querySelector<HTMLSpanElement>("summary .n")!;
   let lastCount = 0;
   looseEnds.onCount((count) => {
     n.textContent = String(count);
-    if (count > lastCount) { le.classList.remove("pulse"); void le.offsetWidth; le.classList.add("pulse"); }
+    n.classList.toggle("zero", count === 0);
+    if (count > lastCount) { hud.classList.remove("pulse"); void hud.offsetWidth; hud.classList.add("pulse"); }
     lastCount = count;
   });
 
@@ -56,7 +64,7 @@ export const mountRooms: Plugin = (rt) => {
     row.hidden = false;
     names.forEach((name, i) => {
       const b = document.createElement("button");
-      b.textContent = `▶ run ${i + 1}`;
+      b.textContent = `▶ replay run ${i + 1}`;
       b.title = `replay ${name}`;
       b.addEventListener("click", () => { rt.events.restart(name); go("workshop"); });
       row.appendChild(b);
